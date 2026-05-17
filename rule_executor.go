@@ -81,6 +81,8 @@ func normalizeFormula(formula string) string {
 
 func gruleLiteral(v interface{}) (string, error) {
 	switch x := v.(type) {
+	case nil:
+		return "nil", nil
 	case string:
 		b, err := json.Marshal(x)
 		if err != nil {
@@ -100,26 +102,117 @@ func gruleLiteral(v interface{}) (string, error) {
 		return fmt.Sprintf("%d", x), nil
 	case int64:
 		return fmt.Sprintf("%d", x), nil
+	case []interface{}, map[string]interface{}:
+		b, err := json.Marshal(x)
+		if err != nil {
+			return "", err
+		}
+		return string(b), nil
 	default:
+		b, err := json.Marshal(x)
+		if err == nil {
+			return string(b), nil
+		}
 		return fmt.Sprintf("%v", x), nil
 	}
 }
 
+func buildConditionExpression(node interface{}) (string, error) {
+	switch n := node.(type) {
+	case nil:
+		return "", nil
+	case []interface{}:
+		parts := make([]string, 0, len(n))
+		for _, child := range n {
+			expr, err := buildConditionExpression(child)
+			if err != nil {
+				return "", err
+			}
+			if strings.TrimSpace(expr) != "" {
+				parts = append(parts, expr)
+			}
+		}
+
+		if len(parts) == 0 {
+			return "", nil
+		}
+		if len(parts) == 1 {
+			return parts[0], nil
+		}
+
+		return "(" + strings.Join(parts, " && ") + ")", nil
+	case map[string]interface{}:
+		if rawRules, ok := n["rules"]; ok {
+			children, ok := rawRules.([]interface{})
+			if !ok {
+				return "", fmt.Errorf("rules must be an array")
+			}
+
+			groupType := strings.ToUpper(strings.TrimSpace(fmt.Sprintf("%v", n["type"])))
+			if groupType != "OR" {
+				groupType = "AND"
+			}
+
+			separator := " && "
+			if groupType == "OR" {
+				separator = " || "
+			}
+
+			parts := make([]string, 0, len(children))
+			for _, child := range children {
+				expr, err := buildConditionExpression(child)
+				if err != nil {
+					return "", err
+				}
+				if strings.TrimSpace(expr) != "" {
+					parts = append(parts, expr)
+				}
+			}
+
+			if len(parts) == 0 {
+				return "", nil
+			}
+			if len(parts) == 1 {
+				return parts[0], nil
+			}
+
+			return "(" + strings.Join(parts, separator) + ")", nil
+		}
+
+		fieldRaw, hasField := n["field"]
+		operatorRaw, hasOperator := n["operator"]
+		if !hasField || !hasOperator {
+			return "", fmt.Errorf("leaf condition must contain field and operator")
+		}
+
+		field := normalizeField(strings.TrimSpace(fmt.Sprintf("%v", fieldRaw)))
+		if field == "" {
+			return "", fmt.Errorf("leaf condition field is empty")
+		}
+
+		operator := operatorMap(strings.ToUpper(strings.TrimSpace(fmt.Sprintf("%v", operatorRaw))))
+		value, err := gruleLiteral(n["value"])
+		if err != nil {
+			return "", err
+		}
+
+		return fmt.Sprintf("%s %s %s", field, operator, value), nil
+	default:
+		return "", fmt.Errorf("unsupported condition node type %T", node)
+	}
+}
 
 func buildMultiGRL(rules []Rule) (string, error) {
 	var sb strings.Builder
 
 	for i, rule := range rules {
-		if len(rule.Conditions) == 0 {
-			continue
-		}
-		cond := rule.Conditions[0]
-
-		field := normalizeField(cond.Field)
-		op := operatorMap(cond.Operator)
-		val, err := gruleLiteral(cond.Value)
+		conditionExpr, err := buildConditionExpression(rule.Conditions)
 		if err != nil {
-			return "", err
+			return "", fmt.Errorf("rule %d invalid conditions: %w", i, err)
+		}
+
+		if strings.TrimSpace(conditionExpr) == "" {
+			continue
 		}
 
 		ruleName := fmt.Sprintf("Rule_%d", i)
@@ -137,12 +230,12 @@ func buildMultiGRL(rules []Rule) (string, error) {
 		sb.WriteString(fmt.Sprintf(`
 rule %s "payroll" {
 	when
-		%s %s %s
+		%s
 	then
 		out.AddComponent(%s, %s, %d);
 		Retract("%s");
 }
-`, ruleName, field, op, val, codeLit, formula, i, ruleName))
+`, ruleName, conditionExpr, codeLit, formula, i, ruleName))
 	}
 
 	return sb.String(), nil

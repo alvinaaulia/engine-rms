@@ -7,13 +7,13 @@ type Condition struct {
 }
 
 type Action struct {
-	Type    string `json:"type"`    // "ADD_COMPONENT"
-	Code    string `json:"code"`    // contoh: "OVERTIME_PAY"
-	Formula string `json:"formula"` // contoh: "attendance.OvertimeMinutes * rates.OvertimePerMinute"
+	Type    string `json:"type"`   
+	Code    string `json:"code"`    
+	Formula string `json:"formula"` 
 }
 
 type Rule struct {
-	Conditions []Condition `json:"conditions"`
+	Conditions interface{} `json:"conditions"`
 	Action     Action      `json:"action"`
 }
 
@@ -74,8 +74,8 @@ type Components struct {
 }
 
 type Facts struct {
-	Employee    Employee    `json:"employee"`
-	Attendance  Attendance  `json:"attendance"`
-	Rates       Rates       `json:"rates"`
-	Components  Components  `json:"components"`
+	Employee   Employee   `json:"employee"`
+	Attendance Attendance `json:"attendance"`
+	Rates      Rates      `json:"rates"`
+	Components Components `json:"components"`
 }
