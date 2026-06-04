@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/hyperjumptech/grule-rule-engine/ast"
@@ -16,12 +17,17 @@ var fieldAliases = map[string]string{
 	"employee.contract_type":          "employee.ContractType",
 	"employee.grade":                  "employee.Grade",
 	"employee.join_date":              "employee.JoinDate",
+	"employee.has_npwp":               "employee.HasNpwp",
+	"employee.ptkp_status":            "employee.PtkpStatus",
 	"employee.years_of_service":       "employee.YearsOfService",
+	"employee.performance_score":      "employee.PerformanceScore",
 	"employee.basic_salary":           "employee.BasicSalary",
 	"attendance.days_present":         "attendance.DaysPresent",
 	"attendance.days_absent":          "attendance.DaysAbsent",
 	"attendance.late_minutes":         "attendance.LateMinutes",
 	"attendance.unpaid_leave_days":    "attendance.UnpaidLeaveDays",
+	"attendance.work_hours":           "attendance.WorkHours",
+	"attendance.work_minutes":         "attendance.WorkMinutes",
 	"attendance.overtime_hours":       "attendance.OvertimeHours",
 	"attendance.overtime_minutes":     "attendance.OvertimeMinutes",
 	"rates.late_deduction_per_minute": "rates.LatePerMinute",
@@ -44,12 +50,17 @@ var formulaAliasReplacer = strings.NewReplacer(
 	"employee.contract_type", "employee.ContractType",
 	"employee.grade", "employee.Grade",
 	"employee.join_date", "employee.JoinDate",
+	"employee.has_npwp", "employee.HasNpwp",
+	"employee.ptkp_status", "employee.PtkpStatus",
 	"employee.years_of_service", "employee.YearsOfService",
+	"employee.performance_score", "employee.PerformanceScore",
 	"employee.basic_salary", "employee.BasicSalary",
 	"attendance.days_present", "attendance.DaysPresent",
 	"attendance.days_absent", "attendance.DaysAbsent",
 	"attendance.late_minutes", "attendance.LateMinutes",
 	"attendance.unpaid_leave_days", "attendance.UnpaidLeaveDays",
+	"attendance.work_hours", "attendance.WorkHours",
+	"attendance.work_minutes", "attendance.WorkMinutes",
 	"attendance.overtime_hours", "attendance.OvertimeHours",
 	"attendance.overtime_minutes", "attendance.OvertimeMinutes",
 	"rates.late_deduction_per_minute", "rates.LatePerMinute",
@@ -63,12 +74,64 @@ var formulaAliasReplacer = strings.NewReplacer(
 	"components.overtime_pay", "components.OVERTIME_PAY",
 )
 
+var dynamicEmployeeTokenPattern = regexp.MustCompile(`\bemployee\.([a-z_][a-z0-9_]*)\b`)
+var dynamicAttendanceTokenPattern = regexp.MustCompile(`\battendance\.([a-z_][a-z0-9_]*)\b`)
+var dynamicRateTokenPattern = regexp.MustCompile(`\brates\.([a-z_][a-z0-9_]*)\b`)
+var dynamicComponentTokenPattern = regexp.MustCompile(`\bcomponents\.([A-Za-z_][A-Za-z0-9_]*)\b`)
+
+type RuleHelper struct{}
+
+func (RuleHelper) Contains(value interface{}, expected interface{}) bool {
+	return strings.Contains(
+		strings.ToLower(fmt.Sprint(value)),
+		strings.ToLower(fmt.Sprint(expected)),
+	)
+}
+
 func normalizeField(field string) string {
 	field = strings.TrimSpace(field)
 	if mapped, ok := fieldAliases[field]; ok {
 		return mapped
 	}
+	if strings.HasPrefix(field, "rates.") {
+		rateKey := strings.TrimPrefix(field, "rates.")
+		if normalizeDynamicFactKey(rateKey) != "" {
+			return fmt.Sprintf("rates.Value(%q)", normalizeDynamicFactKey(rateKey))
+		}
+	}
+	if strings.HasPrefix(field, "attendance.") {
+		attendanceKey := strings.TrimPrefix(field, "attendance.")
+		if normalizeDynamicFactKey(attendanceKey) != "" {
+			return fmt.Sprintf("attendance.Value(%q)", normalizeDynamicFactKey(attendanceKey))
+		}
+	}
+	if strings.HasPrefix(field, "components.") {
+		componentKey := strings.TrimPrefix(field, "components.")
+		if normalizeDynamicFactKey(componentKey) != "" {
+			return fmt.Sprintf("components.Value(%q)", normalizeDynamicFactKey(componentKey))
+		}
+	}
+	if strings.HasPrefix(field, "employee.") {
+		employeeKey := strings.TrimPrefix(field, "employee.")
+		if normalizeDynamicFactKey(employeeKey) != "" {
+			return fmt.Sprintf("employee.Text(%q)", normalizeDynamicFactKey(employeeKey))
+		}
+	}
 	return field
+}
+
+func normalizeFormulaToken(prefix string, token string) string {
+	parts := strings.SplitN(token, ".", 2)
+	if len(parts) != 2 {
+		return token
+	}
+
+	key := normalizeDynamicFactKey(parts[1])
+	if key == "" || key == "value" || key == "text" || key == "bool" {
+		return token
+	}
+
+	return fmt.Sprintf("%s.Value(%q)", prefix, key)
 }
 
 func normalizeFormula(formula string) string {
@@ -76,7 +139,20 @@ func normalizeFormula(formula string) string {
 	if normalized == "" {
 		return normalized
 	}
-	return formulaAliasReplacer.Replace(normalized)
+	normalized = formulaAliasReplacer.Replace(normalized)
+	normalized = dynamicEmployeeTokenPattern.ReplaceAllStringFunc(normalized, func(token string) string {
+		return normalizeFormulaToken("employee", token)
+	})
+	normalized = dynamicAttendanceTokenPattern.ReplaceAllStringFunc(normalized, func(token string) string {
+		return normalizeFormulaToken("attendance", token)
+	})
+	normalized = dynamicRateTokenPattern.ReplaceAllStringFunc(normalized, func(token string) string {
+		return normalizeFormulaToken("rates", token)
+	})
+	normalized = dynamicComponentTokenPattern.ReplaceAllStringFunc(normalized, func(token string) string {
+		return normalizeFormulaToken("components", token)
+	})
+	return normalized
 }
 
 func gruleLiteral(v interface{}) (string, error) {
@@ -115,6 +191,73 @@ func gruleLiteral(v interface{}) (string, error) {
 		}
 		return fmt.Sprintf("%v", x), nil
 	}
+}
+
+func literalValues(value interface{}) ([]string, error) {
+	rawValues := []interface{}{}
+
+	switch typed := value.(type) {
+	case []interface{}:
+		rawValues = typed
+	case []string:
+		for _, item := range typed {
+			rawValues = append(rawValues, item)
+		}
+	case []float64:
+		for _, item := range typed {
+			rawValues = append(rawValues, item)
+		}
+	case []int:
+		for _, item := range typed {
+			rawValues = append(rawValues, item)
+		}
+	default:
+		rawValues = append(rawValues, typed)
+	}
+
+	values := make([]string, 0, len(rawValues))
+	for _, rawValue := range rawValues {
+		literal, err := gruleLiteral(rawValue)
+		if err != nil {
+			return nil, err
+		}
+		values = append(values, literal)
+	}
+
+	return values, nil
+}
+
+func buildMembershipExpression(field string, operator string, value interface{}) (string, error) {
+	values, err := literalValues(value)
+	if err != nil {
+		return "", err
+	}
+
+	if len(values) == 0 {
+		if operator == "NOT_IN" {
+			return "true", nil
+		}
+		return "false", nil
+	}
+
+	parts := make([]string, 0, len(values))
+	comparator := "=="
+	separator := " || "
+
+	if operator == "NOT_IN" {
+		comparator = "!="
+		separator = " && "
+	}
+
+	for _, literal := range values {
+		parts = append(parts, fmt.Sprintf("%s %s %s", field, comparator, literal))
+	}
+
+	if len(parts) == 1 {
+		return parts[0], nil
+	}
+
+	return "(" + strings.Join(parts, separator) + ")", nil
 }
 
 func buildConditionExpression(node interface{}) (string, error) {
@@ -190,7 +333,19 @@ func buildConditionExpression(node interface{}) (string, error) {
 			return "", fmt.Errorf("leaf condition field is empty")
 		}
 
-		operator := operatorMap(strings.ToUpper(strings.TrimSpace(fmt.Sprintf("%v", operatorRaw))))
+		operatorKey := strings.ToUpper(strings.TrimSpace(fmt.Sprintf("%v", operatorRaw)))
+		switch operatorKey {
+		case "IN", "NOT_IN":
+			return buildMembershipExpression(field, operatorKey, n["value"])
+		case "CONTAINS":
+			value, err := gruleLiteral(n["value"])
+			if err != nil {
+				return "", err
+			}
+			return fmt.Sprintf("helper.Contains(%s, %s)", field, value), nil
+		}
+
+		operator := operatorMap(operatorKey)
 		value, err := gruleLiteral(n["value"])
 		if err != nil {
 			return "", err
@@ -221,6 +376,10 @@ func buildMultiGRL(rules []Rule) (string, error) {
 		if err != nil {
 			return "", err
 		}
+		actionTypeLit, err := gruleLiteral(rule.Action.Type)
+		if err != nil {
+			return "", err
+		}
 
 		formula := normalizeFormula(rule.Action.Formula)
 		if formula == "" {
@@ -231,11 +390,11 @@ func buildMultiGRL(rules []Rule) (string, error) {
 rule %s "payroll" {
 	when
 		%s
-	then
-		out.AddComponent(%s, %s, %d);
+then
+		out.ApplyComponent(%s, %s, %s, %d);
 		Retract("%s");
 }
-`, ruleName, conditionExpr, codeLit, formula, i, ruleName))
+`, ruleName, conditionExpr, actionTypeLit, codeLit, formula, i, ruleName))
 	}
 
 	return sb.String(), nil
@@ -323,6 +482,7 @@ func executeAllRules(rules []Rule, facts map[string]interface{}) (ExecuteRespons
 	_ = dataContext.Add("attendance", att)
 	_ = dataContext.Add("rates", rates)
 	_ = dataContext.Add("components", comps)
+	_ = dataContext.Add("helper", RuleHelper{})
 	_ = dataContext.Add("out", out)
 
 	knowledgeLibrary := ast.NewKnowledgeLibrary()
