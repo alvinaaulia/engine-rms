@@ -25,8 +25,9 @@ type Rule struct {
 }
 
 type ExecuteRequest struct {
-	Rules []Rule                 `json:"rules"`
-	Facts map[string]interface{} `json:"facts"`
+	Rules          []Rule                 `json:"rules"`
+	Facts          map[string]interface{} `json:"facts"`
+	ComponentTypes map[string]string      `json:"component_types"`
 }
 
 type Component struct {
@@ -54,8 +55,8 @@ type Employee struct {
 	JoinDate         string  `json:"join_date"`
 	HasNpwp          bool    `json:"has_npwp"`
 	PtkpStatus       string  `json:"ptkp_status"`
-	YearsOfService   int64   `json:"years_of_service"`
-	PerformanceScore int64   `json:"performance_score"`
+	YearsOfService   float64 `json:"years_of_service"`
+	PerformanceScore float64 `json:"performance_score"`
 	BasicSalary      float64 `json:"basic_salary"`
 	Extra            map[string]interface{}
 }
@@ -82,18 +83,24 @@ type Rates struct {
 }
 
 func (e *Employee) UnmarshalJSON(data []byte) error {
-	type employeeAlias Employee
-	var alias employeeAlias
-	if err := json.Unmarshal(data, &alias); err != nil {
-		return err
-	}
-
 	var raw map[string]interface{}
 	if err := json.Unmarshal(data, &raw); err != nil {
 		return err
 	}
 
-	*e = Employee(alias)
+	*e = Employee{
+		Status:           parseDynamicText(raw["status"]),
+		ContractType:     parseDynamicText(raw["contract_type"]),
+		Grade:            parseDynamicText(raw["grade"]),
+		JoinDate:         parseDynamicText(raw["join_date"]),
+		PtkpStatus:       parseDynamicText(raw["ptkp_status"]),
+		YearsOfService:   parseDynamicFloatOrZero(raw["years_of_service"]),
+		PerformanceScore: parseDynamicFloatOrZero(raw["performance_score"]),
+		BasicSalary:      parseDynamicFloatOrZero(raw["basic_salary"]),
+	}
+	if parsed, ok := parseDynamicBool(raw["has_npwp"]); ok {
+		e.HasNpwp = parsed
+	}
 	e.Extra = collectExtraFacts(raw, map[string]bool{
 		"status":            true,
 		"contract_type":     true,
@@ -124,9 +131,9 @@ func (e Employee) Text(key string) string {
 	case "ptkp_status":
 		return e.PtkpStatus
 	case "years_of_service":
-		return strconv.FormatInt(e.YearsOfService, 10)
+		return strconv.FormatFloat(e.YearsOfService, 'f', -1, 64)
 	case "performance_score":
-		return strconv.FormatInt(e.PerformanceScore, 10)
+		return strconv.FormatFloat(e.PerformanceScore, 'f', -1, 64)
 	case "basic_salary":
 		return strconv.FormatFloat(e.BasicSalary, 'f', -1, 64)
 	default:
@@ -145,9 +152,9 @@ func (e Employee) Value(key string) float64 {
 		}
 		return 0
 	case "years_of_service":
-		return float64(e.YearsOfService)
+		return e.YearsOfService
 	case "performance_score":
-		return float64(e.PerformanceScore)
+		return e.PerformanceScore
 	case "basic_salary":
 		return e.BasicSalary
 	default:
@@ -176,18 +183,21 @@ func (e Employee) Bool(key string) bool {
 }
 
 func (a *Attendance) UnmarshalJSON(data []byte) error {
-	type attendanceAlias Attendance
-	var alias attendanceAlias
-	if err := json.Unmarshal(data, &alias); err != nil {
-		return err
-	}
-
 	var raw map[string]interface{}
 	if err := json.Unmarshal(data, &raw); err != nil {
 		return err
 	}
 
-	*a = Attendance(alias)
+	*a = Attendance{
+		DaysPresent:     parseDynamicFloatOrZero(raw["days_present"]),
+		DaysAbsent:      parseDynamicFloatOrZero(raw["days_absent"]),
+		LateMinutes:     parseDynamicFloatOrZero(raw["late_minutes"]),
+		UnpaidLeaveDays: parseDynamicFloatOrZero(raw["unpaid_leave_days"]),
+		WorkHours:       parseDynamicFloatOrZero(raw["work_hours"]),
+		WorkMinutes:     parseDynamicFloatOrZero(raw["work_minutes"]),
+		OvertimeHours:   parseDynamicFloatOrZero(raw["overtime_hours"]),
+		OvertimeMinutes: parseDynamicFloatOrZero(raw["overtime_minutes"]),
+	}
 	a.Extra = map[string]float64{}
 
 	knownKeys := map[string]bool{
@@ -243,18 +253,18 @@ func (a Attendance) Value(key string) float64 {
 }
 
 func (r *Rates) UnmarshalJSON(data []byte) error {
-	type ratesAlias Rates
-	var alias ratesAlias
-	if err := json.Unmarshal(data, &alias); err != nil {
-		return err
-	}
-
 	var raw map[string]interface{}
 	if err := json.Unmarshal(data, &raw); err != nil {
 		return err
 	}
 
-	*r = Rates(alias)
+	*r = Rates{
+		LatePerMinute:     parseDynamicFloatOrZero(raw["late_deduction_per_minute"]),
+		UnpaidLeavePerDay: parseDynamicFloatOrZero(raw["unpaid_leave_per_day"]),
+		OvertimePerHour:   parseDynamicFloatOrZero(raw["overtime_per_hour"]),
+		OvertimePerMinute: parseDynamicFloatOrZero(raw["overtime_per_minute"]),
+		TaxFlatAmount:     parseDynamicFloatOrZero(raw["tax_flat_amount"]),
+	}
 	r.Extra = map[string]float64{}
 
 	knownKeys := map[string]bool{
@@ -339,6 +349,14 @@ func parseDynamicFloat(value interface{}) (float64, bool) {
 	}
 }
 
+func parseDynamicFloatOrZero(value interface{}) float64 {
+	parsed, ok := parseDynamicFloat(value)
+	if !ok {
+		return 0
+	}
+	return parsed
+}
+
 func parseDynamicText(value interface{}) string {
 	switch typed := value.(type) {
 	case nil:
@@ -409,18 +427,17 @@ type Components struct {
 }
 
 func (c *Components) UnmarshalJSON(data []byte) error {
-	type componentsAlias Components
-	var alias componentsAlias
-	if err := json.Unmarshal(data, &alias); err != nil {
-		return err
-	}
-
 	var raw map[string]interface{}
 	if err := json.Unmarshal(data, &raw); err != nil {
 		return err
 	}
 
-	*c = Components(alias)
+	*c = Components{
+		BASIC_SALARY: parseDynamicFloatOrZero(firstPresentValue(raw, "BASIC_SALARY", "basic_salary")),
+		TH_R:         parseDynamicFloatOrZero(firstPresentValue(raw, "TH_R", "th_r")),
+		THR:          parseDynamicFloatOrZero(firstPresentValue(raw, "THR", "thr")),
+		OVERTIME_PAY: parseDynamicFloatOrZero(firstPresentValue(raw, "OVERTIME_PAY", "overtime_pay")),
+	}
 	c.Extra = map[string]float64{}
 
 	knownKeys := map[string]bool{
@@ -442,6 +459,15 @@ func (c *Components) UnmarshalJSON(data []byte) error {
 		}
 	}
 
+	return nil
+}
+
+func firstPresentValue(raw map[string]interface{}, keys ...string) interface{} {
+	for _, key := range keys {
+		if value, ok := raw[key]; ok {
+			return value
+		}
+	}
 	return nil
 }
 

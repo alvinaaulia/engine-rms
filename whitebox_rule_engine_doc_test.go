@@ -200,16 +200,21 @@ func TestWB10BuildMultiGRLIncludesRetractForAlwaysTrueRuleLoopSafety(t *testing.
 	}
 }
 
-func TestWB11ExecuteAllRulesReturnsTypeMismatchErrorForDecimalInt64Fact(t *testing.T) {
+func TestWB11ExecuteAllRulesAcceptsDecimalEmployeeNumericFact(t *testing.T) {
 	facts := wbFacts()
 	facts["employee"].(map[string]interface{})["years_of_service"] = 1.5
 
-	_, err := executeAllRules([]Rule{wbRule("BONUS", "100")}, facts)
-	if err == nil {
-		t.Fatal("expected numeric type mismatch error")
+	resp, err := executeAllRulesWithComponentTypes([]Rule{wbRule("BONUS", "employee.years_of_service * 100")}, facts, map[string]string{
+		"BONUS": "EARNING",
+	})
+	if err != nil {
+		t.Fatalf("expected no error, got %v", err)
 	}
-	if !strings.Contains(strings.ToLower(err.Error()), "cannot unmarshal number 1.5") {
-		t.Fatalf("unexpected error: %v", err)
+	if len(resp.Components) != 1 {
+		t.Fatalf("expected one component, got %d", len(resp.Components))
+	}
+	if resp.Components[0].Amount != 150 {
+		t.Fatalf("expected amount 150, got %.2f", resp.Components[0].Amount)
 	}
 }
 
@@ -218,6 +223,10 @@ func TestWB12CalculateSummaryCombinesEarningsAndDeductions(t *testing.T) {
 		{Code: "OVERTIME_PAY", Amount: 200000},
 		{Code: "LATE_DEDUCTION", Amount: 10000},
 		{Code: "TAX_DEDUCTION", Amount: 50000},
+	}, map[string]string{
+		"OVERTIME_PAY":   "EARNING",
+		"LATE_DEDUCTION": "DEDUCTION",
+		"TAX_DEDUCTION":  "DEDUCTION",
 	})
 
 	if summary.GrossSalary != 1200000 {

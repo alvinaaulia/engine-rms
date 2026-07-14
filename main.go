@@ -15,7 +15,7 @@ func executeRules(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := executeAllRules(req.Rules, req.Facts)
+	resp, err := executeAllRulesWithComponentTypes(req.Rules, req.Facts, req.ComponentTypes)
 	if err != nil {
 		http.Error(w, "rule execution error: "+err.Error(), http.StatusInternalServerError)
 		return

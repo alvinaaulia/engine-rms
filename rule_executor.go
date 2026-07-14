@@ -120,6 +120,25 @@ func normalizeField(field string) string {
 	return field
 }
 
+func isBooleanConditionField(field string) bool {
+	switch strings.ToLower(strings.TrimSpace(field)) {
+	case "employee.has_npwp":
+		return true
+	default:
+		return false
+	}
+}
+
+func conditionValueLiteral(field string, value interface{}) (string, error) {
+	if isBooleanConditionField(field) {
+		if parsed, ok := parseDynamicBool(value); ok {
+			return gruleLiteral(parsed)
+		}
+	}
+
+	return gruleLiteral(value)
+}
+
 func normalizeFormulaToken(prefix string, token string) string {
 	parts := strings.SplitN(token, ".", 2)
 	if len(parts) != 2 {
@@ -328,7 +347,8 @@ func buildConditionExpression(node interface{}) (string, error) {
 			return "", fmt.Errorf("leaf condition must contain field and operator")
 		}
 
-		field := normalizeField(strings.TrimSpace(fmt.Sprintf("%v", fieldRaw)))
+		rawField := strings.TrimSpace(fmt.Sprintf("%v", fieldRaw))
+		field := normalizeField(rawField)
 		if field == "" {
 			return "", fmt.Errorf("leaf condition field is empty")
 		}
@@ -338,7 +358,7 @@ func buildConditionExpression(node interface{}) (string, error) {
 		case "IN", "NOT_IN":
 			return buildMembershipExpression(field, operatorKey, n["value"])
 		case "CONTAINS":
-			value, err := gruleLiteral(n["value"])
+			value, err := conditionValueLiteral(rawField, n["value"])
 			if err != nil {
 				return "", err
 			}
@@ -346,7 +366,7 @@ func buildConditionExpression(node interface{}) (string, error) {
 		}
 
 		operator := operatorMap(operatorKey)
-		value, err := gruleLiteral(n["value"])
+		value, err := conditionValueLiteral(rawField, n["value"])
 		if err != nil {
 			return "", err
 		}
@@ -401,6 +421,10 @@ then
 }
 
 func executeAllRules(rules []Rule, facts map[string]interface{}) (ExecuteResponse, error) {
+	return executeAllRulesWithComponentTypes(rules, facts, nil)
+}
+
+func executeAllRulesWithComponentTypes(rules []Rule, facts map[string]interface{}, componentTypes map[string]string) (ExecuteResponse, error) {
 	must := func(key string) (interface{}, error) {
 		v, ok := facts[key]
 		if !ok {
@@ -506,7 +530,7 @@ func executeAllRules(rules []Rule, facts map[string]interface{}) (ExecuteRespons
 		return ExecuteResponse{}, fmt.Errorf("execute error: %w", err)
 	}
 
-	summary := calculateSummary(emp, out.Components)
+	summary := calculateSummary(emp, out.Components, componentTypes)
 
 	return ExecuteResponse{
 		Components: out.Components,

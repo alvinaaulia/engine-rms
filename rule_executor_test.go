@@ -426,6 +426,51 @@ func TestExecuteAllRulesSupportsEmployeeTaxContext(t *testing.T) {
 	}
 }
 
+func TestExecuteAllRulesAcceptsLaravelStringDecimalFacts(t *testing.T) {
+	rules := []Rule{
+		{
+			Conditions: []interface{}{
+				map[string]interface{}{
+					"field":    "employee.has_npwp",
+					"operator": "==",
+					"value":    "true",
+				},
+			},
+			Action: Action{
+				Type:    "ADD_COMPONENT",
+				Code:    "LATE_DEDUCTION",
+				Formula: "attendance.late_minutes * rates.late_deduction_per_minute",
+			},
+		},
+	}
+	facts := baseFactsForExecutionTests()
+	facts["employee"].(map[string]interface{})["has_npwp"] = "true"
+	facts["employee"].(map[string]interface{})["basic_salary"] = "5000000.00"
+	facts["attendance"].(map[string]interface{})["late_minutes"] = "5.00"
+	facts["rates"].(map[string]interface{})["late_deduction_per_minute"] = "1000.00"
+	facts["components"].(map[string]interface{})["BASIC_SALARY"] = "5000000.00"
+
+	resp, err := executeAllRulesWithComponentTypes(rules, facts, map[string]string{
+		"LATE_DEDUCTION": "DEDUCTION",
+	})
+	if err != nil {
+		t.Fatalf("expected no error, got %v", err)
+	}
+
+	if len(resp.Components) != 1 {
+		t.Fatalf("expected one component, got %d", len(resp.Components))
+	}
+	if resp.Components[0].Amount != 5000 {
+		t.Fatalf("expected amount 5000, got %.2f", resp.Components[0].Amount)
+	}
+	if resp.Summary.GrossSalary != 5000000 {
+		t.Fatalf("expected gross 5000000, got %.2f", resp.Summary.GrossSalary)
+	}
+	if resp.Summary.TotalDeductions != 5000 {
+		t.Fatalf("expected deductions 5000, got %.2f", resp.Summary.TotalDeductions)
+	}
+}
+
 func TestEmitterSetComponentReplacesExistingComponent(t *testing.T) {
 	emitter := &Emitter{}
 
@@ -447,6 +492,9 @@ func TestCalculateSummaryClassifiesCustomComponents(t *testing.T) {
 	summary := calculateSummary(Employee{BasicSalary: 1000000}, []Component{
 		{Code: "CMP_LEMBUR_FREELANCE", Amount: 20000},
 		{Code: "CMP_CUTI_TANPA_DIBAYAR", Amount: 50000},
+	}, map[string]string{
+		"CMP_LEMBUR_FREELANCE":   "EARNING",
+		"CMP_CUTI_TANPA_DIBAYAR": "DEDUCTION",
 	})
 
 	if summary.GrossSalary != 1020000 {
@@ -492,5 +540,37 @@ func baseFactsForExecutionTests() map[string]interface{} {
 			"TH_R":         0,
 			"THR":          0,
 		},
+	}
+}
+
+func TestEmitterNormalizesMoneyLikeSpreadsheet(t *testing.T) {
+	emitter := &Emitter{}
+	emitter.AddComponent("BONUS", 0.1+0.2, 0)
+
+	if len(emitter.Components) != 1 {
+		t.Fatalf("expected one component, got %d", len(emitter.Components))
+	}
+	if emitter.Components[0].Amount != 0.30 {
+		t.Fatalf("expected amount 0.30 after decimal normalization, got %.17f", emitter.Components[0].Amount)
+	}
+}
+
+func TestCalculateSummaryUsesDecimalMoneyRounding(t *testing.T) {
+	summary := calculateSummary(Employee{BasicSalary: 1000.10}, []Component{
+		{Code: "BONUS", Amount: 0.1 + 0.2},
+		{Code: "LATE_DEDUCTION", Amount: 0.1 + 0.2},
+	}, map[string]string{
+		"BONUS":          "EARNING",
+		"LATE_DEDUCTION": "DEDUCTION",
+	})
+
+	if summary.GrossSalary != 1000.40 {
+		t.Fatalf("expected gross 1000.40, got %.17f", summary.GrossSalary)
+	}
+	if summary.TotalDeductions != 0.30 {
+		t.Fatalf("expected deductions 0.30, got %.17f", summary.TotalDeductions)
+	}
+	if summary.NetSalary != 1000.10 {
+		t.Fatalf("expected net 1000.10, got %.17f", summary.NetSalary)
 	}
 }
