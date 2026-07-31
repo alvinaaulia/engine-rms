@@ -18,6 +18,8 @@ var fieldAliases = map[string]string{
 	"employee.years_of_service":       "employee.YearsOfService",
 	"employee.performance_score":      "employee.PerformanceScore",
 	"employee.basic_salary":           "employee.BasicSalary",
+	"employee.annual_bonus_eligible":  "employee.Bool(\"annual_bonus_eligible\")",
+	"employee.thr_eligible":           "employee.Bool(\"thr_eligible\")",
 	"attendance.days_present":         "attendance.DaysPresent",
 	"attendance.days_absent":          "attendance.DaysAbsent",
 	"attendance.late_minutes":         "attendance.LateMinutes",

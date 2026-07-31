@@ -1,0 +1,240 @@
+{
+  "policy_version": "reference-payroll-2026.1",
+  "oracle_status": "REFERENCE_ONLY",
+  "source": "Active payroll rule definitions audited from Laravel database on 2026-08-01; domain source label perhitungan_manual_penggajian_hrd_per_aturan.xlsx is referenced by data but the spreadsheet is not present in either repository.",
+  "rounding": {
+    "calculation_scale": 6,
+    "reporting_scale": 2,
+    "mode": "HALF_UP",
+    "points": ["candidate", "COLLECT_SUM", "summary"],
+    "comparison_scale": 6
+  },
+  "hit_policy": {
+    "persistence": "INFERRED_BY_ADAPTER",
+    "first_order": "priority_desc_then_stable_rule_id_asc",
+    "collect_sum_representation": "single_aggregate_component_with_contributor_provenance"
+  },
+  "component_types": {
+    "ABSENCE_DEDUCTION": "DEDUCTION",
+    "ANNUAL_BONUS": "EARNING",
+    "ATTENDANCE_INCENTIVE": "EARNING",
+    "CMP_LEMBUR_FREELANCER": "EARNING",
+    "LATE_DEDUCTION": "DEDUCTION",
+    "OVERTIME_PAY": "EARNING",
+    "PERFORMANCE_BONUS": "EARNING",
+    "TAX_FLAT": "DEDUCTION",
+    "THR": "EARNING",
+    "UNPAID_LEAVE_DEDUCTION": "DEDUCTION"
+  },
+  "taxable_components": [
+    "ANNUAL_BONUS",
+    "ATTENDANCE_INCENTIVE",
+    "OVERTIME_PAY",
+    "PERFORMANCE_BONUS",
+    "THR"
+  ],
+  "default_rates": {
+    "absence_deduction_per_day": "100000.000000",
+    "annual_bonus_factor": "1.000000",
+    "attendance_incentive": "150000.000000",
+    "late_deduction_per_minute": "1000.000000",
+    "lembur_freelancer": "3000.000000",
+    "overtime_per_minute": "2000.000000",
+    "performance_bonus_70_79": "0.050000",
+    "performance_bonus_80_89": "0.100000",
+    "performance_bonus_90_ke_atas": "0.200000",
+    "tax_flat_amount": "0.000000",
+    "thr_factor": "1.000000",
+    "unpaid_leave_per_day": "100000.000000"
+  },
+  "rules": [
+    {
+      "id": "rule-version-1",
+      "version_id": 1,
+      "rule_id": 1,
+      "version": 1,
+      "priority": "LOW",
+      "effective_date": null,
+      "end_date": null,
+      "component_code": "TAX_FLAT",
+      "action_type": "ADD_COMPONENT",
+      "formula": "rates.tax_flat_amount",
+      "formula_source": "Active system-managed tax component rule",
+      "conditions": [{"field": "employee.status", "operator": "!=", "value": "nonaktif"}]
+    },
+    {
+      "id": "rule-version-3",
+      "version_id": 3,
+      "rule_id": 3,
+      "version": 1,
+      "priority": "NORMAL",
+      "effective_date": "2026-01-01",
+      "end_date": null,
+      "component_code": "OVERTIME_PAY",
+      "action_type": "ADD_COMPONENT",
+      "formula": "attendance.overtime_minutes * rates.overtime_per_minute",
+      "formula_source": "Active rule source label perhitungan_manual_penggajian_hrd_per_aturan.xlsx",
+      "conditions": [
+        {"field": "employee.status", "operator": "==", "value": "tetap"},
+        {"field": "attendance.overtime_minutes", "operator": ">", "value": 0}
+      ]
+    },
+    {
+      "id": "rule-version-4",
+      "version_id": 4,
+      "rule_id": 4,
+      "version": 1,
+      "priority": "NORMAL",
+      "effective_date": "2026-01-01",
+      "end_date": null,
+      "component_code": "PERFORMANCE_BONUS",
+      "action_type": "ADD_COMPONENT",
+      "formula": "employee.basic_salary * rates.performance_bonus_90_ke_atas",
+      "formula_source": "Active rule source label perhitungan_manual_penggajian_hrd_per_aturan.xlsx",
+      "conditions": [
+        {"field": "employee.status", "operator": "==", "value": "tetap"},
+        {"field": "employee.performance_score", "operator": ">=", "value": 90}
+      ]
+    },
+    {
+      "id": "rule-version-5",
+      "version_id": 5,
+      "rule_id": 5,
+      "version": 1,
+      "priority": "NORMAL",
+      "effective_date": "2026-01-01",
+      "end_date": null,
+      "component_code": "PERFORMANCE_BONUS",
+      "action_type": "ADD_COMPONENT",
+      "formula": "employee.basic_salary * rates.performance_bonus_80_89",
+      "formula_source": "Active rule source label perhitungan_manual_penggajian_hrd_per_aturan.xlsx",
+      "conditions": [
+        {"field": "employee.status", "operator": "==", "value": "tetap"},
+        {"field": "employee.performance_score", "operator": ">=", "value": 80},
+        {"field": "employee.performance_score", "operator": "<=", "value": 89}
+      ]
+    },
+    {
+      "id": "rule-version-6",
+      "version_id": 6,
+      "rule_id": 6,
+      "version": 1,
+      "priority": "NORMAL",
+      "effective_date": "2026-01-01",
+      "end_date": null,
+      "component_code": "PERFORMANCE_BONUS",
+      "action_type": "ADD_COMPONENT",
+      "formula": "employee.basic_salary * rates.performance_bonus_70_79",
+      "formula_source": "Active rule source label perhitungan_manual_penggajian_hrd_per_aturan.xlsx",
+      "conditions": [
+        {"field": "employee.status", "operator": "==", "value": "tetap"},
+        {"field": "employee.performance_score", "operator": ">=", "value": 70},
+        {"field": "employee.performance_score", "operator": "<=", "value": 79}
+      ]
+    },
+    {
+      "id": "rule-version-7",
+      "version_id": 7,
+      "rule_id": 7,
+      "version": 1,
+      "priority": "NORMAL",
+      "effective_date": "2026-01-01",
+      "end_date": null,
+      "component_code": "ANNUAL_BONUS",
+      "action_type": "ADD_COMPONENT",
+      "formula": "employee.basic_salary * rates.annual_bonus_factor",
+      "formula_source": "Active rule source label perhitungan_manual_penggajian_hrd_per_aturan.xlsx",
+      "conditions": [
+        {"field": "employee.status", "operator": "==", "value": "tetap"},
+        {"field": "employee.annual_bonus_eligible", "operator": "==", "value": true}
+      ]
+    },
+    {
+      "id": "rule-version-8",
+      "version_id": 8,
+      "rule_id": 8,
+      "version": 1,
+      "priority": "NORMAL",
+      "effective_date": "2026-01-01",
+      "end_date": null,
+      "component_code": "THR",
+      "action_type": "ADD_COMPONENT",
+      "formula": "employee.basic_salary * rates.thr_factor",
+      "formula_source": "Active rule source label perhitungan_manual_penggajian_hrd_per_aturan.xlsx",
+      "conditions": [
+        {"field": "employee.status", "operator": "==", "value": "tetap"},
+        {"field": "employee.thr_eligible", "operator": "==", "value": true}
+      ]
+    },
+    {
+      "id": "rule-version-9",
+      "version_id": 9,
+      "rule_id": 9,
+      "version": 1,
+      "priority": "NORMAL",
+      "effective_date": "2026-01-01",
+      "end_date": null,
+      "component_code": "ATTENDANCE_INCENTIVE",
+      "action_type": "ADD_COMPONENT",
+      "formula": "rates.attendance_incentive",
+      "formula_source": "Active rule source label perhitungan_manual_penggajian_hrd_per_aturan.xlsx",
+      "conditions": [
+        {"field": "employee.status", "operator": "==", "value": "tetap"},
+        {"field": "attendance.days_absent", "operator": "==", "value": 0},
+        {"field": "attendance.unpaid_leave_days", "operator": "==", "value": 0},
+        {"field": "attendance.late_minutes", "operator": "==", "value": 0}
+      ]
+    },
+    {
+      "id": "rule-version-10",
+      "version_id": 10,
+      "rule_id": 10,
+      "version": 1,
+      "priority": "NORMAL",
+      "effective_date": "2026-01-01",
+      "end_date": null,
+      "component_code": "UNPAID_LEAVE_DEDUCTION",
+      "action_type": "ADD_COMPONENT",
+      "formula": "attendance.unpaid_leave_days * rates.unpaid_leave_per_day",
+      "formula_source": "Active rule source label perhitungan_manual_penggajian_hrd_per_aturan.xlsx",
+      "conditions": [
+        {"field": "employee.status", "operator": "==", "value": "tetap"},
+        {"field": "attendance.unpaid_leave_days", "operator": ">", "value": 0}
+      ]
+    },
+    {
+      "id": "rule-version-11",
+      "version_id": 11,
+      "rule_id": 11,
+      "version": 1,
+      "priority": "NORMAL",
+      "effective_date": "2026-01-01",
+      "end_date": null,
+      "component_code": "LATE_DEDUCTION",
+      "action_type": "ADD_COMPONENT",
+      "formula": "attendance.late_minutes * rates.late_deduction_per_minute",
+      "formula_source": "Active rule source label perhitungan_manual_penggajian_hrd_per_aturan.xlsx",
+      "conditions": [
+        {"field": "employee.status", "operator": "==", "value": "tetap"},
+        {"field": "attendance.late_minutes", "operator": ">", "value": 0}
+      ]
+    },
+    {
+      "id": "rule-version-12",
+      "version_id": 12,
+      "rule_id": 12,
+      "version": 1,
+      "priority": "NORMAL",
+      "effective_date": "2026-01-01",
+      "end_date": null,
+      "component_code": "ABSENCE_DEDUCTION",
+      "action_type": "ADD_COMPONENT",
+      "formula": "attendance.days_absent * rates.absence_deduction_per_day",
+      "formula_source": "Active rule source label perhitungan_manual_penggajian_hrd_per_aturan.xlsx",
+      "conditions": [
+        {"field": "employee.status", "operator": "==", "value": "tetap"},
+        {"field": "attendance.days_absent", "operator": ">", "value": 0}
+      ]
+    }
+  ]
+}

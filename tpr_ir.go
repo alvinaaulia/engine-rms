@@ -123,6 +123,7 @@ var staticFieldTypes = map[string]string{
 	"employee.status": "string", "employee.contract_type": "string", "employee.has_npwp": "boolean",
 	"employee.ptkp_status": "string", "employee.grade": "string", "employee.join_date": "date",
 	"employee.years_of_service": "numeric", "employee.performance_score": "numeric", "employee.basic_salary": "numeric",
+	"employee.annual_bonus_eligible": "boolean", "employee.thr_eligible": "boolean",
 	"attendance.days_present": "numeric", "attendance.work_hours": "numeric", "attendance.work_minutes": "numeric",
 	"attendance.days_absent": "numeric", "attendance.late_minutes": "numeric", "attendance.unpaid_leave_days": "numeric",
 	"attendance.overtime_minutes": "numeric", "attendance.overtime_hours": "numeric",
@@ -573,8 +574,16 @@ func ValidateTPRRuleSet(rs *TPRRuleSet, facts map[string]interface{}) error {
 				return withValidationPath(err, ap+".formula.expression")
 			}
 			for _, identifier := range formulaFieldIdentifiers(formulaAST) {
-				if _, ok := factValue(facts, identifier); !ok {
+				fact, ok := factValue(facts, identifier)
+				if !ok {
 					return validationError("MISSING_REQUIRED_FACT", ap+".formula.expression", "formula references a missing fact")
+				}
+				declared := catalog[identifier]
+				// Formula identifiers are numeric by grammar/catalog validation. They
+				// still require runtime type validation even when the same field is
+				// absent from every condition node.
+				if _, err := strictScalar(fact, declared.DataType, ap+".formula.expression", true); err != nil {
+					return validationError("INVALID_FACT_TYPE", ap+".formula.expression", "formula fact value does not match its declared field type")
 				}
 			}
 			fingerprint := a.Type + "|" + a.Target.Code + "|" + a.Formula.Expression

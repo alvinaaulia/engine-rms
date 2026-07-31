@@ -82,7 +82,7 @@ func TestTPRHTTPTrustBoundary(t *testing.T) {
 
 func semanticFacts() map[string]interface{} {
 	return map[string]interface{}{
-		"employee":   map[string]interface{}{"status": "aktif", "contract_type": "karyawan_tetap", "has_npwp": true, "ptkp_status": "TK/0", "grade": "A", "join_date": "2020-01-01", "years_of_service": 6.0, "performance_score": 90.0, "basic_salary": "5000000.00"},
+		"employee":   map[string]interface{}{"status": "aktif", "contract_type": "karyawan_tetap", "has_npwp": true, "ptkp_status": "TK/0", "grade": "A", "join_date": "2020-01-01", "years_of_service": 6.0, "performance_score": 90.0, "basic_salary": "5000000.00", "annual_bonus_eligible": true, "thr_eligible": true},
 		"attendance": map[string]interface{}{"days_present": 20.0, "work_hours": 160.0, "work_minutes": 9600.0, "days_absent": 0.0, "late_minutes": 5.0, "unpaid_leave_days": 0.0, "overtime_minutes": 60.0, "overtime_hours": 1.0},
 		"rates":      map[string]interface{}{"bonus_rate": "1000.00", "tax_flat_amount": "0", "overtime_per_hour": "60000", "overtime_per_minute": "1000", "late_deduction_per_minute": "1000", "unpaid_leave_per_day": "100000"},
 		"components": map[string]interface{}{"BASIC_SALARY": "5000000.00"},
@@ -131,6 +131,11 @@ func TestTPRSchemaAndTrustBoundaryValidation(t *testing.T) {
 		leaf.Literal.Value = 1.0
 		assertValidationCode(t, ValidateTPRRuleSet(copy, semanticFacts()), "INVALID_LITERAL_TYPE")
 	})
+	t.Run("invalid formula fact type", func(t *testing.T) {
+		facts := semanticFacts()
+		facts["rates"].(map[string]interface{})["bonus_rate"] = "not-a-number"
+		assertValidationCode(t, ValidateTPRRuleSet(rs, facts), "INVALID_FACT_TYPE")
+	})
 	t.Run("unknown namespace", func(t *testing.T) {
 		copy := cloneRuleSet(t, rs)
 		copy.FieldCatalog[0].Reference.Namespace = "system"
@@ -176,6 +181,14 @@ func TestTPRConditionSemanticsAndLimits(t *testing.T) {
 	membership.Conditions = []interface{}{map[string]interface{}{"field": "employee.status", "operator": "IN", "value": []interface{}{"aktif", "tetap"}}}
 	if result, err := executeAllRules([]Rule{membership}, semanticFacts()); err != nil || len(result.Components) != 1 {
 		t.Fatalf("membership failed: %#v %v", result, err)
+	}
+	eligibility := semanticRule("ELIGIBLE", "1", "NORMAL")
+	eligibility.Conditions = []interface{}{
+		map[string]interface{}{"field": "employee.annual_bonus_eligible", "operator": "==", "value": true},
+		map[string]interface{}{"field": "employee.thr_eligible", "operator": "==", "value": true},
+	}
+	if result, err := executeAllRules([]Rule{eligibility}, semanticFacts()); err != nil || len(result.Components) != 1 {
+		t.Fatalf("eligibility flags failed: %#v %v", result, err)
 	}
 	many := make([]interface{}, TPRMaxConditionLeaves+1)
 	for i := range many {
