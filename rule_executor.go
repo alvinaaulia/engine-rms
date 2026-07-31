@@ -1,15 +1,11 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"regexp"
 	"strings"
-
-	"github.com/hyperjumptech/grule-rule-engine/ast"
-	"github.com/hyperjumptech/grule-rule-engine/builder"
-	"github.com/hyperjumptech/grule-rule-engine/engine"
-	"github.com/hyperjumptech/grule-rule-engine/pkg"
 )
 
 var fieldAliases = map[string]string{
@@ -117,7 +113,9 @@ func normalizeField(field string) string {
 			return fmt.Sprintf("employee.Text(%q)", normalizeDynamicFactKey(employeeKey))
 		}
 	}
-	return field
+	// No raw-field fallback: every executable field must resolve through an
+	// explicit static alias or an allowed dynamic namespace.
+	return ""
 }
 
 func isBooleanConditionField(field string) bool {
@@ -425,115 +423,12 @@ func executeAllRules(rules []Rule, facts map[string]interface{}) (ExecuteRespons
 }
 
 func executeAllRulesWithComponentTypes(rules []Rule, facts map[string]interface{}, componentTypes map[string]string) (ExecuteResponse, error) {
-	must := func(key string) (interface{}, error) {
-		v, ok := facts[key]
-		if !ok {
-			return nil, fmt.Errorf("facts.%s not found", key)
-		}
-		return v, nil
+	if _, _, _, _, err := hydrateFacts(facts); err != nil {
+		return ExecuteResponse{}, err
 	}
-
-	employeeObj, err := must("employee")
+	ruleSet, err := AdaptLegacyPayload(rules, facts)
 	if err != nil {
 		return ExecuteResponse{}, err
 	}
-	attendanceObj, err := must("attendance")
-	if err != nil {
-		return ExecuteResponse{}, err
-	}
-	ratesObj, err := must("rates")
-	if err != nil {
-		return ExecuteResponse{}, err
-	}
-
-	toStruct := func(src interface{}, dst interface{}) error {
-		b, e := json.Marshal(src)
-		if e != nil {
-			return e
-		}
-
-		dec := json.NewDecoder(strings.NewReader(string(b)))
-		dec.UseNumber()
-
-		return dec.Decode(dst)
-	}
-
-	var emp Employee
-	var att Attendance
-	var rates Rates
-	comps := Components{}
-
-	if err := toStruct(employeeObj, &emp); err != nil {
-		return ExecuteResponse{}, err
-	}
-	if err := toStruct(attendanceObj, &att); err != nil {
-		return ExecuteResponse{}, err
-	}
-	if err := toStruct(ratesObj, &rates); err != nil {
-		return ExecuteResponse{}, err
-	}
-	if rawComponents, ok := facts["components"]; ok {
-		if err := toStruct(rawComponents, &comps); err != nil {
-			return ExecuteResponse{}, err
-		}
-	}
-
-	if att.OvertimeHours == 0 && att.OvertimeMinutes > 0 {
-		att.OvertimeHours = att.OvertimeMinutes / 60
-	}
-	if att.OvertimeMinutes == 0 && att.OvertimeHours > 0 {
-		att.OvertimeMinutes = att.OvertimeHours * 60
-	}
-	if rates.OvertimePerHour == 0 && rates.OvertimePerMinute > 0 {
-		rates.OvertimePerHour = rates.OvertimePerMinute * 60
-	}
-	if rates.OvertimePerMinute == 0 && rates.OvertimePerHour > 0 {
-		rates.OvertimePerMinute = rates.OvertimePerHour / 60
-	}
-	if comps.BASIC_SALARY == 0 {
-		comps.BASIC_SALARY = emp.BasicSalary
-	}
-
-	grl, err := buildMultiGRL(rules)
-	if err != nil {
-		return ExecuteResponse{}, err
-	}
-
-	dataContext := ast.NewDataContext()
-	out := &Emitter{Components: []Component{}}
-
-	_ = dataContext.Add("employee", emp)
-	_ = dataContext.Add("attendance", att)
-	_ = dataContext.Add("rates", rates)
-	_ = dataContext.Add("components", comps)
-	_ = dataContext.Add("helper", RuleHelper{})
-	_ = dataContext.Add("out", out)
-
-	knowledgeLibrary := ast.NewKnowledgeLibrary()
-	ruleBuilder := builder.NewRuleBuilder(knowledgeLibrary)
-
-	if err := ruleBuilder.BuildRuleFromResource(
-		"Payroll",
-		"0.0.1",
-		pkg.NewBytesResource([]byte(grl)),
-	); err != nil {
-		return ExecuteResponse{}, fmt.Errorf("build rule error: %w", err)
-	}
-
-	knowledgeBase, err := knowledgeLibrary.NewKnowledgeBaseInstance("Payroll", "0.0.1")
-	if err != nil {
-		return ExecuteResponse{}, err
-	}
-
-	gruleEngine := engine.NewGruleEngine()
-	if err := gruleEngine.Execute(dataContext, knowledgeBase); err != nil {
-		return ExecuteResponse{}, fmt.Errorf("execute error: %w", err)
-	}
-
-	summary := calculateSummary(emp, out.Components, componentTypes)
-
-	return ExecuteResponse{
-		Components: out.Components,
-		Summary:    summary,
-	}, nil
+	return ExecuteTPRRuleSet(context.Background(), ruleSet, facts, componentTypes)
 }

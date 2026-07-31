@@ -20,20 +20,36 @@ type Action struct {
 }
 
 type Rule struct {
-	Conditions interface{} `json:"conditions"`
-	Action     Action      `json:"action"`
+	Conditions interface{}  `json:"conditions"`
+	Action     Action       `json:"action"`
+	Meta       RuleMetadata `json:"meta,omitempty"`
+}
+
+type RuleMetadata struct {
+	RuleVersionID int    `json:"rule_version_id,omitempty"`
+	RuleID        int    `json:"rule_id,omitempty"`
+	Version       int    `json:"version,omitempty"`
+	Priority      string `json:"priority,omitempty"`
+	EffectiveDate string `json:"effective_date,omitempty"`
+	EndDate       string `json:"end_date,omitempty"`
 }
 
 type ExecuteRequest struct {
+	SchemaVersion  string                 `json:"schema_version,omitempty"`
+	RuleSet        *TPRRuleSet            `json:"ruleset,omitempty"`
 	Rules          []Rule                 `json:"rules"`
 	Facts          map[string]interface{} `json:"facts"`
 	ComponentTypes map[string]string      `json:"component_types"`
 }
 
 type Component struct {
-	Code   string  `json:"code"`
-	Amount float64 `json:"amount"`
-	RuleIx int     `json:"source_rule"`
+	Code                 string   `json:"code"`
+	Amount               float64  `json:"amount"`
+	RuleIx               int      `json:"source_rule"`
+	SourceRuleID         string   `json:"source_rule_id,omitempty"`
+	SourceRuleVersionID  int      `json:"source_rule_version_id,omitempty"`
+	SourceRuleIDs        []string `json:"source_rule_ids,omitempty"`
+	SourceRuleVersionIDs []int    `json:"source_rule_version_ids,omitempty"`
 }
 
 type Summary struct {

@@ -1,0 +1,214 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://papa.local/schemas/tpr-ir-1.0.json",
+  "title": "Typed Payroll Rule IR Execute Request 1.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "ruleset", "facts", "component_types"],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "ruleset": { "$ref": "#/$defs/ruleSet" },
+    "facts": {
+      "type": "object",
+      "required": ["employee", "attendance", "rates"],
+      "properties": {
+        "employee": { "type": "object" },
+        "attendance": { "type": "object" },
+        "rates": { "type": "object" },
+        "components": { "type": "object" }
+      },
+      "additionalProperties": false
+    },
+    "component_types": {
+      "type": "object",
+      "additionalProperties": { "enum": ["EARNING", "DEDUCTION"] }
+    }
+  },
+  "$defs": {
+    "ruleSet": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "ruleset_id", "default_hit_policy", "rounding_policy", "field_catalog", "rules"],
+      "properties": {
+        "schema_version": { "const": "1.0" },
+        "ruleset_id": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "default_hit_policy": { "$ref": "#/$defs/hitPolicy" },
+        "component_policies": {
+          "type": "object",
+          "propertyNames": { "pattern": "^[A-Z][A-Z0-9_]*$" },
+          "additionalProperties": { "$ref": "#/$defs/hitPolicy" }
+        },
+        "rounding_policy": { "$ref": "#/$defs/roundingPolicy" },
+        "effective_period": { "oneOf": [{ "$ref": "#/$defs/effectivePeriod" }, { "type": "null" }] },
+        "field_catalog": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/fieldDefinition" }
+        },
+        "rules": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 500,
+          "items": { "$ref": "#/$defs/rule" }
+        }
+      }
+    },
+    "hitPolicy": { "enum": ["UNIQUE", "FIRST", "PRIORITY", "COLLECT_SUM"] },
+    "roundingPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scale", "mode"],
+      "properties": {
+        "scale": { "const": 6 },
+        "mode": { "const": "HALF_UP" }
+      }
+    },
+    "effectivePeriod": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "start": { "$ref": "#/$defs/date" },
+        "end": { "$ref": "#/$defs/date" }
+      },
+      "anyOf": [{ "required": ["start"] }, { "required": ["end"] }]
+    },
+    "date": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+    "fieldDefinition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reference", "allowed_operators"],
+      "properties": {
+        "reference": { "$ref": "#/$defs/fieldReference" },
+        "allowed_operators": {
+          "type": "array",
+          "minItems": 2,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/operator" }
+        }
+      }
+    },
+    "fieldReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["namespace", "name", "data_type", "nullable"],
+      "properties": {
+        "namespace": { "enum": ["employee", "attendance", "rates", "components"] },
+        "name": { "type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_]*$" },
+        "data_type": { "enum": ["numeric", "string", "boolean", "date"] },
+        "nullable": { "const": false }
+      }
+    },
+    "operator": {
+      "enum": ["EQ", "NEQ", "GT", "GTE", "LT", "LTE", "IN", "NOT_IN", "CONTAINS", "BEFORE", "AFTER", "ON_OR_BEFORE", "ON_OR_AFTER"]
+    },
+    "rule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "priority", "metadata", "condition", "actions"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "version_id": { "type": "integer", "minimum": 0 },
+        "priority": { "type": "integer", "minimum": 0, "maximum": 1000 },
+        "metadata": { "$ref": "#/$defs/ruleMetadata" },
+        "effective_period": { "oneOf": [{ "$ref": "#/$defs/effectivePeriod" }, { "type": "null" }] },
+        "condition": { "$ref": "#/$defs/conditionNode" },
+        "actions": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "items": { "$ref": "#/$defs/action" }
+        },
+        "legacy_index": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "ruleMetadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "rule_id": { "type": "integer", "minimum": 0 },
+        "version": { "type": "integer", "minimum": 0 },
+        "description": { "type": "string", "maxLength": 1000 }
+      }
+    },
+    "conditionNode": {
+      "oneOf": [
+        { "$ref": "#/$defs/conditionGroup" },
+        { "$ref": "#/$defs/conditionLeaf" }
+      ]
+    },
+    "conditionGroup": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "operator", "children"],
+      "properties": {
+        "kind": { "const": "group" },
+        "operator": { "enum": ["AND", "OR"] },
+        "children": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/conditionNode" }
+        }
+      }
+    },
+    "conditionLeaf": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "operator", "field", "literal"],
+      "properties": {
+        "kind": { "const": "leaf" },
+        "operator": { "$ref": "#/$defs/operator" },
+        "field": { "$ref": "#/$defs/fieldReference" },
+        "literal": { "$ref": "#/$defs/typedLiteral" }
+      }
+    },
+    "typedLiteral": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "value"],
+      "properties": {
+        "type": { "enum": ["numeric", "string", "boolean", "date", "array<numeric>", "array<string>", "array<date>"] },
+        "value": {
+          "oneOf": [
+            { "type": "number" },
+            { "type": "string" },
+            { "type": "boolean" },
+            { "type": "array", "minItems": 1, "items": { "type": "number" } },
+            { "type": "array", "minItems": 1, "items": { "type": "string" } }
+          ]
+        }
+      }
+    },
+    "action": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "target", "formula"],
+      "properties": {
+        "type": { "enum": ["SET_COMPONENT", "ADD_COMPONENT"] },
+        "target": { "$ref": "#/$defs/componentReference" },
+        "formula": { "$ref": "#/$defs/formulaExpression" }
+      }
+    },
+    "componentReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code"],
+      "properties": { "code": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" } }
+    },
+    "rateReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key"],
+      "properties": { "key": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" } }
+    },
+    "formulaExpression": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["language", "expression"],
+      "properties": {
+        "language": { "const": "TPR-EXPR-1.0" },
+        "expression": { "type": "string", "minLength": 1, "maxLength": 1000 }
+      }
+    }
+  }
+}
