@@ -20,6 +20,10 @@ from differential_validation.validate_artifacts import (
 
 
 class ArtifactValidatorTest(unittest.TestCase):
+    def test_dockerfile_go_name_does_not_poison_go_module(self) -> None:
+        engine = Path(__file__).resolve().parents[2]
+        self.assertEqual([], [path for path in engine.rglob("Dockerfile.go") if ".tmp" not in path.parts])
+
     def test_malformed_json_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "bad.json"

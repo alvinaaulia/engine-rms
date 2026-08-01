@@ -36,10 +36,11 @@ def main() -> None:
     shutil.copytree(ROOT / "runs", output / "runs")
     for name in (
         "README.md", "LICENSE-or-ACCESS-NOTE.md", ".env.example", "Makefile",
-        "docker-compose.yml", "Dockerfile.go", "Dockerfile.laravel",
+        "docker-compose.yml", "Dockerfile.laravel",
         "Dockerfile.validation", "artifact-manifest.json",
     ):
         shutil.copy2(ROOT / "artifact" / name, output / name)
+    shutil.copy2(ROOT / "artifact" / "Dockerfile.go.template", output / "Dockerfile.go")
     print(output)
 
 
