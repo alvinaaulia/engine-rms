@@ -3,7 +3,7 @@
 | Item | Value | Source command | Status |
 |---|---|---|---|
 | Laravel commit | 569a2ba0ff7fe31457c4d3a5dffc7cc99f1d2dc8 | git rev-parse HEAD (Laravel) | VERIFIED |
-| Go/validation commit | fda00953fa1926fe833626d00eed3baafc7c3ab0 | git rev-parse HEAD (engine-rms) | VERIFIED |
+| Go/validation commit | d62ad52c15f7a636fbf223c8d2b2362d7274ca3d | git rev-parse HEAD (engine-rms) | VERIFIED |
 | Branch Laravel | main | git branch --show-current | VERIFIED |
 | Branch Go | main | git branch --show-current | VERIFIED |
 | Tag | tpr-ir-clean-closure-v3 | git rev-list -n 1 tpr-ir-clean-closure-v3 | VERIFIED |
