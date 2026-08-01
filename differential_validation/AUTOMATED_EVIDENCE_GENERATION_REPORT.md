@@ -1,24 +1,18 @@
 
 # Automated evidence generation report
 
-| Command | Evidence file | Parser | Exit | Started | Finished | Seconds | Status |
-|---|---|---|---|---|---|---|---|
-| laravel | laravel-tests.xml | 2.0 | 0 | 2026-08-01T04:47:07.610338+00:00 | 2026-08-01T04:49:23.105149+00:00 | 135.494856 | PASS |
-| go | go-tests.stdout.log | 2.0 | 0 | 2026-08-01T04:46:25.751924+00:00 | 2026-08-01T04:46:41.612010+00:00 | 15.860126 | PASS |
-| go_vet | go-vet.stdout.log | 2.0 | 0 | 2026-08-01T04:46:42.577343+00:00 | 2026-08-01T04:46:49.478518+00:00 | 6.901224 | PASS |
-| translator | translator-go-test.stdout.log | 2.0 | 0 | 2026-08-01T04:46:11.774054+00:00 | 2026-08-01T04:46:25.014808+00:00 | 13.240828 | PASS |
-| e2e | e2e-junit.xml | 2.0 | 0 | 2026-08-01T04:45:26.460650+00:00 | 2026-08-01T04:45:44.045238+00:00 | 17.584631 | PASS |
-| corpus | corpus-generation.stdout.log | 2.0 | 0 | 2026-08-01T04:51:07.382883+00:00 | 2026-08-01T04:51:08.246238+00:00 | 0.863396 | PASS |
-| oracle | oracle-generation.stdout.log | 2.0 | 0 | 2026-08-01T04:51:08.988191+00:00 | 2026-08-01T04:51:10.010338+00:00 | 1.022195 | PASS |
-| oracle_verifier | oracle-verification.stdout.log | 2.0 | 0 | 2026-08-01T04:51:10.856697+00:00 | 2026-08-01T04:51:11.731079+00:00 | 0.874425 | PASS |
-| baseline_differential | differential.stdout.log | 2.0 | 0 | 2026-08-01T04:51:49.695467+00:00 | 2026-08-01T04:52:09.061459+00:00 | 19.366035 | PASS |
-| fixed_differential | differential.stdout.log | 2.0 | 0 | 2026-08-01T04:51:19.080229+00:00 | 2026-08-01T04:51:37.526120+00:00 | 18.445933 | PASS |
+| Command | Status | Tests | Passed | Failed | Assertions | Duration seconds | Exit | Evidence |
+|---|---|---|---|---|---|---|---|---|
+| Laravel full suite | PASS | 157 | 157 | 0 | 1583 | 172.729253 | 0 | laravel-tests-hardening.xml |
+| Go full suite | PASS | 204 | 204 | 0 | N/A | 13.852348 | 0 | go-tests-hardening.stdout.log |
+| Go vet | PASS | N/A | N/A | N/A | N/A | 16.270726 | 0 | go-vet-hardening.stdout.log |
+| Translator fixtures | PASS | 13 | 13 | 0 | N/A | 45.367986 | 0 | translator-hardening.stdout.log |
+| Laravel E2E suite | PASS | 1 | 1 | 0 | 746 | 49.184512 | 0 | e2e-hardening-junit.xml |
+| Corpus generation | PASS | N/A | N/A | N/A | N/A | 1.345525 | 0 | corpus-generation.stdout.log |
+| Oracle generation | PASS | N/A | N/A | N/A | N/A | 0.643492 | 0 | oracle-generation.stdout.log |
+| Oracle verification | PASS | N/A | N/A | N/A | N/A | 1.199619 | 0 | oracle-verification.stdout.log |
+| Reconstructed baseline repeat 1 | PASS | N/A | N/A | N/A | N/A | 19.492545 | 0 | differential.stdout.log |
+| Reconstructed baseline repeat 2 | PASS | N/A | N/A | N/A | N/A | 18.916938 | 0 | differential.stdout.log |
+| Fixed differential | PASS | N/A | N/A | N/A | N/A | 20.751661 | 0 | differential-hardening.stdout.log |
 
-The generator refuses missing, malformed, failed, inconsistent, or stale evidence. Its parser tests cover those conditions and the absence of a hard-coded fallback. Test/assertion counts and durations below are parsed from JUnit or Go JSON events.
-
-| Suite | Tests | Passed | Failed | Skipped | Assertions | Seconds |
-|---|---|---|---|---|---|---|
-| Laravel full suite | 157 | 157 | 0 | 0 | 1519 | 130.900633 |
-| Go full suite | 204 | 204 | 0 | 0 | not emitted | 6.529 |
-| Translator fixture test | 13 | 13 | 0 | 0 | not emitted | 4.4719999999999995 |
-| Full-pipeline E2E PHPUnit | 1 | 1 | 0 | 0 | 682 | 14.385423 |
+All values above are parsed from raw metadata/logs. Generator and validator unit tests are executed separately by the one-command runner and must exit zero before report generation.

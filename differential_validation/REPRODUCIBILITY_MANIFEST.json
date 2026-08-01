@@ -1,0 +1,38 @@
+{
+  "artifact_version": "2.0",
+  "schema_version": "2.0",
+  "status": "NOT_EXECUTED",
+  "checked_at": "2026-08-01T09:37:19.443409+00:00",
+  "clean_environment_method": "fresh Docker build without cache",
+  "dependency_checks": {
+    "docker": false,
+    "docker_compose": false,
+    "make": false,
+    "bash": true
+  },
+  "missing_dependencies": [
+    "docker",
+    "docker compose"
+  ],
+  "planned_command": "docker compose build --no-cache && docker compose run --rm differential-validation",
+  "build_logs": null,
+  "container_versions": null,
+  "start_time": null,
+  "finish_time": null,
+  "exit_code": null,
+  "peak_memory": null,
+  "environment": {
+    "timezone": "Asia/Bangkok",
+    "locale": "C.UTF-8",
+    "database_collation": "utf8mb4_0900_ai_ci",
+    "random_seed": 20260801
+  },
+  "image_digests": {
+    "go": "sha256:47ce5636e9936b2c5cbf708925578ef386b4f8872aec74a67bd13a627d242b19",
+    "composer": "sha256:20462d70afcfa999ad75dbd9333194067f4d869078bdb37430339e8d97e541d6",
+    "mysql": "sha256:679e7e924f38a3cbb62a3d7df32924b83f7321a602d3f9f967c01b3df18495d6"
+  },
+  "limitations": [
+    "Docker executable is unavailable on the hardening host; no clean-container PASS is claimed."
+  ]
+}

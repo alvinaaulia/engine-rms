@@ -1,0 +1,349 @@
+{
+  "artifact_version": "2.0",
+  "evaluation_layers": [
+    {
+      "layer": "Reconstructed baseline differential",
+      "cases": 624,
+      "unit": "corpus case",
+      "mismatch": 8,
+      "result": "RECONSTRUCTED_MISMATCH_REPRODUCED",
+      "evidence": "runs/reconstructed-baseline/manifest.json"
+    },
+    {
+      "layer": "Fixed differential",
+      "cases": 624,
+      "unit": "corpus case",
+      "mismatch": 0,
+      "result": "PASS",
+      "evidence": "runs/fixed/mismatch_details.json"
+    },
+    {
+      "layer": "Translator fixtures",
+      "cases": 12,
+      "unit": "translator fixture",
+      "mismatch": 0,
+      "result": "PASS",
+      "evidence": "runs/hardening/raw-logs/translator-hardening.meta.json"
+    },
+    {
+      "layer": "Laravel-to-Go / full payroll pipeline",
+      "cases": 32,
+      "unit": "payroll transaction",
+      "mismatch": 0,
+      "result": "PASS",
+      "evidence": "e2e-execution-traces.json"
+    },
+    {
+      "layer": "Persistence E2E",
+      "cases": 32,
+      "unit": "persisted payroll transaction",
+      "mismatch": 0,
+      "result": "PASS",
+      "evidence": "e2e-execution-traces.json"
+    },
+    {
+      "layer": "Laravel configuration guards",
+      "cases": 4,
+      "unit": "rejected configuration",
+      "mismatch": 0,
+      "result": "PASS",
+      "evidence": "e2e-execution-traces.json"
+    }
+  ],
+  "oracle": {
+    "total": 624,
+    "independently_verified": 89,
+    "policy_derived": 535,
+    "unsupported_adjudication": 0
+  },
+  "baseline": {
+    "type": "RECONSTRUCTED",
+    "repeat_count": 2,
+    "stable_mismatch_case_ids": [
+      "INVALID-002",
+      "INVALID-005",
+      "INVALID-008",
+      "INVALID-011",
+      "INVALID-014",
+      "INVALID-017",
+      "INVALID-020",
+      "INVALID-023"
+    ],
+    "corpus_hash": "08f16457e2ba3a3ce614ba4e71d9d2629f496c9249c43fe6b09828618161f011",
+    "expected_hash": "e6d5a74fef5b739134796bb83b41641d155160d16fe563276fc4f57940d9e91c",
+    "policy_hash": "1edaaed6094facf558de01e741f12beb0ac3a828d950c2d7ab8e58d2da9ddca1"
+  },
+  "fixed": {
+    "source_commit": "b48f7432c26deae3cba576c507aa51ca12a68513",
+    "mismatch_count": 0,
+    "corpus_hash": "08f16457e2ba3a3ce614ba4e71d9d2629f496c9249c43fe6b09828618161f011",
+    "expected_hash": "e6d5a74fef5b739134796bb83b41641d155160d16fe563276fc4f57940d9e91c",
+    "policy_hash": "1edaaed6094facf558de01e741f12beb0ac3a828d950c2d7ab8e58d2da9ddca1"
+  },
+  "e2e": {
+    "suite_cases": 36,
+    "full_pipeline_cases": 32,
+    "configuration_guard_cases": 4,
+    "persistence_cases": 32
+  },
+  "clean_environment": {
+    "status": "NOT_EXECUTED",
+    "exit_code": null,
+    "missing_dependencies": [
+      "docker",
+      "docker compose"
+    ]
+  },
+  "domain_status": "DOMAIN_VALIDATION_PENDING",
+  "temporal_replay": "NOT_STARTED",
+  "hardening_source": {
+    "tag": "tpr-ir-evidence-hardening-v2",
+    "engine_and_package_commit": "3e2746846da850d0d6ad213c892086c160835c39",
+    "laravel_test_commit": "a6f4f102efd93057a98438e2a68dffaa3425d954"
+  },
+  "command_evidence": {
+    "Laravel full suite": {
+      "tests": 157,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "assertions": 1583,
+      "duration_seconds": 165.951384,
+      "passed": 157,
+      "status": "PASS",
+      "evidence": {
+        "evidence_file": "laravel-tests-hardening.xml",
+        "stdout_file": "laravel-tests-hardening.stdout.log",
+        "stderr_file": "laravel-tests-hardening.stderr.log",
+        "parser_version": "2.0",
+        "command": [
+          "php",
+          "artisan",
+          "test",
+          "--log-junit",
+          "C:\\PROJECT\\engine-rms\\differential_validation\\runs\\hardening\\raw-logs\\laravel-tests-hardening.xml"
+        ],
+        "exit_code": 0,
+        "started_at": "2026-08-01T09:09:19.030771+00:00",
+        "finished_at": "2026-08-01T09:12:11.759978+00:00",
+        "duration_seconds": 172.729253
+      }
+    },
+    "Go full suite": {
+      "tests": 204,
+      "passed": 204,
+      "failed": 0,
+      "skipped": 0,
+      "package_failures": 0,
+      "duration_seconds": 5.156,
+      "status": "PASS",
+      "evidence": {
+        "evidence_file": "go-tests-hardening.stdout.log",
+        "stdout_file": "go-tests-hardening.stdout.log",
+        "stderr_file": "go-tests-hardening.stderr.log",
+        "parser_version": "2.0",
+        "command": [
+          "go",
+          "test",
+          "-json",
+          "./...",
+          "-count=1"
+        ],
+        "exit_code": 0,
+        "started_at": "2026-08-01T09:08:37.282680+00:00",
+        "finished_at": "2026-08-01T09:08:51.134991+00:00",
+        "duration_seconds": 13.852348
+      }
+    },
+    "Go vet": {
+      "status": "PASS",
+      "evidence": {
+        "evidence_file": "go-vet-hardening.stdout.log",
+        "stdout_file": "go-vet-hardening.stdout.log",
+        "stderr_file": "go-vet-hardening.stderr.log",
+        "parser_version": "2.0",
+        "command": [
+          "go",
+          "vet",
+          "./..."
+        ],
+        "exit_code": 0,
+        "started_at": "2026-08-01T09:08:51.881481+00:00",
+        "finished_at": "2026-08-01T09:09:08.152165+00:00",
+        "duration_seconds": 16.270726
+      }
+    },
+    "Translator fixtures": {
+      "tests": 13,
+      "passed": 13,
+      "failed": 0,
+      "skipped": 0,
+      "package_failures": 0,
+      "duration_seconds": 4.844,
+      "status": "PASS",
+      "evidence": {
+        "evidence_file": "translator-hardening.stdout.log",
+        "stdout_file": "translator-hardening.stdout.log",
+        "stderr_file": "translator-hardening.stderr.log",
+        "parser_version": "2.0",
+        "command": [
+          "go",
+          "test",
+          "-json",
+          "-run",
+          "TestTranslationValidationFixtures",
+          "-count=1",
+          "."
+        ],
+        "exit_code": 0,
+        "started_at": "2026-08-01T09:07:51.221422+00:00",
+        "finished_at": "2026-08-01T09:08:36.589361+00:00",
+        "duration_seconds": 45.367986
+      }
+    },
+    "Laravel E2E suite": {
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "assertions": 746,
+      "duration_seconds": 32.049455,
+      "passed": 1,
+      "status": "PASS",
+      "evidence": {
+        "evidence_file": "e2e-hardening-junit.xml",
+        "stdout_file": "e2e-hardening.stdout.log",
+        "stderr_file": "e2e-hardening.stderr.log",
+        "parser_version": "2.0",
+        "command": [
+          "php",
+          "artisan",
+          "test",
+          "tests/Feature/DifferentialFullPipelineE2ETest.php",
+          "--log-junit",
+          "C:\\PROJECT\\engine-rms\\differential_validation\\runs\\fixed\\raw-logs\\e2e-hardening-junit.xml"
+        ],
+        "exit_code": 0,
+        "started_at": "2026-08-01T09:06:44.218107+00:00",
+        "finished_at": "2026-08-01T09:07:33.402577+00:00",
+        "duration_seconds": 49.184512
+      }
+    },
+    "Corpus generation": {
+      "status": "PASS",
+      "evidence": {
+        "evidence_file": "corpus-generation.stdout.log",
+        "stdout_file": "corpus-generation.stdout.log",
+        "stderr_file": "corpus-generation.stderr.log",
+        "parser_version": "2.0",
+        "command": [
+          "python",
+          "differential_validation/generate_corpus.py"
+        ],
+        "exit_code": 0,
+        "started_at": "2026-08-01T09:01:04.896793+00:00",
+        "finished_at": "2026-08-01T09:01:06.242269+00:00",
+        "duration_seconds": 1.345525
+      }
+    },
+    "Oracle generation": {
+      "status": "PASS",
+      "evidence": {
+        "evidence_file": "oracle-generation.stdout.log",
+        "stdout_file": "oracle-generation.stdout.log",
+        "stderr_file": "oracle-generation.stderr.log",
+        "parser_version": "2.0",
+        "command": [
+          "python",
+          "differential_validation/oracle_calculator/reference_oracle.py"
+        ],
+        "exit_code": 0,
+        "started_at": "2026-08-01T09:01:06.852973+00:00",
+        "finished_at": "2026-08-01T09:01:07.496425+00:00",
+        "duration_seconds": 0.643492
+      }
+    },
+    "Oracle verification": {
+      "status": "PASS",
+      "evidence": {
+        "evidence_file": "oracle-verification.stdout.log",
+        "stdout_file": "oracle-verification.stdout.log",
+        "stderr_file": "oracle-verification.stderr.log",
+        "parser_version": "2.0",
+        "command": [
+          "python",
+          "differential_validation/oracle_calculator/verify_oracle.py"
+        ],
+        "exit_code": 0,
+        "started_at": "2026-08-01T09:01:08.095075+00:00",
+        "finished_at": "2026-08-01T09:01:09.294653+00:00",
+        "duration_seconds": 1.199619
+      }
+    },
+    "Reconstructed baseline repeat 1": {
+      "status": "PASS",
+      "evidence": {
+        "evidence_file": "differential.stdout.log",
+        "stdout_file": "differential.stdout.log",
+        "stderr_file": "differential.stderr.log",
+        "parser_version": "2.0",
+        "command": [
+          "python",
+          "differential_validation/differential_runner/run_differential.py",
+          "--output-dir",
+          "differential_validation/runs/reconstructed-baseline/repeat-1",
+          "--run-id",
+          "reconstructed-baseline-repeat-1",
+          "--allow-mismatches"
+        ],
+        "exit_code": 0,
+        "started_at": "2026-08-01T09:04:25.484543+00:00",
+        "finished_at": "2026-08-01T09:04:44.977040+00:00",
+        "duration_seconds": 19.492545
+      }
+    },
+    "Reconstructed baseline repeat 2": {
+      "status": "PASS",
+      "evidence": {
+        "evidence_file": "differential.stdout.log",
+        "stdout_file": "differential.stdout.log",
+        "stderr_file": "differential.stderr.log",
+        "parser_version": "2.0",
+        "command": [
+          "python",
+          "differential_validation/differential_runner/run_differential.py",
+          "--output-dir",
+          "differential_validation/runs/reconstructed-baseline/repeat-2",
+          "--run-id",
+          "reconstructed-baseline-repeat-2",
+          "--allow-mismatches"
+        ],
+        "exit_code": 0,
+        "started_at": "2026-08-01T09:04:45.765808+00:00",
+        "finished_at": "2026-08-01T09:05:04.682693+00:00",
+        "duration_seconds": 18.916938
+      }
+    },
+    "Fixed differential": {
+      "status": "PASS",
+      "evidence": {
+        "evidence_file": "differential-hardening.stdout.log",
+        "stdout_file": "differential-hardening.stdout.log",
+        "stderr_file": "differential-hardening.stderr.log",
+        "parser_version": "2.0",
+        "command": [
+          "python",
+          "differential_validation/differential_runner/run_differential.py",
+          "--output-dir",
+          "differential_validation/runs/fixed",
+          "--run-id",
+          "fixed-hardening"
+        ],
+        "exit_code": 0,
+        "started_at": "2026-08-01T09:05:46.673802+00:00",
+        "finished_at": "2026-08-01T09:06:07.425411+00:00",
+        "duration_seconds": 20.751661
+      }
+    }
+  }
+}
