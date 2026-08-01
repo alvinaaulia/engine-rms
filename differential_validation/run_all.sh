@@ -31,6 +31,7 @@ export RULE_ENGINE_URL="${RULE_ENGINE_URL:-http://127.0.0.1:8081}"
 export LARAVEL_ROOT="$LARAVEL_DIR"
 export TZ="${TZ:-Asia/Bangkok}" LC_ALL="${LC_ALL:-C.UTF-8}"
 if [[ "$DB_DATABASE" != *test* ]]; then echo "Refusing non-test database: $DB_DATABASE" >&2; exit 2; fi
+cd "$ENGINE_DIR"
 
 python "$PACKAGE_DIR/record_command.py" --name migration --output-dir "$LOG_DIR" --cwd "$LARAVEL_DIR" -- php artisan migrate:fresh --env=testing --force
 python "$PACKAGE_DIR/record_command.py" --name corpus-generation --output-dir "$LOG_DIR" --cwd "$ENGINE_DIR" -- python differential_validation/generate_corpus.py
@@ -38,13 +39,13 @@ python "$PACKAGE_DIR/record_command.py" --name oracle-generation --output-dir "$
 python "$PACKAGE_DIR/record_command.py" --name oracle-verification --output-dir "$LOG_DIR" --cwd "$ENGINE_DIR" -- python differential_validation/oracle_calculator/verify_oracle.py
 
 suffix=""; [[ "${OS:-}" == "Windows_NT" || "$(uname -s)" == MINGW* ]] && suffix=".exe"
-go build -tags differential_baseline -o "$TMP_DIR/baseline$suffix" "$ENGINE_DIR"
+(cd "$ENGINE_DIR" && go build -tags differential_baseline -o "$TMP_DIR/baseline$suffix" .)
 "$TMP_DIR/baseline$suffix" >"$RUNS_DIR/baseline/logs/engine.stdout.log" 2>"$RUNS_DIR/baseline/logs/engine.stderr.log" & ENGINE_PID=$!
 sleep 2
 python "$PACKAGE_DIR/record_command.py" --name differential --output-dir "$RUNS_DIR/baseline/logs" --cwd "$ENGINE_DIR" -- python differential_validation/differential_runner/run_differential.py --output-dir differential_validation/runs/baseline --run-id reconstructed-baseline --allow-mismatches
 kill "$ENGINE_PID"; wait "$ENGINE_PID" 2>/dev/null || true; ENGINE_PID=""
 
-go build -o "$TMP_DIR/fixed$suffix" "$ENGINE_DIR"
+(cd "$ENGINE_DIR" && go build -o "$TMP_DIR/fixed$suffix" .)
 "$TMP_DIR/fixed$suffix" >"$RUNS_DIR/fixed/logs/engine.stdout.log" 2>"$RUNS_DIR/fixed/logs/engine.stderr.log" & ENGINE_PID=$!
 sleep 2
 python "$PACKAGE_DIR/record_command.py" --name differential --output-dir "$LOG_DIR" --cwd "$ENGINE_DIR" -- python differential_validation/differential_runner/run_differential.py --output-dir differential_validation/runs/fixed --run-id fixed
@@ -60,4 +61,3 @@ python "$PACKAGE_DIR/generate_run_evidence.py"
 python "$PACKAGE_DIR/validate_artifacts.py"
 python -m unittest differential_validation.tests.test_evidence
 python "$PACKAGE_DIR/generate_reports.py"
-
