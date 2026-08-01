@@ -31,6 +31,11 @@ def version(executable: str, *args: str) -> str:
     return (result.stdout or result.stderr).strip().splitlines()[0]
 
 
+def database_collation() -> str:
+    php = "require 'vendor/autoload.php'; $app=require 'bootstrap/app.php'; $app->make(Illuminate\\Contracts\\Console\\Kernel::class)->bootstrap(); echo Illuminate\\Support\\Facades\\DB::selectOne('SELECT @@collation_database AS value')->value;"
+    return command(LARAVEL, "php", "-r", php)
+
+
 def metric(name: str, status: str, value, reason: str, comparator: bool, source: bool) -> dict:
     return {"metric": name, "status": status, "value": value, "reason": reason, "comparator_available": comparator, "source_data_available": source}
 
@@ -84,7 +89,7 @@ def build_manifest(run: str, actual: dict, mismatches: dict) -> dict:
             "mismatches": sha(run_dir / "mismatch_details.json"), "metrics": sha(run_dir / "metrics.json"),
         },
         "comparator_version": "2.0", "timestamp": datetime.now(timezone.utc).isoformat(),
-        "environment": {"os": platform.platform(), "timezone": "Asia/Bangkok", "locale": "C.UTF-8", "database_collation": "from isolated Laravel test database"},
+        "environment": {"os": platform.platform(), "timezone": "Asia/Bangkok", "locale": "C.UTF-8", "database_collation": database_collation()},
         "tool_versions": {"python": platform.python_version(), "go": version("go", "version"), "php": version("php", "--version")},
         "results": {"cases": mismatches["case_count"], "mismatches": mismatches["mismatch_count"], "mismatched_cases": mismatches["mismatched_case_count"]},
         "limitations": ["The original pre-fix raw run was overwritten; baseline was reconstructed using an explicit build tag against the preserved baseline semantics."] if run == "baseline" else [],

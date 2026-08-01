@@ -1,6 +1,7 @@
 services:
   mysql:
     image: mysql:8.4.5@sha256:679e7e924f38a3cbb62a3d7df32924b83f7321a602d3f9f967c01b3df18495d6
+    command: ["--collation-server=utf8mb4_0900_ai_ci", "--character-set-server=utf8mb4"]
     environment:
       MYSQL_DATABASE: website_papa_v2_testing
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
