@@ -291,6 +291,7 @@ A - Runner unavailable.
 
 - Source tag `{SOURCE_TAG}` binds the clean-run orchestration and audit generator.
 - Added run-scoped runner/access/source/readiness/hash evidence and V4 reporting.
+- Added the Go `/health` readiness endpoint, its regression test, and an HTTP-based Compose health check.
 - Private Laravel access uses a commit-pinned snapshot identity; no credential or private source is committed into the public engine repository.
 - Frozen policy, corpus, expected results, oracle, and production payroll logic were not changed.
 - No clean experiment was executed and temporal replay remains `NOT_STARTED`.
