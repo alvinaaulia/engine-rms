@@ -49,7 +49,7 @@ services:
       - ../..:/artifact
     command: ["go", "run", "."]
     healthcheck:
-      test: ["CMD-SHELL", "bash -c '</dev/tcp/127.0.0.1/8081'"]
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/8081; printf \"GET /health HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n\" >&3; grep -q \"200 OK\" <&3'"]
       interval: 2s
       timeout: 3s
       retries: 60
@@ -76,4 +76,3 @@ services:
         condition: service_healthy
       rule-engine-go:
         condition: service_healthy
-

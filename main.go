@@ -74,7 +74,18 @@ func executeRules(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(resp)
 }
 
+func health(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	if r.Method != http.MethodGet {
+		writeAPIError(w, http.StatusMethodNotAllowed, validationError("METHOD_NOT_ALLOWED", "request.method", "only GET is supported"))
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(map[string]string{"status": "ready"})
+}
+
 func main() {
+	http.HandleFunc("/health", health)
 	http.HandleFunc("/execute", executeRules)
 	log.Println("Go Rule Engine running on :8081")
 	server := &http.Server{Addr: ":8081", ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 10 * time.Second, WriteTimeout: 15 * time.Second, IdleTimeout: 60 * time.Second}

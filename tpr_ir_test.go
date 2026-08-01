@@ -80,6 +80,26 @@ func TestTPRHTTPTrustBoundary(t *testing.T) {
 	})
 }
 
+func TestHealthEndpoint(t *testing.T) {
+	t.Run("ready", func(t *testing.T) {
+		rec := httptest.NewRecorder()
+		health(rec, httptest.NewRequest(http.MethodGet, "/health", nil))
+		if rec.Code != http.StatusOK {
+			t.Fatalf("got status %d", rec.Code)
+		}
+		if !strings.Contains(rec.Body.String(), `"status":"ready"`) {
+			t.Fatalf("unexpected body %q", rec.Body.String())
+		}
+	})
+	t.Run("method rejected", func(t *testing.T) {
+		rec := httptest.NewRecorder()
+		health(rec, httptest.NewRequest(http.MethodPost, "/health", nil))
+		if rec.Code != http.StatusMethodNotAllowed {
+			t.Fatalf("got status %d", rec.Code)
+		}
+	})
+}
+
 func semanticFacts() map[string]interface{} {
 	return map[string]interface{}{
 		"employee":   map[string]interface{}{"status": "aktif", "contract_type": "karyawan_tetap", "has_npwp": true, "ptkp_status": "TK/0", "grade": "A", "join_date": "2020-01-01", "years_of_service": 6.0, "performance_score": 90.0, "basic_salary": "5000000.00", "annual_bonus_eligible": true, "thr_eligible": true},
