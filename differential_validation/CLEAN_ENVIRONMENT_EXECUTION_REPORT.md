@@ -22,13 +22,13 @@ Not executed on a fresh database.
 ## 10. Commands executed
 Runner detection, virtualization capability, and private repository access checks only.
 ## 11. Exit codes
-See `runs/clean-environment/runner-audit-20260801T111131Z/command-results.json`.
+See `runs/clean-environment/runner-audit-20260801T112156Z/command-results.json`.
 ## 12-20. Test and experiment results
 Laravel, Go, vet, baseline repeats, fixed differential, translator, pipeline, persistence, and guards were not executed in a clean environment. Their local evidence remains separate.
 ## 21. Hash verification
 Frozen local input hashes matched; clean output hashes are `NOT_EXECUTED`.
 ## 22. Total duration
-Runner-selection command duration: `4.43228` seconds.
+Runner-selection command duration: `5.217785` seconds.
 ## 23. Failure details
 Stage `RUNNER_SELECTION`: no Docker/Compose, installed Linux environment, clean VM, authenticated CI channel, or accessible remote runner.
 ## 24. Final clean-reproduction status
