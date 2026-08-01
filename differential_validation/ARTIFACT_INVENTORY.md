@@ -32,6 +32,7 @@
 - `__pycache__/evidence.cpython-314.pyc`
 - `__pycache__/generate_corpus.cpython-314.pyc`
 - `__pycache__/generate_reports.cpython-314.pyc`
+- `__pycache__/generate_run_evidence.cpython-314.pyc`
 - `__pycache__/validate_artifacts.cpython-314.pyc`
 - `actual_results.json`
 - `artifact/LICENSE-or-ACCESS-NOTE.md`
