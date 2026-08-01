@@ -73,6 +73,43 @@ def main() -> None:
         "container_ids": [args.container_id] if args.container_id else [], "os": platform.platform(),
         "architecture": platform.machine(), "timezone": "Asia/Jakarta", "locale": "C.UTF-8",
     })
+    command_results = []
+    meta_roots = [
+        ROOT / "runs/hardening/raw-logs", ROOT / "runs/fixed/raw-logs",
+        ROOT / "runs/reconstructed-baseline/repeat-1/raw-logs",
+        ROOT / "runs/reconstructed-baseline/repeat-2/raw-logs",
+    ]
+    for meta_root in meta_roots:
+        if not meta_root.exists():
+            continue
+        prefix = "--".join(meta_root.relative_to(ROOT / "runs").parts[:-1])
+        for meta_path in sorted(meta_root.glob("*.meta.json")):
+            meta = load(meta_path)
+            copied = {}
+            for key in ("stdout_file", "stderr_file", "evidence_file"):
+                source_name = meta.get(key)
+                if not source_name:
+                    continue
+                source = meta_root / source_name
+                if source.exists():
+                    destination = CLEAN / "raw-logs" / f"{prefix}--{source.name}"
+                    shutil.copy2(source, destination)
+                    copied[key] = destination.relative_to(CLEAN).as_posix()
+            evidence_exists = bool(copied.get("evidence_file"))
+            command_results.append({
+                "command": meta["command"], "started_at": meta["started_at"], "finished_at": meta["finished_at"],
+                "duration_seconds": meta["duration_seconds"], "exit_code": meta["exit_code"],
+                "stdout_file": copied.get("stdout_file"), "stderr_file": copied.get("stderr_file"),
+                "evidence_file": copied.get("evidence_file"),
+                "status": "PASS" if meta["exit_code"] == 0 and evidence_exists else "FAIL",
+            })
+    command_results.append({
+        "command": ["make", "clean-validate"], "started_at": args.started_at, "finished_at": args.finished_at,
+        "duration_seconds": args.duration_seconds, "exit_code": args.exit_code,
+        "stdout_file": "raw-logs/validation-runner.log", "stderr_file": None,
+        "evidence_file": "manifest.json", "status": status,
+    })
+    write(CLEAN / "command-results.json", {"artifact_version": "1.0", "commands": command_results})
     for source, destination in (
         (ROOT / "runs/reconstructed-baseline", CLEAN / "reconstructed-baseline"),
         (ROOT / "runs/fixed", CLEAN / "fixed"),

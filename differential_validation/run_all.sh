@@ -75,9 +75,9 @@ export FULL_PIPELINE_E2E_OUTPUT="$RUNS_DIR/fixed/full_pipeline_e2e.json"
 record --name e2e-hardening --output-dir "$RUNS_DIR/fixed/raw-logs" --cwd "$LARAVEL_DIR" --evidence-file e2e-hardening-junit.xml -- php artisan test tests/Feature/DifferentialFullPipelineE2ETest.php --log-junit "$RUNS_DIR/fixed/raw-logs/e2e-hardening-junit.xml"
 record --name laravel-tests-hardening --output-dir "$HARD_LOGS" --cwd "$LARAVEL_DIR" --evidence-file laravel-tests-hardening.xml -- php artisan test --log-junit "$HARD_LOGS/laravel-tests-hardening.xml"
 
-python "$PACKAGE_DIR/generate_run_evidence.py"
-python "$PACKAGE_DIR/generate_hardening_artifacts.py"
-python "$PACKAGE_DIR/validate_artifacts.py"
-(cd "$ENGINE_DIR" && python -m unittest differential_validation.tests.test_evidence differential_validation.tests.test_artifact_validator)
-python "$PACKAGE_DIR/generate_reports.py"
-python "$PACKAGE_DIR/validate_artifacts.py"
+record --name run-evidence-generation --output-dir "$HARD_LOGS" --cwd "$ENGINE_DIR" -- python differential_validation/generate_run_evidence.py
+record --name hardening-artifact-generation --output-dir "$HARD_LOGS" --cwd "$ENGINE_DIR" -- python differential_validation/generate_hardening_artifacts.py
+record --name schema-validation --output-dir "$HARD_LOGS" --cwd "$ENGINE_DIR" -- python differential_validation/validate_artifacts.py
+record --name validator-tests --output-dir "$HARD_LOGS" --cwd "$ENGINE_DIR" -- python -m unittest differential_validation.tests.test_evidence differential_validation.tests.test_artifact_validator
+record --name report-generation --output-dir "$HARD_LOGS" --cwd "$ENGINE_DIR" -- python differential_validation/generate_reports.py
+record --name final-schema-validation --output-dir "$HARD_LOGS" --cwd "$ENGINE_DIR" -- python differential_validation/validate_artifacts.py

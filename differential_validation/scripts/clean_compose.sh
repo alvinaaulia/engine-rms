@@ -24,7 +24,9 @@ set -e
 docker compose logs --no-color mysql >"$TEMP_LOGS/mysql.log" 2>&1 || true
 docker compose logs --no-color app-laravel >"$TEMP_LOGS/app-laravel.log" 2>&1 || true
 docker compose logs --no-color rule-engine-go >"$TEMP_LOGS/rule-engine-go.log" 2>&1 || true
-docker compose images --format json >"$TEMP_LOGS/images.json"
+docker compose images -q | sort -u | while read -r image_id; do
+  [[ -n "$image_id" ]] && docker image inspect "$image_id" --format '{{json .}}'
+done >"$TEMP_LOGS/images.json"
 CONTAINER_ID="$(docker inspect --format '{{.Id}}' differential-clean-validation 2>/dev/null || true)"
 
 mkdir -p "$PACKAGE_DIR/runs/clean-environment/raw-logs"
