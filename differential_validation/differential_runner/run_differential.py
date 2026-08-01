@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import csv
 import hashlib
 import json
@@ -13,7 +14,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-ENGINE_URL = "http://127.0.0.1:8081/execute"
+DEFAULT_ENGINE_URL = "http://127.0.0.1:8081/execute"
 QUANTUM = Decimal("0.000001")
 
 
@@ -30,7 +31,7 @@ def verify_freeze() -> dict:
     if not frozen_path.exists():
         raise RuntimeError("Expected results are not frozen; run verify_oracle.py first")
     frozen = json.loads(frozen_path.read_text(encoding="utf-8"))
-    if frozen.get("status") != "FROZEN_REFERENCE_ONLY":
+    if frozen.get("status") != "FROZEN_REFERENCE_ORACLE":
         raise RuntimeError("Oracle freeze status is invalid")
     for name, expected_hash in frozen["hashes"].items():
         actual_hash = digest(ROOT / name)
@@ -57,15 +58,43 @@ def build_canonical_payload(policy: dict, facts: dict) -> dict:
     return response["payload"]
 
 
-def execute_case(case: dict, base_payload: dict) -> dict:
-    payload = {
-        "schema_version": base_payload["schema_version"],
-        "ruleset": base_payload["ruleset"],
-        "facts": case["facts"],
-        "component_types": base_payload["component_types"],
-    }
+def active_rules(policy: dict, salary_date: str) -> list[dict]:
+    return [
+        rule for rule in policy["rules"]
+        if (not rule.get("effective_date") or salary_date >= rule["effective_date"])
+        and (not rule.get("end_date") or salary_date <= rule["end_date"])
+    ]
+
+
+def legacy_definitions(policy: dict, salary_date: str) -> list[dict]:
+    return [{
+        "conditions": rule["conditions"],
+        "action": {"type": rule["action_type"], "code": rule["component_code"], "formula": rule["formula"]},
+        "meta": {
+            "rule_version_id": rule["version_id"], "rule_id": rule["rule_id"], "version": rule["version"],
+            "priority": rule["priority"], "effective_date": rule["effective_date"], "end_date": rule["end_date"],
+        },
+    } for rule in active_rules(policy, salary_date)]
+
+
+def active_signature(policy: dict, salary_date: str) -> str:
+    return ",".join(str(rule["version_id"]) for rule in active_rules(policy, salary_date))
+
+
+def execute_case(case: dict, canonical_payloads: dict[str, dict], policy: dict, engine_url: str) -> dict:
+    if case["execution_route"] == "LEGACY_ADAPTER":
+        payload = {
+            "rules": legacy_definitions(policy, case["facts"]["salary_date"]),
+            "facts": case["facts"], "component_types": policy["component_types"],
+        }
+    else:
+        base_payload = canonical_payloads[active_signature(policy, case["facts"]["salary_date"])]
+        payload = {
+            "schema_version": base_payload["schema_version"], "ruleset": base_payload["ruleset"],
+            "facts": case["facts"], "component_types": base_payload["component_types"],
+        }
     request = urllib.request.Request(
-        ENGINE_URL,
+        engine_url,
         data=json.dumps(payload, separators=(",", ":")).encode("utf-8"),
         headers={"Content-Type": "application/json"},
         method="POST",
@@ -73,18 +102,19 @@ def execute_case(case: dict, base_payload: dict) -> dict:
     try:
         with urllib.request.urlopen(request, timeout=15) as response:
             body = json.loads(response.read().decode("utf-8"))
-            return {"case_id": case["case_id"], "actual_status": "SUCCESS", "http_status": response.status, "body": body}
+            return {"case_id": case["case_id"], "execution_route": case["execution_route"], "actual_status": "SUCCESS", "http_status": response.status, "body": body}
     except urllib.error.HTTPError as exception:
         raw = exception.read().decode("utf-8")
         try:
             body = json.loads(raw)
         except json.JSONDecodeError:
             body = {"error_code": "NON_JSON_ERROR", "message": raw}
-        return {"case_id": case["case_id"], "actual_status": "REJECTED", "http_status": exception.code, "body": body}
+        return {"case_id": case["case_id"], "execution_route": case["execution_route"], "actual_status": "REJECTED", "http_status": exception.code, "body": body}
     except Exception as exception:  # Captures transport failure without losing the rest of the experiment.
         error_code = "TIMEOUT" if "timed out" in str(exception).lower() else "RUNTIME_ERROR"
         return {
             "case_id": case["case_id"],
+            "execution_route": case["execution_route"],
             "actual_status": "TRANSPORT_ERROR",
             "http_status": None,
             "body": {"error_code": error_code, "message": str(exception)},
@@ -95,6 +125,7 @@ def canonical_actual(result: dict, case: dict, policy: dict) -> dict:
     if result["actual_status"] != "SUCCESS":
         return {
             "case_id": result["case_id"],
+            "execution_route": result["execution_route"],
             "actual_status": result["actual_status"],
             "http_status": result["http_status"],
             "error_code": result["body"].get("error_code"),
@@ -136,6 +167,7 @@ def canonical_actual(result: dict, case: dict, policy: dict) -> dict:
     }
     return {
         "case_id": result["case_id"],
+        "execution_route": result["execution_route"],
         "actual_status": "SUCCESS",
         "http_status": result["http_status"],
         "components": components,
@@ -147,7 +179,9 @@ def row(case: dict, scope: str, item: str, expected, actual, matched: bool, cate
     render = lambda value: json.dumps(value, ensure_ascii=False, sort_keys=True) if isinstance(value, (dict, list)) else "" if value is None else str(value)
     return {
         "case_id": case["case_id"],
-        "case_category": case["category"],
+        "primary_category": case["primary_category"],
+        "secondary_categories": "|".join(case["secondary_categories"]),
+        "execution_route": case["execution_route"],
         "validity": case["validity"],
         "comparison_scope": scope,
         "item": item,
@@ -212,7 +246,19 @@ def compare(case: dict, expected: dict, actual: dict, policy: dict) -> tuple[lis
     return rows, mismatches
 
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Run the frozen differential corpus against a live Go engine")
+    parser.add_argument("--output-dir", type=Path, default=ROOT, help="Directory for actual, comparison, and mismatch artifacts")
+    parser.add_argument("--engine-url", default=DEFAULT_ENGINE_URL)
+    parser.add_argument("--run-id", default="fixed")
+    parser.add_argument("--allow-mismatches", action="store_true", help="Record mismatches without returning a failing exit status")
+    return parser.parse_args()
+
+
 def main() -> None:
+    args = parse_args()
+    output_dir = args.output_dir.resolve()
+    output_dir.mkdir(parents=True, exist_ok=True)
     with localcontext() as context:
         context.prec = 50
         frozen = verify_freeze()
@@ -220,11 +266,20 @@ def main() -> None:
         corpus = json.loads((ROOT / "oracle_input_cases.json").read_text(encoding="utf-8"))
         expected_payload = json.loads((ROOT / "oracle_expected_results.json").read_text(encoding="utf-8"))
         expected_by_id = {item["case_id"]: item for item in expected_payload["results"]}
-        base_payload = build_canonical_payload(policy, corpus["cases"][0]["facts"])
+        canonical_payloads: dict[str, dict] = {}
+        for case in corpus["cases"]:
+            if case["execution_route"] != "CANONICAL_TPR_IR":
+                continue
+            signature = active_signature(policy, case["facts"]["salary_date"])
+            if signature not in canonical_payloads:
+                canonical_payloads[signature] = build_canonical_payload(policy, case["facts"])
 
         raw_results: dict[str, dict] = {}
         with ThreadPoolExecutor(max_workers=4) as executor:
-            futures = {executor.submit(execute_case, case, base_payload): case["case_id"] for case in corpus["cases"]}
+            futures = {
+                executor.submit(execute_case, case, canonical_payloads, policy, args.engine_url): case["case_id"]
+                for case in corpus["cases"]
+            }
             for completed, future in enumerate(as_completed(futures), 1):
                 result = future.result()
                 raw_results[result["case_id"]] = result
@@ -242,28 +297,32 @@ def main() -> None:
             mismatches.extend(case_mismatches)
 
     actual_payload = {
-        "schema_version": "1.0",
-        "engine_url": ENGINE_URL,
+        "artifact_version": "2.0",
+        "schema_version": "2.0",
+        "run_id": args.run_id,
+        "engine_url": args.engine_url,
         "adapter": "Laravel TypedPayrollRuleIrService",
         "frozen_oracle_hash": frozen["hashes"]["oracle_expected_results.json"],
         "case_count": len(actual_results),
         "results": actual_results,
     }
-    (ROOT / "actual_results.json").write_text(json.dumps(actual_payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    with (ROOT / "differential_results.csv").open("w", newline="", encoding="utf-8") as handle:
+    (output_dir / "actual_results.json").write_text(json.dumps(actual_payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    with (output_dir / "differential_results.csv").open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=list(detail_rows[0]))
         writer.writeheader()
         writer.writerows(detail_rows)
     mismatch_payload = {
-        "schema_version": "1.0",
+        "artifact_version": "2.0",
+        "schema_version": "2.0",
+        "run_id": args.run_id,
         "case_count": len(corpus["cases"]),
         "mismatch_count": len(mismatches),
         "mismatched_case_count": len({item["case_id"] for item in mismatches}),
         "mismatches": mismatches,
     }
-    (ROOT / "mismatch_details.json").write_text(json.dumps(mismatch_payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print(json.dumps({"case_count": len(corpus["cases"]), "comparison_count": len(detail_rows), "mismatch_count": len(mismatches), "mismatched_case_count": mismatch_payload["mismatched_case_count"]}))
-    if mismatches:
+    (output_dir / "mismatch_details.json").write_text(json.dumps(mismatch_payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    print(json.dumps({"run_id": args.run_id, "output_dir": str(output_dir), "case_count": len(corpus["cases"]), "comparison_count": len(detail_rows), "mismatch_count": len(mismatches), "mismatched_case_count": mismatch_payload["mismatched_case_count"]}))
+    if mismatches and not args.allow_mismatches:
         sys.exit(1)
 
 

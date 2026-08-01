@@ -1,61 +1,59 @@
-# Reproducibility Guide
+# Reproducibility guide
+
+## Layout
+
+Place both repositories as siblings:
+
+```text
+artifact/
+├── papa-website-v2/
+└── engine-rms/
+    └── differential_validation/
+```
+
+Do not use the precompiled Windows binary as experimental evidence. The runner builds both reconstructed-baseline and fixed services from source.
 
 ## Prerequisites
 
-- Windows PowerShell, Git Bash optional.
-- PHP/Laravel dependencies installed in `C:\PROJECT\papa-website-v2`.
-- Go dependencies available for `C:\PROJECT\engine-rms`.
-- Python 3.
-- MySQL running, with a disposable database named `website_papa_v2_testing`.
-- Port 8081 free or occupied only by a prior `rule-engine`/`differential-engine` test process.
+- Go 1.26.2
+- PHP 8.4 and Composer dependencies for Laravel
+- Python 3.14 with `requirements.txt`
+- Git Bash and Make, or Docker Compose
+- isolated MySQL database whose name contains `test` or `testing`
 
-The script has a hard guard requiring the database name to end in `_testing` before `migrate:fresh`.
+Copy `.env.example`, set credentials for the isolated testing database, and install Laravel dependencies with `composer install`. The deterministic corpus seed, timezone, locale, dependency version, and container image digests are committed.
 
-## One command
+## Primary command
 
-From `C:\PROJECT\engine-rms` in Git Bash:
+From `engine-rms/differential_validation` in Git Bash:
 
 ```bash
-powershell.exe -ExecutionPolicy Bypass -File ./differential_validation/run_differential.ps1
+make differential-validation
 ```
 
-Or from PowerShell:
+The command refuses a dirty tree by default, verifies repository commits, guards the test database name, prepares migrations, creates and verifies the frozen oracle, builds baseline and fixed engines from source, runs both differential comparisons, runs translator fixtures, full Go tests, Go vet, the full Laravel suite, the true E2E subset, schema validation, evidence-parser tests, manifests, and reports. An unresolved fixed mismatch or failed command returns non-zero.
 
-```powershell
-powershell -ExecutionPolicy Bypass -File .\differential_validation\run_differential.ps1
+The PowerShell file is only a convenience wrapper around the same Bash route.
+
+## Optional clean container route
+
+```bash
+docker compose run --rm differential-validation
 ```
 
-## What the command does
+The Go, Composer, and MySQL image references use registry digests. Docker was unavailable on the remediation host, so this route is supplied but its clean-environment result is `NOT_EXECUTED`, not success.
 
-1. Forces the isolated `website_papa_v2_testing` environment.
-2. Runs fresh migrations and `DatabaseSeeder`.
-3. Regenerates the 624-case deterministic corpus.
-4. Regenerates the independent Decimal reference oracle.
-5. Independently verifies 84 cases and freezes expected hashes.
-6. Runs the 12 translator fixtures and captures canonical TPR-IR/GRL/result.
-7. Builds and starts the current Go engine on port 8081.
-8. Boots Laravel through the same `TypedPayrollRuleIrService` application boundary and runs all differential requests.
-9. Runs the full Go suite, Go vet, and full Laravel suite.
-10. Regenerates metrics, root-cause/translator/final reports, and `EXPERIMENT_MANIFEST.json`.
-11. Exits non-zero on migration, seed, oracle verification, translator, differential mismatch, suite, vet, or report failure.
+## Review bundle
 
-The test engine process started by the script is stopped in a `finally` block.
+After committing the final source, assemble Git-tracked source without vendor/build output:
 
-## Determinism checks
+```bash
+make package
+```
 
-The manifest records commits, baseline tag, versions, seed, UTC timestamp, testing database, and SHA-256 hashes. The stable core hashes to compare are:
+The output contains both source repositories and the differential package. Private dependencies and company policy sources remain subject to `LICENSE-or-ACCESS-NOTE.md`.
 
-- `oracle_input_cases.json`
-- `oracle_expected_results.json`
-- `actual_results.json`
-- `differential_results.csv`
-- `mismatch_details.json`
+## Interpretation
 
-Expected-result verification is deliberately performed before the engine starts. The runner rechecks all freeze hashes and refuses to continue on drift.
+The baseline is `RECONSTRUCTED_BASELINE`, because the original raw eight-mismatch file had previously been overwritten. The fixed result demonstrates equality with a frozen reference policy. It does not establish an authoritative, HRD-validated, company-accurate, or legally compliant payroll policy.
 
-## Interpreting failure
-
-- Oracle verifier failure: expected results are not frozen; adjudicate without consulting production output.
-- Differential exit 1: inspect `mismatch_details.json` and preserve the case.
-- Port error: stop the unrelated process or configure the environment before rerunning.
-- Database guard error: create/use the dedicated `_testing` database; never weaken the guard.

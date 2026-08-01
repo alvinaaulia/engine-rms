@@ -6,7 +6,7 @@ use App\Services\TypedPayrollRuleIrService;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Validation\ValidationException;
 
-$laravelRoot = dirname(__DIR__, 3).DIRECTORY_SEPARATOR.'papa-website-v2';
+$laravelRoot = getenv('LARAVEL_ROOT') ?: dirname(__DIR__, 3).DIRECTORY_SEPARATOR.'papa-website-v2';
 require $laravelRoot.DIRECTORY_SEPARATOR.'vendor'.DIRECTORY_SEPARATOR.'autoload.php';
 $app = require $laravelRoot.DIRECTORY_SEPARATOR.'bootstrap'.DIRECTORY_SEPARATOR.'app.php';
 $app->make(Kernel::class)->bootstrap();
@@ -15,6 +15,13 @@ $raw = stream_get_contents(STDIN);
 $request = json_decode($raw ?: '', true, 512, JSON_THROW_ON_ERROR);
 $policy = $request['policy'] ?? [];
 $facts = $request['facts'] ?? [];
+$salaryDate = (string) ($facts['salary_date'] ?? '');
+$activeRules = array_values(array_filter($policy['rules'] ?? [], static function (array $rule) use ($salaryDate): bool {
+    $start = (string) ($rule['effective_date'] ?? '');
+    $end = (string) ($rule['end_date'] ?? '');
+
+    return ($start === '' || $salaryDate >= $start) && ($end === '' || $salaryDate <= $end);
+}));
 
 $definitions = array_map(static function (array $rule): array {
     return [
@@ -33,7 +40,7 @@ $definitions = array_map(static function (array $rule): array {
             'end_date' => $rule['end_date'],
         ],
     ];
-}, $policy['rules'] ?? []);
+}, $activeRules);
 
 try {
     $payload = $app->make(TypedPayrollRuleIrService::class)->buildExecutePayload(

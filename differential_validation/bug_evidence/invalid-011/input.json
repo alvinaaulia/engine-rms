@@ -1,0 +1,67 @@
+{
+  "case_id": "INVALID-011",
+  "profile_id": "EMP-006",
+  "period": "2026-11",
+  "validity": "INVALID",
+  "facts": {
+    "salary_date": "2026-11-30",
+    "employee": {
+      "status": "tetap",
+      "contract_type": "karyawan_tetap",
+      "has_npwp": false,
+      "ptkp_status": "TK/0",
+      "grade": "A1",
+      "join_date": "2022-07-01",
+      "years_of_service": 6,
+      "performance_score": 78,
+      "basic_salary": "not-a-number",
+      "annual_bonus_eligible": false,
+      "thr_eligible": false
+    },
+    "attendance": {
+      "days_present": 21,
+      "work_minutes": 10080,
+      "work_hours": "168.000000",
+      "days_absent": 0,
+      "late_minutes": 1,
+      "unpaid_leave_days": 1,
+      "overtime_minutes": 121,
+      "overtime_hours": "2.016667"
+    },
+    "rates": {
+      "absence_deduction_per_day": "100000.000000",
+      "annual_bonus_factor": "1.000000",
+      "attendance_incentive": "150000.000000",
+      "late_deduction_per_minute": "1000.000000",
+      "lembur_freelancer": "3000.000000",
+      "overtime_per_minute": "2000.000000",
+      "performance_bonus_70_79": "0.050000",
+      "performance_bonus_80_89": "0.100000",
+      "performance_bonus_90_ke_atas": "0.200000",
+      "tax_flat_amount": "50000.000000",
+      "thr_factor": "1.000000",
+      "unpaid_leave_per_day": "100000.000000"
+    },
+    "components": {
+      "BASIC_SALARY": "not-a-number"
+    },
+    "source": {
+      "period_start": "2026-11-01",
+      "period_end": "2026-11-30",
+      "payroll_effective_date": "2026-11-30"
+    }
+  },
+  "primary_category": "INVALID_INPUT",
+  "secondary_categories": [
+    "CANONICAL_TPR_IR"
+  ],
+  "execution_route": "CANONICAL_TPR_IR",
+  "treatment": "INVALID_BASIC_SALARY_TYPE",
+  "treatment_parameters": {
+    "mutation": "INVALID_BASIC_SALARY_TYPE",
+    "expected_error_code": "INVALID_FACT_TYPE"
+  },
+  "expected_behavior": "Structured rejection with error_code INVALID_FACT_TYPE.",
+  "rationale": "The input intentionally violates a required fact or declared runtime type.",
+  "expected_error_code": "INVALID_FACT_TYPE"
+}

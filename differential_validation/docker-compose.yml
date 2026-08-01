@@ -1,0 +1,32 @@
+services:
+  mysql:
+    image: mysql:8.4.5@sha256:679e7e924f38a3cbb62a3d7df32924b83f7321a602d3f9f967c01b3df18495d6
+    environment:
+      MYSQL_DATABASE: website_papa_v2_testing
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+  differential-validation:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    working_dir: /artifact
+    volumes:
+      - ../..:/artifact
+    environment:
+      ENGINE_DIR: /artifact/engine-rms
+      LARAVEL_DIR: /artifact/papa-website-v2
+      DB_HOST: mysql
+      DB_DATABASE: website_papa_v2_testing
+      DB_USERNAME: root
+      DB_PASSWORD: ""
+      RULE_ENGINE_URL: http://127.0.0.1:8081
+      ALLOW_DIRTY: "0"
+      TZ: Asia/Bangkok
+      LC_ALL: C.UTF-8
+    depends_on:
+      mysql:
+        condition: service_healthy

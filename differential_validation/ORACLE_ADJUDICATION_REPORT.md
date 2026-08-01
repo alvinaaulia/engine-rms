@@ -1,14 +1,14 @@
-# Oracle Adjudication Report
+# Oracle Verification and Status Report
 
 ## Decision
 
-Status: **FROZEN_REFERENCE_ONLY**. The expected results are technically frozen for the experiment; they are not asserted as HRD-authoritative because the cited HRD spreadsheet is unavailable.
+Status: **FROZEN_REFERENCE_ORACLE / NOT_AUTHORITATIVE_BUSINESS_ORACLE**. The expected results are technically frozen for the experiment; they are not asserted as HRD-authoritative because the cited HRD spreadsheet is unavailable.
 
 ## Independent verification
 
 - Population: 624 cases
-- Independently recalculated: 84 cases (13.46%)
-- Valid cases sampled: 60
+- Independently recalculated: 89 cases (14.26%)
+- Valid cases sampled: 65
 - Invalid/guard cases sampled: 24
 - Arithmetic: exact rational numbers (`Fraction`) with a separately implemented HALF_UP quantizer
 - Shared production code: none
@@ -18,17 +18,15 @@ Status: **FROZEN_REFERENCE_ONLY**. The expected results are technically frozen f
 
 ```json
 {
-  "BOUNDARY": 7,
-  "EFFECTIVE_DATE": 7,
-  "LEGACY_ADAPTER": 7,
-  "NEGATIVE_INVALID_GUARD": 24,
-  "NORMAL": 8,
-  "RATE_TAX_VARIATION": 6,
-  "ROUNDING_SENSITIVE": 6,
-  "RULE_INTERACTION": 6,
-  "TPR_IR_CANONICAL": 7,
-  "ZERO_VALUE": 6
+  "BOUNDARY_CASE": 59,
+  "EFFECTIVE_DATE": 1,
+  "INVALID_INPUT": 24,
+  "LEGACY_ADAPTER": 1,
+  "NORMAL_CASE": 1,
+  "ROUNDING_SENSITIVE": 1,
+  "RULE_INTERACTION": 1,
+  "ZERO_VALUE": 1
 }
 ```
 
-Sampled rows are marked `VERIFIED`; the remaining rows are marked `ADJUDICATED` under the same frozen policy.
+Sampled rows are marked `INDEPENDENTLY_VERIFIED`; remaining rows are `POLICY_DERIVED`. No case is marked `ADJUDICATED`.

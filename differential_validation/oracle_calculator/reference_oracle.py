@@ -49,12 +49,33 @@ def add_component(components: list[dict], trace: list[dict], code: str, raw: Dec
     })
 
 
+def active_rule_versions(policy: dict, salary_date: str) -> set[int]:
+    return {
+        int(rule["version_id"])
+        for rule in policy["rules"]
+        if (not rule.get("effective_date") or salary_date >= rule["effective_date"])
+        and (not rule.get("end_date") or salary_date <= rule["end_date"])
+    }
+
+
+def verification_metadata() -> dict:
+    return {
+        "verification_status": "REFERENCE_GENERATED",
+        "verifier": None,
+        "verification_method": "Independent Decimal reference calculator generated from frozen policy",
+        "verification_timestamp": None,
+        "adjudication_reference": None,
+        "notes": "Awaiting independent verifier classification.",
+    }
+
+
 def calculate(case: dict, policy: dict) -> dict:
     if case["validity"] == "INVALID":
         return {
             "case_id": case["case_id"],
-            "category": case["category"],
-            "verification_status": "DRAFT",
+            "primary_category": case["primary_category"],
+            "secondary_categories": case["secondary_categories"],
+            **verification_metadata(),
             "expected_status": "REJECTED",
             "expected_error_code": case["expected_error_code"],
             "components": [],
@@ -70,22 +91,23 @@ def calculate(case: dict, policy: dict) -> dict:
     score = d(employee["performance_score"])
     components: list[dict] = []
     trace: list[dict] = []
+    active_versions = active_rule_versions(policy, facts["salary_date"])
 
-    if status != "nonaktif":
+    if 1 in active_versions and status != "nonaktif":
         add_component(components, trace, "TAX_FLAT", d(rates["tax_flat_amount"]), "rule-version-1", 1,
                       "rates.tax_flat_amount", {"tax_flat_amount": rates["tax_flat_amount"]})
 
-    if status == "tetap" and d(attendance["overtime_minutes"]) > 0:
+    if 3 in active_versions and status == "tetap" and d(attendance["overtime_minutes"]) > 0:
         raw = d(attendance["overtime_minutes"]) * d(rates["overtime_per_minute"])
         add_component(components, trace, "OVERTIME_PAY", raw, "rule-version-3", 3,
                       "attendance.overtime_minutes * rates.overtime_per_minute",
                       {"overtime_minutes": attendance["overtime_minutes"], "overtime_per_minute": rates["overtime_per_minute"]})
 
-    if status == "tetap" and score >= 90:
+    if 4 in active_versions and status == "tetap" and score >= 90:
         rate_key, rule_id, version_id = "performance_bonus_90_ke_atas", "rule-version-4", 4
-    elif status == "tetap" and 80 <= score <= 89:
+    elif 5 in active_versions and status == "tetap" and 80 <= score <= 89:
         rate_key, rule_id, version_id = "performance_bonus_80_89", "rule-version-5", 5
-    elif status == "tetap" and 70 <= score <= 79:
+    elif 6 in active_versions and status == "tetap" and 70 <= score <= 79:
         rate_key, rule_id, version_id = "performance_bonus_70_79", "rule-version-6", 6
     else:
         rate_key = rule_id = None
@@ -96,37 +118,37 @@ def calculate(case: dict, policy: dict) -> dict:
                       f"employee.basic_salary * rates.{rate_key}",
                       {"basic_salary": basic, rate_key: rates[rate_key]})
 
-    if status == "tetap" and employee["annual_bonus_eligible"] is True:
+    if 7 in active_versions and status == "tetap" and employee["annual_bonus_eligible"] is True:
         raw = basic * d(rates["annual_bonus_factor"])
         add_component(components, trace, "ANNUAL_BONUS", raw, "rule-version-7", 7,
                       "employee.basic_salary * rates.annual_bonus_factor",
                       {"basic_salary": basic, "annual_bonus_factor": rates["annual_bonus_factor"]})
 
-    if status == "tetap" and employee["thr_eligible"] is True:
+    if 8 in active_versions and status == "tetap" and employee["thr_eligible"] is True:
         raw = basic * d(rates["thr_factor"])
         add_component(components, trace, "THR", raw, "rule-version-8", 8,
                       "employee.basic_salary * rates.thr_factor",
                       {"basic_salary": basic, "thr_factor": rates["thr_factor"]})
 
-    if (status == "tetap" and d(attendance["days_absent"]) == 0
+    if (9 in active_versions and status == "tetap" and d(attendance["days_absent"]) == 0
             and d(attendance["unpaid_leave_days"]) == 0 and d(attendance["late_minutes"]) == 0):
         add_component(components, trace, "ATTENDANCE_INCENTIVE", d(rates["attendance_incentive"]),
                       "rule-version-9", 9, "rates.attendance_incentive",
                       {"attendance_incentive": rates["attendance_incentive"]})
 
-    if status == "tetap" and d(attendance["unpaid_leave_days"]) > 0:
+    if 10 in active_versions and status == "tetap" and d(attendance["unpaid_leave_days"]) > 0:
         raw = d(attendance["unpaid_leave_days"]) * d(rates["unpaid_leave_per_day"])
         add_component(components, trace, "UNPAID_LEAVE_DEDUCTION", raw, "rule-version-10", 10,
                       "attendance.unpaid_leave_days * rates.unpaid_leave_per_day",
                       {"unpaid_leave_days": attendance["unpaid_leave_days"], "unpaid_leave_per_day": rates["unpaid_leave_per_day"]})
 
-    if status == "tetap" and d(attendance["late_minutes"]) > 0:
+    if 11 in active_versions and status == "tetap" and d(attendance["late_minutes"]) > 0:
         raw = d(attendance["late_minutes"]) * d(rates["late_deduction_per_minute"])
         add_component(components, trace, "LATE_DEDUCTION", raw, "rule-version-11", 11,
                       "attendance.late_minutes * rates.late_deduction_per_minute",
                       {"late_minutes": attendance["late_minutes"], "late_deduction_per_minute": rates["late_deduction_per_minute"]})
 
-    if status == "tetap" and d(attendance["days_absent"]) > 0:
+    if 12 in active_versions and status == "tetap" and d(attendance["days_absent"]) > 0:
         raw = d(attendance["days_absent"]) * d(rates["absence_deduction_per_day"])
         add_component(components, trace, "ABSENCE_DEDUCTION", raw, "rule-version-12", 12,
                       "attendance.days_absent * rates.absence_deduction_per_day",
@@ -147,8 +169,9 @@ def calculate(case: dict, policy: dict) -> dict:
 
     return {
         "case_id": case["case_id"],
-        "category": case["category"],
-        "verification_status": "DRAFT",
+        "primary_category": case["primary_category"],
+        "secondary_categories": case["secondary_categories"],
+        **verification_metadata(),
         "expected_status": "SUCCESS",
         "components": components,
         "summary": {
@@ -169,7 +192,9 @@ def calculate(case: dict, policy: dict) -> dict:
 
 def write_csv(results: list[dict], policy: dict) -> None:
     columns = [
-        "case_id", "category", "verification_status", "expected_status", "expected_error_code",
+        "case_id", "primary_category", "secondary_categories", "verification_status", "verifier",
+        "verification_method", "verification_timestamp", "adjudication_reference", "notes",
+        "expected_status", "expected_error_code",
         "component_code", "component_type", "raw_amount", "rounded_amount", "taxable_component",
         "source_rule_id", "source_rule_version_id", "basic_salary", "gross_salary",
         "total_deductions", "taxable_amount", "tax", "net_salary",
@@ -180,8 +205,10 @@ def write_csv(results: list[dict], policy: dict) -> None:
         for result in results:
             if result["expected_status"] == "REJECTED":
                 writer.writerow({
-                    "case_id": result["case_id"], "category": result["category"],
-                    "verification_status": result["verification_status"], "expected_status": "REJECTED",
+                    "case_id": result["case_id"], "primary_category": result["primary_category"],
+                    "secondary_categories": "|".join(result["secondary_categories"]),
+                    **{key: result.get(key) for key in ("verification_status", "verifier", "verification_method", "verification_timestamp", "adjudication_reference", "notes")},
+                    "expected_status": "REJECTED",
                     "expected_error_code": result["expected_error_code"], "component_code": "__ERROR__",
                 })
                 continue
@@ -189,8 +216,10 @@ def write_csv(results: list[dict], policy: dict) -> None:
             for component in result["components"]:
                 code = component["code"]
                 writer.writerow({
-                    "case_id": result["case_id"], "category": result["category"],
-                    "verification_status": result["verification_status"], "expected_status": "SUCCESS",
+                    "case_id": result["case_id"], "primary_category": result["primary_category"],
+                    "secondary_categories": "|".join(result["secondary_categories"]),
+                    **{key: result.get(key) for key in ("verification_status", "verifier", "verification_method", "verification_timestamp", "adjudication_reference", "notes")},
+                    "expected_status": "SUCCESS",
                     "component_code": code, "component_type": policy["component_types"][code],
                     "raw_amount": component["raw_amount"], "rounded_amount": component["rounded_amount"],
                     "taxable_component": code in policy["taxable_components"],
@@ -206,7 +235,8 @@ def main() -> None:
         policy = json.loads(POLICY_PATH.read_text(encoding="utf-8"))
         results = [calculate(case, policy) for case in corpus["cases"]]
     payload = {
-        "schema_version": "1.0",
+        "artifact_version": "2.0",
+        "schema_version": "2.0",
         "oracle_id": "independent-decimal-reference-oracle-v1",
         "oracle_status": policy["oracle_status"],
         "policy_version": policy["policy_version"],

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "metrics.schema.json",
+  "type": "object", "additionalProperties": false, "required": ["artifact_version", "schema_version", "run_id", "metrics"],
+  "properties": {
+    "artifact_version": {"const": "2.0"}, "schema_version": {"const": "2.0"}, "run_id": {"type": "string"},
+    "metrics": {"type": "array", "items": {"$ref": "#/$defs/metric"}}
+  },
+  "$defs": {"metric": {
+    "type": "object", "additionalProperties": false,
+    "required": ["metric", "status", "value", "reason", "comparator_available", "source_data_available"],
+    "properties": {
+      "metric": {"type": "string", "minLength": 1}, "status": {"enum": ["MEASURED", "NOT_MEASURED", "NOT_OBSERVABLE", "NOT_APPLICABLE", "MEASUREMENT_FAILED"]},
+      "value": {"type": ["integer", "number", "null"]}, "reason": {"type": "string", "minLength": 1}, "comparator_available": {"type": "boolean"}, "source_data_available": {"type": "boolean"}
+    },
+    "allOf": [
+      {"if": {"properties": {"status": {"const": "MEASURED"}}}, "then": {"properties": {"value": {"type": ["integer", "number"]}}}},
+      {"if": {"properties": {"status": {"enum": ["NOT_MEASURED", "NOT_OBSERVABLE", "NOT_APPLICABLE", "MEASUREMENT_FAILED"]}}}, "then": {"properties": {"value": {"type": "null"}}}}
+    ]
+  }}
+}
+

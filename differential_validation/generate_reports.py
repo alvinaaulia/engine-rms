@@ -1,297 +1,249 @@
+"""Regenerate research reports exclusively from validated artifacts and raw logs."""
 from __future__ import annotations
 
-import csv
 import hashlib
 import json
-import os
-import platform
-import re
-import subprocess
 from collections import Counter
-from datetime import datetime, timezone
-from decimal import Decimal
 from pathlib import Path
 
+from evidence import parse_exit_status, parse_go_test, parse_junit
+from validate_artifacts import main as validate_artifacts
 
 ROOT = Path(__file__).resolve().parent
-GO_ROOT = ROOT.parent
-LARAVEL_ROOT = GO_ROOT.parent / "papa-website-v2"
-MISMATCH_CATEGORIES = [
-    "MISSING_COMPONENT", "UNEXPECTED_COMPONENT", "COMPONENT_TYPE_MISMATCH",
-    "RAW_AMOUNT_MISMATCH", "ROUNDED_AMOUNT_MISMATCH", "TAXABLE_BASE_MISMATCH",
-    "TAX_MISMATCH", "GROSS_MISMATCH", "DEDUCTION_MISMATCH", "NET_MISMATCH",
-    "ROUNDING_POINT_MISMATCH", "RULE_PROVENANCE_MISMATCH", "RATE_VERSION_MISMATCH",
-    "TRANSLATION_MISMATCH", "ORACLE_DISPUTE", "RUNTIME_ERROR", "TIMEOUT",
-]
+LOGS = ROOT / "runs" / "fixed" / "logs"
 
 
-def run(command: list[str], cwd: Path) -> str:
-    process = subprocess.run(command, cwd=cwd, text=True, capture_output=True, timeout=60)
-    output = (process.stdout or process.stderr).strip()
-    return output if process.returncode == 0 else f"unavailable ({output})"
+def load(path: Path) -> dict:
+    return json.loads(path.read_text(encoding="utf-8"))
 
 
 def sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def load(name: str):
-    return json.loads((ROOT / name).read_text(encoding="utf-8"))
+def write(name: str, content: str) -> None:
+    (ROOT / name).write_text(content.rstrip() + "\n", encoding="utf-8")
 
 
-def write_translation_report(fixtures: dict) -> None:
-    lines = [
-        "# Translation Validation Cases", "",
-        "Dokumen ini dibangkitkan dari test Go `TestTranslationValidationFixtures`. Setiap fixture menyimpan TPR-IR canonical, GRL yang dihasilkan, dan hasil eksekusi atau structured rejection. Salinan machine-readable lengkap berada di `translation_validation_fixtures.json`.", "",
-        "| ID | Fokus | Expected | Hasil |", "|---|---|---|---|",
-    ]
-    for fixture in fixtures["fixtures"]:
-        result = fixture.get("error_code") or "SUCCESS"
-        lines.append(f"| `{fixture['id']}` | {fixture['purpose']} | `{fixture['expected']}` | `{result}` |")
-    for fixture in fixtures["fixtures"]:
-        ruleset = fixture["canonical_tpr_ir"]
-        compact_ir = {
-            "schema_version": ruleset["schema_version"],
-            "ruleset_id": ruleset["ruleset_id"],
-            "default_hit_policy": ruleset["default_hit_policy"],
-            "component_policies": ruleset["component_policies"],
-            "rounding_policy": ruleset["rounding_policy"],
-            "rules": ruleset["rules"],
-        }
-        outcome = fixture.get("execution_result") or {"error_code": fixture.get("error_code")}
-        lines += [
-            "", f"## {fixture['id']}", "", fixture["purpose"] + ".", "",
-            "Canonical TPR-IR:", "", "```json", json.dumps(compact_ir, ensure_ascii=False, indent=2), "```", "",
-            "Generated GRL:", "", "```text", fixture.get("generated_grl") or f"<not emitted: {fixture.get('error_code') }>", "```", "",
-            "Result:", "", "```json", json.dumps(outcome, ensure_ascii=False, indent=2), "```",
-        ]
-    lines += [
-        "", "## Verdict", "",
-        f"Seluruh {fixtures['fixture_count']} fixture menghasilkan outcome yang ditetapkan. Operator, typed literal, nested condition, precedence, salience, hit policy, target, provenance, serta rounding tercakup. Konflik UNIQUE ditolak statis sebagai `POTENTIAL_UNIQUE_CONFLICT`; invalid formula dan unknown field ditolak sebelum GRL dijalankan.", "",
-    ]
-    (ROOT / "TRANSLATION_VALIDATION_CASES.md").write_text("\n".join(lines), encoding="utf-8")
+def percent(numerator: int, denominator: int) -> str:
+    return "N/A" if denominator == 0 else f"{numerator * 100 / denominator:.2f}%"
 
 
-def write_root_cause_report() -> None:
-    rows = []
-    for number in range(2, 24, 3):
-        case_id = f"INVALID-{number:03d}"
-        rows.append(
-            f"| `{case_id}` | reject `INVALID_FACT_TYPE` | success | `RUNTIME_ERROR` (guard bypass) | Formula facts checked for presence but not runtime type | Validate every formula identifier with `strictScalar` | `TestTPRSchemaAndTrustBoundaryValidation/invalid_formula_fact_type` | RESOLVED |"
-        )
-    body = """# Mismatch Root-Cause Report
-
-## Summary
-
-The first complete run executed all 624 cases and found 8 mismatched cases. Expected results were not changed. All eight cases used an invalid string for `employee.basic_salary`; the engine accepted it as zero because a numeric fact referenced only by a formula was checked for presence, not type.
-
-The defect was reproduced with a single canonical case, a failing regression test was added first, production validation was fixed in `tpr_ir.go`, and the full 624-case corpus was rerun. The final run has 0 mismatches.
-
-| Case ID | Expected | Actual | Category | Root Cause | Fix | Regression Test | Status |
-|---|---|---|---|---|---|---|---|
-""" + "\n".join(rows) + """
-
-## Layer attribution
-
-- Source facts: intentionally invalid and correct for negative testing.
-- Laravel adapter/canonicalization: not causal; the invalid fact was preserved on the wire.
-- Go validator: root cause.
-- Formula AST, GRL emission, GRULE execution, candidate resolution, rounding, and summary: not causal.
-- Oracle: independently verified and unchanged.
-
-## Before/after
-
-| Run | Cases | Mismatched cases | Mismatches | Status |
-|---|---:|---:|---:|---|
-| Initial post-freeze run | 624 | 8 | 8 | Failed |
-| After validator fix | 624 | 0 | 0 | Passed |
-
-The historical mismatch remains documented even though `mismatch_details.json` represents the final clean run.
-"""
-    (ROOT / "MISMATCH_ROOT_CAUSE_REPORT.md").write_text(body, encoding="utf-8")
+def result_label(mismatches: int) -> str:
+    return "PASS" if mismatches == 0 else "FAIL"
 
 
-def main() -> None:
-    corpus = load("oracle_input_cases.json")
-    expected = load("oracle_expected_results.json")
-    actual = load("actual_results.json")
-    mismatch = load("mismatch_details.json")
-    fixtures = load("translation_validation_fixtures.json")
-    rows = list(csv.DictReader((ROOT / "differential_results.csv").open(encoding="utf-8")))
+def table(rows: list[list[object]], headers: list[str]) -> str:
+    lines = ["| " + " | ".join(headers) + " |", "|" + "|".join("---" for _ in headers) + "|"]
+    lines.extend("| " + " | ".join(str(value).replace("\n", " ") for value in row) + " |" for row in rows)
+    return "\n".join(lines)
 
-    verification = Counter(item["verification_status"] for item in expected["results"])
-    case_categories = Counter(item["category"] for item in corpus["cases"])
-    expected_components = sum(len(item["components"]) for item in expected["results"])
-    component_rows = [item for item in rows if item["comparison_scope"] == "COMPONENT"]
-    summary_rows = [item for item in rows if item["comparison_scope"] == "SUMMARY"]
-    provenance_total = len(component_rows)
-    category_counts = Counter(item.get("category") for item in mismatch["mismatches"])
-    exact_cases = len(corpus["cases"]) - mismatch["mismatched_case_count"]
-    execution_status = Counter(item["actual_status"] for item in actual["results"])
 
-    go_commit = run(["git", "rev-parse", "HEAD"], GO_ROOT)
-    laravel_commit = run(["git", "rev-parse", "HEAD"], LARAVEL_ROOT)
-    grule_version = "unknown"
-    go_mod = (GO_ROOT / "go.mod").read_text(encoding="utf-8")
-    match = re.search(r"github.com/hyperjumptech/grule-rule-engine\s+v([^\s]+)", go_mod)
-    if match:
-        grule_version = "v" + match.group(1)
+def generate() -> None:
+    validate_artifacts()
+    corpus = load(ROOT / "oracle_input_cases.json")
+    expected = load(ROOT / "oracle_expected_results.json")
+    baseline = load(ROOT / "runs/baseline/manifest.json")
+    fixed = load(ROOT / "runs/fixed/manifest.json")
+    baseline_mismatch = load(ROOT / "runs/baseline/mismatch_details.json")
+    fixed_mismatch = load(ROOT / "runs/fixed/mismatch_details.json")
+    metrics = load(ROOT / "runs/fixed/metrics.json")
+    e2e = load(ROOT / "runs/fixed/full_pipeline_e2e.json")
+    freeze = load(ROOT / ".oracle_frozen.json")
+    fixtures = load(ROOT / "translation_validation_fixtures.json")
 
-    files = [
-        "reference_policy.json", "oracle_input_cases.csv", "oracle_input_cases.json",
-        "oracle_expected_results.csv", "oracle_expected_results.json", "actual_results.json",
-        "differential_results.csv", "mismatch_details.json", "translation_validation_fixtures.json",
-    ]
-    manifest = {
-        "schema_version": "1.0",
-        "experiment_id": "tpr-ir-differential-reference-2026-08-01",
-        "execution_timestamp_utc": datetime.now(timezone.utc).isoformat(),
-        "oracle_status": expected["oracle_status"],
-        "baseline_tag": "tpr-ir-differential-baseline-v1",
-        "commits": {"laravel": laravel_commit, "go": go_commit},
-        "baseline_commits": {
-            "laravel": "ca16f0500d8404cecaca03950cfc252072ca3e23",
-            "go": "1dcad9df1be852263590fd23ab11ce569ea1c99e",
-        },
-        "tool_versions": {
-            "php": run(["php", "-r", "echo PHP_VERSION;"], GO_ROOT),
-            "laravel": run(["php", "artisan", "--version"], LARAVEL_ROOT),
-            "mysql": run(["mysql", "--version"], GO_ROOT),
-            "go": run(["go", "version"], GO_ROOT),
-            "grule": grule_version,
-            "python": platform.python_version(),
-            "operating_system": platform.platform(),
-            "architecture": platform.machine(),
-        },
-        "random_seed": corpus["random_seed"],
-        "counts": {
-            "cases": corpus["case_count"], "valid_cases": corpus["valid_case_count"],
-            "invalid_cases": corpus["invalid_case_count"], "verified": verification["VERIFIED"],
-            "adjudicated": verification["ADJUDICATED"], "executed": len(actual["results"]),
-            "component_comparisons": expected_components, "summary_comparisons": len(summary_rows),
-            "mismatches": mismatch["mismatch_count"], "translation_fixtures": fixtures["fixture_count"],
-        },
-        "hashes_sha256": {name: sha(ROOT / name) for name in files},
-        "environment": {
-            "timezone": os.environ.get("TZ", "Asia/Bangkok"),
-            "testing_database": "website_papa_v2_testing",
-            "engine_endpoint": actual["engine_url"],
-            "laravel_execution": "CLI bridge boots the Laravel application kernel",
-        },
-        "final_suite_results": {
-            "laravel": {"status": "PASS", "tests": 156, "assertions": 837, "duration_seconds": 159.52},
-            "go_test": {"status": "PASS", "command": "go test ./... -count=1", "duration_seconds": 5.307},
-            "go_vet": {"status": "PASS", "command": "go vet ./..."},
-            "translator_fixtures": {"status": "PASS", "cases": fixtures["fixture_count"]},
-        },
-        "commands": {
-            "one_command": "powershell -ExecutionPolicy Bypass -File .\\differential_validation\\run_differential.ps1",
-            "go_suite": "go test ./... -count=1 && go vet ./...",
-            "laravel_suite": "php artisan test",
-        },
+    evidence = {
+        "laravel": parse_junit(LOGS / "laravel-tests.meta.json"),
+        "go": parse_go_test(LOGS / "go-tests.meta.json"),
+        "go_vet": parse_exit_status(LOGS / "go-vet.meta.json"),
+        "translator": parse_go_test(LOGS / "translator-go-test.meta.json"),
+        "e2e": parse_junit(LOGS / "e2e.meta.json"),
+        "corpus": parse_exit_status(LOGS / "corpus-generation.meta.json"),
+        "oracle": parse_exit_status(LOGS / "oracle-generation.meta.json"),
+        "oracle_verifier": parse_exit_status(LOGS / "oracle-verification.meta.json"),
+        "baseline_differential": parse_exit_status(ROOT / "runs/baseline/logs/differential.meta.json"),
+        "fixed_differential": parse_exit_status(LOGS / "differential.meta.json"),
     }
-    (ROOT / "EXPERIMENT_MANIFEST.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    if any(item["status"] != "PASS" for item in evidence.values()):
+        failed = [name for name, item in evidence.items() if item["status"] != "PASS"]
+        raise RuntimeError(f"report generation refused: failed command evidence {failed}")
 
-    category_table = "\n".join(f"| {name} | {count} | 100.00% |" for name, count in sorted(case_categories.items()))
-    mismatch_table = "\n".join(f"| `{name}` | {category_counts[name]} |" for name in MISMATCH_CATEGORIES)
-    final = f"""# Differential Validation Final Report
+    category_counts = Counter(item["primary_category"] for item in corpus["cases"])
+    route_counts = Counter(item["execution_route"] for item in corpus["cases"])
+    verification_counts = Counter(item["verification_status"] for item in expected["results"])
 
-## 1. Executive verdict
+    write("ORACLE_STATUS_MIGRATION_REPORT.md", f"""
+# Oracle status migration report
 
-The frozen reference oracle and the Laravel-to-Go TPR-IR/GRULE implementation agree for all 624 corpus cases after one validator defect was fixed. Final result: **624/624 exact cases, 2,594/2,594 exact component comparisons, 3,600/3,600 exact summary comparisons, and 0 unresolved mismatches**.
+The previous blanket use of `ADJUDICATED` was invalid and has been removed. Status is now attached per case with verifier identity, method, timestamp, adjudication reference, and notes.
 
-This is a reference-oracle result, not an authoritative HRD payroll certification. The cited HRD spreadsheet was not available.
+{table([[key, value] for key, value in sorted(verification_counts.items())], ['Verification status', 'Cases'])}
 
-## 2. Frozen baseline
+No row is adjudicated without written evidence. The frozen artifact remains `FROZEN_REFERENCE_ORACLE` and is explicitly not an authoritative business oracle. Frozen expected hash: `{freeze['hashes']['oracle_expected_results.json']}`.
+""")
 
-- Tag: `tpr-ir-differential-baseline-v1`
-- Laravel baseline: `ca16f0500d8404cecaca03950cfc252072ca3e23`
-- Go baseline: `1dcad9df1be852263590fd23ab11ce569ea1c99e`
-- Policy: `reference-payroll-2026.1`, scale 6, HALF_UP
-- Frozen expected SHA-256: `{sha(ROOT / 'oracle_expected_results.json')}`
+    category_spec_rows = [
+        ["NORMAL_CASE", "Valid, no boundary, no interaction, canonical route", "GENERAL_VALID_PAYROLL"],
+        ["BOUNDARY_CASE", "At least one declared B-1/B/B+1 boundary", "treatment_parameters.boundaries"],
+        ["ROUNDING_SENSITIVE", "Raw value below/at/above six-decimal HALF_UP tie", "rounding_probe"],
+        ["LEGACY_ADAPTER", "Request is actually sent through legacy rules payload", "execution_route=LEGACY_ADAPTER"],
+        ["RULE_INTERACTION", "At least two rules match", "matched_rule_count>=2"],
+        ["INVALID_INPUT", "Structured rejection and expected error code", "validity=INVALID"],
+        ["EFFECTIVE_DATE", "Before, at, or during effective period", "effective_from/position"],
+        ["ZERO_VALUE", "All attendance adjustments explicitly zero", "ZERO_ATTENDANCE_ADJUSTMENTS"],
+    ]
+    write("CORPUS_CATEGORY_SPECIFICATION.md", "# Corpus category specification\n\n" + table(category_spec_rows, ["Category", "Predicate", "Treatment evidence"]))
+    write("CORPUS_CATEGORY_AUDIT.md", f"""
+# Corpus category audit
 
-## 3. Domain inventory
+Category assignment is derived from facts, matched rules, route, boundaries, and explicit treatments. The generator validator rejects missing treatments, fake legacy routing, boundary cases without boundary metadata, and invalid cases without expected error codes.
 
-The experiment uses 11 active rule versions, 10 real component codes, real employee/attendance fields, 12 rate keys, component taxability, priorities, effective periods, and only supported operators/formulas. See `PAYROLL_DOMAIN_DICTIONARY.md`.
+{table([[key, value] for key, value in sorted(category_counts.items())], ['Primary category', 'Cases'])}
 
-## 4. Corpus composition
+{table([[key, value] for key, value in sorted(route_counts.items())], ['Execution route', 'Cases'])}
 
-| Primary category | Cases | Exact rate |
-|---|---:|---:|
-{category_table}
+The three effective-date cases execute before, exactly at, and during the open-ended effective period. No category is assigned using a display-balancing modulo. Modulo remains only where it creates deterministic input variation; category predicates are evaluated from the resulting facts.
+""")
 
-Total: 50 anonymous profiles × 12 periods = 600 valid cases, plus 24 invalid guard cases.
+    comparison_rows = [
+        ["Baseline (reconstructed)", baseline["commits"]["laravel"], baseline["commits"]["go"], baseline["results"]["cases"], baseline["results"]["mismatches"], result_label(baseline["results"]["mismatches"])],
+        ["Fixed", fixed["commits"]["laravel"], fixed["commits"]["go"], fixed["results"]["cases"], fixed["results"]["mismatches"], result_label(fixed["results"]["mismatches"])],
+    ]
+    write("BASELINE_FIXED_COMPARISON.md", f"""
+# Baseline versus fixed
 
-## 5. Oracle construction
+{table(comparison_rows, ['Stage', 'Laravel commit', 'Go commit', 'Cases', 'Mismatch', 'Result'])}
 
-The primary oracle is a standalone Python Decimal evaluator with explicit business formulas and intermediate traces. It imports no Laravel/Go calculation code, does not use TPR-to-GRL, and does not use GRULE.
+The original eight-mismatch raw output had been overwritten before this remediation. It is not presented as original evidence. The baseline is labeled `RECONSTRUCTED_BASELINE` and was executed with the preserved pre-fix runtime-type behavior behind the non-production `differential_baseline` build tag. The fixed run used the same frozen corpus and expected results.
+""")
 
-## 6. Oracle verification
+    mismatch_cases = sorted({item["case_id"] for item in baseline_mismatch["mismatches"]})
+    write("BUG_DISCOVERY_AND_REMEDIATION_REPORT.md", f"""
+# Bug discovery and remediation report
 
-An independent Fraction-based verifier recalculated 84/624 cases (13.46%), including all 24 invalid cases. Disagreements: 0. Sampled cases are `VERIFIED`; remaining cases are `ADJUDICATED` under the same frozen policy.
+The reconstructed baseline produced {baseline_mismatch['mismatch_count']} mismatches across {baseline_mismatch['mismatched_case_count']} cases: {', '.join(mismatch_cases)}. The formula field was checked for existence, but referenced fact runtime types were not validated; invalid `employee.basic_salary` types therefore reached execution. The fix validates formula fact runtime types before GRULE execution.
 
-## 7. Differential results
+Each case is preserved under `bug_evidence/<case-id>/` with input, unchanged expected output, baseline actual, fixed actual, root cause, and the regression-test reference. The fixed run produced {fixed_mismatch['mismatch_count']} mismatch. The oracle expected artifact hash stayed frozen for both runs.
+""")
 
-- Executed: {len(actual['results'])}
-- Successful valid cases: {execution_status['SUCCESS']}
-- Correct structured rejections: {execution_status['REJECTED']}
-- Comparison records: {len(rows)}
-- Final mismatches: {mismatch['mismatch_count']}
+    metric_rows = [[item["metric"], "yes" if item["comparator_available"] else "no", "yes" if item["source_data_available"] else "no", item["status"], "null" if item["value"] is None else item["value"], item["reason"]] for item in metrics["metrics"]]
+    write("METRIC_OBSERVABILITY_MATRIX.md", "# Metric observability matrix\n\n" + table(metric_rows, ["Metric", "Comparator", "Source", "Status", "Value", "Reason"]) + "\n\nA numeric zero appears only for measured metrics. Unobservable and non-applicable metrics carry a null value.")
 
-## 8. Exact-match metrics
+    evidence_rows = []
+    for name, parsed in evidence.items():
+        meta = parsed["evidence"]
+        evidence_rows.append([name, meta["evidence_file"], meta["parser_version"], meta["exit_code"], meta["started_at"], meta["finished_at"], meta["duration_seconds"], parsed["status"]])
+    write("AUTOMATED_EVIDENCE_GENERATION_REPORT.md", f"""
+# Automated evidence generation report
 
-| Metric | Result |
-|---|---:|
-| Exact cases | {exact_cases}/{len(corpus['cases'])} (100.00%) |
-| Exact component rows | {len(component_rows)}/{len(component_rows)} (100.00%) |
-| Exact summary rows | {len(summary_rows)}/{len(summary_rows)} (100.00%) |
-| Provenance match | {provenance_total}/{provenance_total} (100.00%) |
-| Mean absolute monetary error | 0.000000 |
-| Maximum absolute monetary error | 0.000000 |
-| Relative error for non-zero denominator | 0.000000 |
-| Runtime error rate | 0/{len(corpus['cases'])} (0.00%) |
-| Timeout rate | 0/{len(corpus['cases'])} (0.00%) |
+{table(evidence_rows, ['Command', 'Evidence file', 'Parser', 'Exit', 'Started', 'Finished', 'Seconds', 'Status'])}
 
-Every component code and every primary boundary/rounding category has zero final mismatch.
+The generator refuses missing, malformed, failed, inconsistent, or stale evidence. Its parser tests cover those conditions and the absence of a hard-coded fallback. Test/assertion counts and durations below are parsed from JUnit or Go JSON events.
 
-## 9. Mismatch categories
+{table([
+        ['Laravel full suite', evidence['laravel']['tests'], evidence['laravel']['passed'], evidence['laravel']['failures'] + evidence['laravel']['errors'], evidence['laravel']['skipped'], evidence['laravel']['assertions'], evidence['laravel']['duration_seconds']],
+        ['Go full suite', evidence['go']['tests'], evidence['go']['passed'], evidence['go']['failed'], evidence['go']['skipped'], 'not emitted', evidence['go']['duration_seconds']],
+        ['Translator fixture test', evidence['translator']['tests'], evidence['translator']['passed'], evidence['translator']['failed'], evidence['translator']['skipped'], 'not emitted', evidence['translator']['duration_seconds']],
+        ['Full-pipeline E2E PHPUnit', evidence['e2e']['tests'], evidence['e2e']['passed'], evidence['e2e']['failures'] + evidence['e2e']['errors'], evidence['e2e']['skipped'], evidence['e2e']['assertions'], evidence['e2e']['duration_seconds']],
+    ], ['Suite', 'Tests', 'Passed', 'Failed', 'Skipped', 'Assertions', 'Seconds'])}
+""")
 
-| Category | Final count |
-|---|---:|
-{mismatch_table}
+    write("FULL_PIPELINE_E2E_REPORT.md", f"""
+# Full-pipeline Laravel–Go E2E report
 
-## 10. Root-cause findings
+Validation type: `FULL_PIPELINE_END_TO_END_VALIDATION`.
 
-The initial run found 8 invalid-basic-salary cases accepted as success. Root cause: formula identifiers were checked for presence but not runtime fact type when absent from condition nodes. Expected data was not modified.
+{table([
+        ['Cases', e2e['case_count']], ['Exact valid results', e2e['exact_match_count']], ['Expected configuration rejections', e2e['expected_rejection_count']],
+        ['Unexpected mismatch', e2e['mismatch_count']], ['Persisted salary records', e2e['persistence_count']], ['Runtime failures', 0 if e2e['mismatch_count'] == 0 else e2e['mismatch_count']],
+    ], ['Measure', 'Value'])}
 
-## 11. Fixes and regression tests
+The valid path is testing database → attendance/overtime records → `buildFactsFromDatabase` → `PayrollRuleEngineService::execute` → Go HTTP `/execute` → GRULE → Laravel normalization/provenance → salary persistence. The subset covers salary, attendance, overtime, deduction, bonus, tax, rate dependencies, formulas, approval/active validation, provenance, six-decimal rounding, and invalid configuration rejection.
 
-`ValidateTPRRuleSet` now applies `strictScalar` to every formula fact. The failing regression test was added before the fix. The full corpus then changed from 8 mismatched cases to 0. TPR eligibility fields used by active rules were also added consistently to the Laravel and Go catalogs.
+Translator validation is separate: `{fixtures['fixture_count']}` fixture records were exercised by {evidence['translator']['tests']} Go test events with {evidence['translator']['failed']} failure. It is not merged into the E2E case count.
+""")
 
-## 12. Reproducibility status
+    write("DOMAIN_EXPERT_VALIDATION_FORM.md", """
+# Domain expert validation form
 
-`run_differential.ps1` performs guarded testing-database migration/seed, regenerates and independently freezes the oracle, produces translation fixtures, starts the current Go engine, runs the differential runner, runs full Laravel/Go suites and vet, regenerates reports, and returns non-zero on any mismatch/failure.
+Oracle status: `FROZEN_REFERENCE_ORACLE / NOT_AUTHORITATIVE_BUSINESS_ORACLE`
 
-The verified one-command run completed successfully in 354.4 seconds. Final suites: Laravel 156 tests/837 assertions PASS, Go full suite PASS, and `go vet ./...` PASS.
+Reviewer name/role: ____________________  Date: __________  Approval reference: ____________________
 
-## 13. Remaining limitations
+| Case ID | Category | Policy/rate/tax item | Expected result reviewed | Comment/disagreement | Decision |
+|---|---|---|---|---|---|
+| | | | | | |
 
-- No HRD/domain expert or cited spreadsheet was available; therefore the oracle is `FROZEN_REFERENCE_ONLY`.
-- The Go response exposes rounded component amounts, not pre-rounding raw candidate amounts or rounding-point events. Raw values exist in oracle traces, but end-to-end raw/rounding-point equality is not externally observable through the current API.
-- The corpus validates the audited synthetic domain and frozen policy, not historical production replay or temporal data drift.
-- No active company tax configuration existed; tax behavior here is the audited `TAX_FLAT` rule with deterministic synthetic rate variants.
+Sampling protocol: at least 10% of the corpus, every primary category, every payroll component, all important boundaries, every tax/rate policy, and every historically mismatched case. Attach signed approval or an immutable decision reference. Until completed, no case may be promoted to `ADJUDICATED` and no authoritative/company/legal claim may be made.
+""")
+    write("DOMAIN_VALIDATION_STATUS.md", f"""
+# Domain validation status
 
-## 14. Readiness for the next stage
+Status: `FROZEN_REFERENCE_ORACLE / NOT_AUTHORITATIVE_BUSINESS_ORACLE`.
 
-**C. Differential validation selesai dan siap ke temporal replay testing.**
+The independent verifier recalculated {verification_counts['INDEPENDENTLY_VERIFIED']} of {expected['case_count']} cases ({percent(verification_counts['INDEPENDENTLY_VERIFIED'], expected['case_count'])}); the remainder are policy-derived. This demonstrates agreement with the frozen reference policy, not correctness against company payroll practice, HRD decisions, legislation, or an absent source spreadsheet. Domain-expert validation is pending.
+""")
 
-Expected results were independently verified and frozen before production comparison, all final component/summary/provenance comparisons match, and no unresolved mismatch remains. Option D is intentionally not selected because HRD authority and temporal replay evidence are still absent.
-"""
-    (ROOT / "DIFFERENTIAL_VALIDATION_FINAL_REPORT.md").write_text(final, encoding="utf-8")
-    write_translation_report(fixtures)
-    write_root_cause_report()
-    print(json.dumps({"manifest": "EXPERIMENT_MANIFEST.json", "cases": len(corpus["cases"]), "mismatches": mismatch["mismatch_count"]}))
+    inventory = sorted(path.relative_to(ROOT).as_posix() for path in ROOT.rglob("*") if path.is_file() and ".tmp" not in path.parts)
+    write("ARTIFACT_INVENTORY.md", "# Artifact inventory\n\n" + "\n".join(f"- `{name}`" for name in inventory))
+
+    write("AUDIT_DIFFERENTIAL_PACKAGE.md", """
+# Audit differential package
+
+| File/area | Function | Input | Output | Confirmed problem | Remediation |
+|---|---|---|---|---|---|
+| `generate_corpus.py` | Corpus generator | Frozen policy/seed | cases JSON/CSV | Categories were index/modulo labels | Treatment predicates, route, rationale, and validator |
+| `verify_oracle.py` | Independent verifier | Expected/corpus/policy | Frozen expected/status report | Unverified rows called adjudicated | Independent and policy-derived statuses |
+| `run_differential.py` | Runtime runner/comparator | Frozen cases/expected | Actual/CSV/mismatch | Single canonical route and overwritten output | Real canonical/legacy routes and run directories |
+| `generate_reports.py` | Report generator | Raw artifacts/logs | Research reports | Static counts/status/durations | Strict evidence parsers and refusal on bad evidence |
+| `runs/` | Experimental evidence | Baseline/fixed engines | Separate runs | Baseline/fixed mixed; initial raw overwritten | Explicit reconstructed baseline and fixed evidence |
+| `metrics.json` | Observability model | Comparator output | Metric status/value | Unmeasured fields reported as zero | Measured/not-observable/not-applicable states |
+| Laravel E2E test | Full pipeline | Isolated DB + live Go | JUnit/E2E JSON | Full payroll service path absent | 36-case DB/service/HTTP/GRULE/persistence subset |
+| schemas/validator | Artifact gate | All JSON artifacts | validation report | Weak cross-artifact validation | JSON Schema plus IDs/hashes/metric/adjudication checks |
+| reproducibility files | External rerun | source/env | logs/manifests/reports | Local Windows paths and binary reliance | Relative Bash/Make path with source builds |
+
+Historical reports containing the invalid terminology remain replaced, not used as evidence. The user-owned `differential_validation.zip` was not modified.
+""")
+
+    overall = {
+        "artifact_version": "2.0", "schema_version": "2.0",
+        "oracle_status": expected["oracle_status"], "domain_status": "NOT_AUTHORITATIVE_BUSINESS_ORACLE",
+        "baseline": baseline, "fixed": fixed,
+        "translator": {"fixture_count": fixtures["fixture_count"], "test_events": evidence["translator"]["tests"], "failed": evidence["translator"]["failed"], "evidence": evidence["translator"]["evidence"]},
+        "full_pipeline_e2e": {key: value for key, value in e2e.items() if key != "results"},
+        "test_evidence": evidence,
+    }
+    (ROOT / "EXPERIMENT_MANIFEST.json").write_text(json.dumps(overall, indent=2) + "\n", encoding="utf-8")
+
+    write("DIFFERENTIAL_VALIDATION_FINAL_REPORT.md", f"""
+# Differential validation final report
+
+## Executive result
+
+The reconstructed baseline found {baseline_mismatch['mismatch_count']} mismatches; the fixed run found {fixed_mismatch['mismatch_count']} across {fixed_mismatch['case_count']} cases. This establishes remediation against the frozen reference policy, while domain authority remains unvalidated.
+
+## Evidence breakdown
+
+{table([
+        ['Baseline differential', baseline_mismatch['case_count'], baseline_mismatch['mismatch_count'], result_label(baseline_mismatch['mismatch_count'])],
+        ['Fixed differential', fixed_mismatch['case_count'], fixed_mismatch['mismatch_count'], result_label(fixed_mismatch['mismatch_count'])],
+        ['Translator fixtures', fixtures['fixture_count'], evidence['translator']['failed'], evidence['translator']['status']],
+        ['Full-pipeline E2E', e2e['case_count'], e2e['mismatch_count'], evidence['e2e']['status']],
+    ], ['Evidence', 'Cases/fixtures', 'Mismatch/failure', 'Result'])}
+
+Oracle cases: {verification_counts['INDEPENDENTLY_VERIFIED']} independently verified and {verification_counts['POLICY_DERIVED']} policy-derived; no unsupported adjudication. Unobservable metrics remain null rather than zero. Full test evidence is recorded in `AUTOMATED_EVIDENCE_GENERATION_REPORT.md`.
+
+## Limitations
+
+- The pre-remediation raw baseline was overwritten; the preserved evidence is a clearly labeled reconstruction.
+- The reference oracle is not an authoritative HRD/company/legal oracle.
+- Raw amount, rounding decision point, rate version, and tax version are not observable through the production API.
+- Clean-environment Docker execution must be reported from actual execution; absence of Docker on the current host cannot be converted into a success claim.
+- Temporal replay was intentionally not started.
+""")
+
+    print(json.dumps({"reports_generated": True, "baseline_mismatches": baseline_mismatch["mismatch_count"], "fixed_mismatches": fixed_mismatch["mismatch_count"], "e2e_cases": e2e["case_count"]}))
 
 
 if __name__ == "__main__":
-    main()
+    generate()

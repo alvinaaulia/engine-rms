@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "expected.schema.json",
+  "type": "object", "additionalProperties": false,
+  "required": ["artifact_version", "schema_version", "oracle_id", "oracle_status", "policy_version", "case_count", "results", "verification"],
+  "properties": {
+    "artifact_version": {"const": "2.0"}, "schema_version": {"const": "2.0"},
+    "oracle_id": {"type": "string"}, "oracle_status": {"const": "FROZEN_REFERENCE_ORACLE"},
+    "policy_version": {"type": "string"}, "verification": {"type": "object"},
+    "case_count": {"type": "integer", "minimum": 1},
+    "results": {"type": "array", "items": {"$ref": "#/$defs/result"}}
+  },
+  "$defs": {
+    "result": {
+      "type": "object", "additionalProperties": false,
+      "required": ["case_id", "primary_category", "secondary_categories", "verification_status", "verifier", "verification_method", "verification_timestamp", "adjudication_reference", "notes", "expected_status", "components"],
+      "properties": {
+        "case_id": {"type": "string", "pattern": "^(PAY-[0-9]{3}-[0-9]{2}|INVALID-[0-9]{3})$"},
+        "primary_category": {"type": "string"}, "secondary_categories": {"type": "array", "items": {"type": "string"}},
+        "verification_status": {"enum": ["REFERENCE_GENERATED", "INDEPENDENTLY_VERIFIED", "POLICY_DERIVED", "DISPUTED", "ADJUDICATED", "EXCLUDED_WITH_REASON"]},
+        "verifier": {"type": ["string", "null"]}, "verification_method": {"type": "string", "minLength": 1},
+        "verification_timestamp": {"type": ["string", "null"], "format": "date-time"}, "adjudication_reference": {"type": ["string", "null"]}, "notes": {"type": "string"},
+        "expected_status": {"enum": ["SUCCESS", "REJECTED"]}, "expected_error_code": {"type": "string"}, "expected_error_path": {"type": "string"},
+        "components": {"type": "array", "items": {"type": "object"}}, "summary": {"type": "object"}, "trace": {"type": "array", "items": {"type": "object"}},
+        "formula_source": {"type": "string"}, "rounding_policy": {"type": "object"}, "creator": {"type": "string"}, "domain_verification": {"type": "string"}
+      },
+      "allOf": [{"if": {"properties": {"expected_status": {"const": "SUCCESS"}}}, "then": {"required": ["summary", "trace", "formula_source", "rounding_policy", "creator", "domain_verification"]}}, {"if": {"properties": {"expected_status": {"const": "REJECTED"}}}, "then": {"required": ["expected_error_code"]}}]
+    }
+  }
+}

@@ -582,7 +582,7 @@ func ValidateTPRRuleSet(rs *TPRRuleSet, facts map[string]interface{}) error {
 				// Formula identifiers are numeric by grammar/catalog validation. They
 				// still require runtime type validation even when the same field is
 				// absent from every condition node.
-				if _, err := strictScalar(fact, declared.DataType, ap+".formula.expression", true); err != nil {
+				if err := validateFormulaFactRuntimeType(fact, declared.DataType, ap+".formula.expression"); err != nil {
 					return validationError("INVALID_FACT_TYPE", ap+".formula.expression", "formula fact value does not match its declared field type")
 				}
 			}

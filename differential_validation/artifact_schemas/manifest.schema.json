@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "manifest.schema.json",
+  "type": "object", "additionalProperties": false,
+  "required": ["artifact_version", "schema_version", "run_id", "provenance_status", "original_raw_baseline_available", "commits", "git_tag", "dirty_working_tree", "hashes", "comparator_version", "timestamp", "environment", "tool_versions", "results", "limitations"],
+  "properties": {
+    "artifact_version": {"const": "2.0"}, "schema_version": {"const": "2.0"}, "run_id": {"enum": ["baseline", "fixed"]},
+    "provenance_status": {"enum": ["RECONSTRUCTED_BASELINE", "EXECUTED_FIXED"]}, "original_raw_baseline_available": {"type": ["boolean", "null"]},
+    "commits": {"type": "object", "additionalProperties": false, "required": ["laravel", "go", "differential_package"], "properties": {"laravel": {"type": "string", "pattern": "^[a-f0-9]{40}$"}, "go": {"type": "string", "pattern": "^[a-f0-9]{40}$"}, "differential_package": {"type": "string", "pattern": "^[a-f0-9]{40}$"}}},
+    "git_tag": {"type": "string"}, "dirty_working_tree": {"type": "object", "additionalProperties": false, "required": ["laravel", "go_and_package"], "properties": {"laravel": {"type": "boolean"}, "go_and_package": {"type": "boolean"}}},
+    "hashes": {"type": "object", "additionalProperties": false, "required": ["policy", "corpus", "expected", "actual", "mismatches", "metrics"], "properties": {"policy": {"$ref": "#/$defs/hash"}, "corpus": {"$ref": "#/$defs/hash"}, "expected": {"$ref": "#/$defs/hash"}, "actual": {"$ref": "#/$defs/hash"}, "mismatches": {"$ref": "#/$defs/hash"}, "metrics": {"$ref": "#/$defs/hash"}}},
+    "comparator_version": {"type": "string"}, "timestamp": {"type": "string", "format": "date-time"},
+    "environment": {"type": "object"}, "tool_versions": {"type": "object"}, "results": {"type": "object"}, "limitations": {"type": "array", "items": {"type": "string"}}
+  },
+  "$defs": {"hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"}}
+}
+
