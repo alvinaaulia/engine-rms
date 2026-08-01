@@ -51,6 +51,7 @@ def generate() -> None:
     e2e = load(ROOT / "runs/fixed/full_pipeline_e2e.json")
     freeze = load(ROOT / ".oracle_frozen.json")
     fixtures = load(ROOT / "translation_validation_fixtures.json")
+    e2e_runtime_failures = sum(1 for item in e2e["results"] if item.get("status") == "RUNTIME_FAILURE")
 
     evidence = {
         "laravel": parse_junit(LOGS / "laravel-tests.meta.json"),
@@ -155,7 +156,7 @@ Validation type: `FULL_PIPELINE_END_TO_END_VALIDATION`.
 
 {table([
         ['Cases', e2e['case_count']], ['Exact valid results', e2e['exact_match_count']], ['Expected configuration rejections', e2e['expected_rejection_count']],
-        ['Unexpected mismatch', e2e['mismatch_count']], ['Persisted salary records', e2e['persistence_count']], ['Runtime failures', 0 if e2e['mismatch_count'] == 0 else e2e['mismatch_count']],
+        ['Unexpected mismatch', e2e['mismatch_count']], ['Persisted salary records', e2e['persistence_count']], ['Runtime failures', e2e_runtime_failures],
     ], ['Measure', 'Value'])}
 
 The valid path is testing database → attendance/overtime records → `buildFactsFromDatabase` → `PayrollRuleEngineService::execute` → Go HTTP `/execute` → GRULE → Laravel normalization/provenance → salary persistence. The subset covers salary, attendance, overtime, deduction, bonus, tax, rate dependencies, formulas, approval/active validation, provenance, six-decimal rounding, and invalid configuration rejection.
