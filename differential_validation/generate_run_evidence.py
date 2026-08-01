@@ -71,7 +71,7 @@ def build_metrics(run: str, mismatches: dict) -> dict:
     return payload
 
 
-def build_manifest(run: str, actual: dict, mismatches: dict) -> dict:
+def build_manifest(run: str, actual: dict, mismatches: dict, initial_dirty: dict[str, bool]) -> dict:
     run_dir = ROOT / "runs" / run
     tag = "tpr-ir-differential-baseline-v1" if run == "baseline" else "tpr-ir-differential-fixed-v1"
     go_commit = "1dcad9df1be852263590fd23ab11ce569ea1c99e" if run == "baseline" else command(ENGINE, "git", "rev-parse", "HEAD")
@@ -82,7 +82,7 @@ def build_manifest(run: str, actual: dict, mismatches: dict) -> dict:
         "original_raw_baseline_available": False if run == "baseline" else None,
         "commits": {"laravel": laravel_commit, "go": go_commit, "differential_package": command(ENGINE, "git", "rev-parse", "HEAD")},
         "git_tag": tag,
-        "dirty_working_tree": {"laravel": bool(command(LARAVEL, "git", "status", "--porcelain")), "go_and_package": bool(command(ENGINE, "git", "status", "--porcelain"))},
+        "dirty_working_tree": initial_dirty,
         "hashes": {
             "policy": sha(ROOT / "reference_policy.json"), "corpus": sha(ROOT / "oracle_input_cases.json"),
             "expected": sha(ROOT / "oracle_expected_results.json"), "actual": sha(run_dir / "actual_results.json"),
@@ -130,12 +130,16 @@ def build_bug_evidence() -> None:
 
 
 def main() -> None:
+    initial_dirty = {
+        "laravel": bool(command(LARAVEL, "git", "status", "--porcelain")),
+        "go_and_package": bool(command(ENGINE, "git", "status", "--porcelain")),
+    }
     manifests = {}
     for run in ("baseline", "fixed"):
         actual = load(ROOT / "runs" / run / "actual_results.json")
         mismatch = load(ROOT / "runs" / run / "mismatch_details.json")
         build_metrics(run, mismatch)
-        manifests[run] = build_manifest(run, actual, mismatch)
+        manifests[run] = build_manifest(run, actual, mismatch, initial_dirty)
     build_bug_evidence()
     print(json.dumps({run: manifest["results"] for run, manifest in manifests.items()}))
 
