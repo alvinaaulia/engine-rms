@@ -70,9 +70,17 @@ def validate_e2e_invariants(payload: dict) -> None:
         if trace["result"] == "PASS" and trace["expected_hash"] != trace["actual_hash"]:
             raise RuntimeError(f"E2E PASS has different hashes: {trace['case_id']}")
         if trace["evaluation_category"] == "FULL_PAYROLL_PIPELINE":
-            required_steps = {"testing_database", "buildFactsFromDatabase", "PayrollRuleEngineService::execute", "Go /execute", "GRULE", "Laravel normalization", "salary persistence"}
-            if not required_steps.issubset(set(trace["execution_path"])) or not trace["persistence_asserted"]:
+            required_steps = {"testing_database", "buildFactsFromDatabase", "PayrollRuleEngineService::execute", "Laravel HTTP client", "Go /execute", "TPR-IR validation", "GRL translation", "GRULE", "Laravel normalization", "salary persistence", "database assertion"}
+            required_fields = ("employee_fixture_id", "rate_version_ids", "tax_version_ids", "laravel_service_method", "salary_record_id", "go_internal_path", "go_internal_trace_status")
+            if (not required_steps.issubset(set(trace["execution_path"])) or not trace["persistence_asserted"]
+                    or any(field not in trace for field in required_fields)):
                 raise RuntimeError(f"full-pipeline trace is incomplete: {trace['case_id']}")
+        if trace["evaluation_category"] == "LARAVEL_CONFIGURATION_GUARD":
+            if (trace.get("go_request_correlation_status") != "NOT_APPLICABLE_REJECTED_BEFORE_HTTP"
+                    or trace.get("persistence_asserted") or trace.get("salary_record_id") is not None
+                    or not trace.get("database_unchanged")
+                    or trace.get("expected_error_codes") != trace.get("actual_error_codes")):
+                raise RuntimeError(f"configuration guard evidence is incomplete: {trace['case_id']}")
 
 
 def validate_report_counts(payload: dict, root: Path = ROOT) -> None:

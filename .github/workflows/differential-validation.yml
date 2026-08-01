@@ -41,7 +41,7 @@ jobs:
       - name: Install Laravel dependencies
         working-directory: papa-website-v2
         run: composer install --no-interaction --prefer-dist
-      - name: Execute evidence pipeline
+      - name: Execute clean evidence pipeline
         working-directory: engine-rms/differential_validation
         env:
           DB_HOST: 127.0.0.1
@@ -50,7 +50,7 @@ jobs:
           DB_USERNAME: root
           DB_PASSWORD: ''
           ALLOW_DIRTY: '0'
-        run: make validate-differential
+        run: make clean-validate
       - name: Upload raw evidence and reports
         if: always()
         uses: actions/upload-artifact@v4
@@ -60,3 +60,5 @@ jobs:
             engine-rms/differential_validation/runs
             engine-rms/differential_validation/*REPORT*.md
             engine-rms/differential_validation/final-report-data.json
+            engine-rms/differential_validation/DIFFERENTIAL_VALIDATION_FINAL_REPORT_V3.md
+            engine-rms/differential_validation/runs/clean-environment

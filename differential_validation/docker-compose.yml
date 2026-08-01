@@ -5,29 +5,75 @@ services:
     environment:
       MYSQL_DATABASE: website_papa_v2_testing
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      TZ: Asia/Jakarta
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 2s
       timeout: 3s
-      retries: 30
-  differential-validation:
+      retries: 60
+
+  app-laravel:
     build:
       context: .
-      dockerfile: Dockerfile.validation
-    working_dir: /artifact
+      dockerfile: Dockerfile.laravel
+    working_dir: /artifact/papa-website-v2
     volumes:
       - ../..:/artifact
-    environment:
-      ENGINE_DIR: /artifact/engine-rms
-      LARAVEL_DIR: /artifact/papa-website-v2
+    environment: &testing-environment
+      APP_ENV: testing
+      DB_CONNECTION: mysql
       DB_HOST: mysql
+      DB_PORT: 3306
       DB_DATABASE: website_papa_v2_testing
       DB_USERNAME: root
       DB_PASSWORD: ""
-      RULE_ENGINE_URL: http://127.0.0.1:8081
-      ALLOW_DIRTY: "0"
-      TZ: Asia/Bangkok
+      RULE_ENGINE_URL: http://rule-engine-go:8081
+      TZ: Asia/Jakarta
       LC_ALL: C.UTF-8
+    command: ["sh", "-lc", "composer install --no-interaction --prefer-dist --no-progress && php artisan serve --host=0.0.0.0 --port=8000"]
+    healthcheck:
+      test: ["CMD-SHELL", "php -r '$$s=@fsockopen(\"127.0.0.1\",8000); exit($$s?0:1);'"]
+      interval: 3s
+      timeout: 3s
+      retries: 60
     depends_on:
       mysql:
         condition: service_healthy
+
+  rule-engine-go:
+    build:
+      context: .
+      dockerfile: Dockerfile.go.template
+    working_dir: /artifact/engine-rms
+    volumes:
+      - ../..:/artifact
+    command: ["go", "run", "."]
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c '</dev/tcp/127.0.0.1/8081'"]
+      interval: 2s
+      timeout: 3s
+      retries: 60
+
+  validation-runner:
+    build:
+      context: .
+      dockerfile: Dockerfile.validation
+    working_dir: /artifact/engine-rms/differential_validation
+    volumes:
+      - ../..:/artifact
+    environment:
+      <<: *testing-environment
+      ENGINE_DIR: /artifact/engine-rms
+      LARAVEL_DIR: /artifact/papa-website-v2
+      RUNS_DIR: /artifact/engine-rms/differential_validation/runs
+      USE_EXTERNAL_FIXED_ENGINE: "1"
+      ALLOW_DIRTY: "0"
+    command: ["bash", "./clean_validate.sh"]
+    depends_on:
+      mysql:
+        condition: service_healthy
+      app-laravel:
+        condition: service_healthy
+      rule-engine-go:
+        condition: service_healthy
+

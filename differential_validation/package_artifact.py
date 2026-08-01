@@ -34,13 +34,25 @@ def main() -> None:
     archive(LARAVEL, output / "laravel")
     shutil.copytree(output / "engine-rms" / "differential_validation", output / "differential-validation")
     shutil.copytree(ROOT / "runs", output / "runs")
-    for name in (
-        "README.md", "LICENSE-or-ACCESS-NOTE.md", ".env.example", "Makefile",
-        "docker-compose.yml", "Dockerfile.laravel",
-        "Dockerfile.validation", "artifact-manifest.json",
-    ):
+    for name in ("README.md", "LICENSE-or-ACCESS-NOTE.md", "artifact-manifest.json"):
         shutil.copy2(ROOT / "artifact" / name, output / name)
-    shutil.copy2(ROOT / "artifact" / "Dockerfile.go.template", output / "Dockerfile.go")
+    for name in (".env.example", "Makefile"):
+        shutil.copy2(ROOT / name, output / name)
+    compose = (ROOT / "docker-compose.yml").read_text(encoding="utf-8")
+    compose = compose.replace("dockerfile: Dockerfile.laravel", "dockerfile: docker/Dockerfile.laravel")
+    compose = compose.replace("dockerfile: Dockerfile.go.template", "dockerfile: docker/Dockerfile.go")
+    compose = compose.replace("dockerfile: Dockerfile.validation", "dockerfile: docker/Dockerfile.validation")
+    compose = compose.replace("- ../..:/artifact", "- .:/artifact")
+    compose = compose.replace("/artifact/papa-website-v2", "/artifact/laravel")
+    (output / "docker-compose.yml").write_text(compose, encoding="utf-8")
+    docker_dir = output / "docker"
+    docker_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(ROOT / "Dockerfile.laravel", docker_dir / "Dockerfile.laravel")
+    shutil.copy2(ROOT / "Dockerfile.go.template", docker_dir / "Dockerfile.go")
+    shutil.copy2(ROOT / "Dockerfile.validation", docker_dir / "Dockerfile.validation")
+    scripts_dir = output / "scripts"
+    shutil.copytree(ROOT / "scripts", scripts_dir, dirs_exist_ok=True)
+    shutil.copy2(ROOT / "clean_validate.sh", scripts_dir / "clean_validate.sh")
     print(output)
 
 

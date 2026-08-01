@@ -28,20 +28,21 @@ Copy `.env.example`, set credentials for the isolated testing database, and inst
 From `engine-rms/differential_validation` in Git Bash:
 
 ```bash
-make validate-differential
+make clean-validate
 ```
 
-The command refuses a dirty tree by default, verifies repository commits, guards the test database name, prepares migrations, creates and verifies the frozen oracle, builds baseline and fixed engines from source, runs both differential comparisons, runs translator fixtures, full Go tests, Go vet, the full Laravel suite, the true E2E subset, schema validation, evidence-parser tests, manifests, and reports. An unresolved fixed mismatch or failed command returns non-zero.
+The command builds containers without cache, starts MySQL, the Laravel application, and the fixed Go service, then runs the validation container. It refuses a dirty tree, verifies repository commits and frozen hashes, guards the test database name, prepares migrations, builds the reconstructed engine from source, executes both baseline repeats and the fixed comparison, runs translator fixtures, Go and Laravel tests, Go vet, E2E traces, schemas, manifests, and reports. An unresolved mismatch or failed command returns non-zero.
 
 The PowerShell file is only a convenience wrapper around the same Bash route.
 
 ## Optional clean container route
 
 ```bash
-docker compose run --rm differential-validation
+docker compose build --no-cache
+docker compose run --rm validation-runner
 ```
 
-The Go, Composer, and MySQL image references use registry digests. Docker was unavailable on the remediation host, so this route is supplied but its clean-environment result is `NOT_EXECUTED`, not success.
+The PHP, Python, Go, Composer, and MySQL image references use registry digests. Docker, WSL Linux, and usable external-CI credentials were unavailable on the audit host, so this route is supplied but its clean-environment result is `NOT_EXECUTED`, not success.
 
 ## Review bundle
 

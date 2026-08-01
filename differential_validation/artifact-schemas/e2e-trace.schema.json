@@ -25,19 +25,31 @@
       "database_fixture": {"type": ["object", "string"]},
       "laravel_test": {"type": "string", "minLength": 1},
       "service_method": {"type": "string", "minLength": 1},
+      "employee_fixture_id": {"type": ["string", "null"]},
+      "laravel_service_method": {"type": "string", "minLength": 1},
       "go_request_id": {"type": ["string", "null"]},
       "go_request_correlation_status": {"enum": ["OBSERVED", "NOT_OBSERVABLE", "NOT_APPLICABLE_REJECTED_BEFORE_HTTP"]},
       "go_request_hash": {"type": ["string", "null"], "pattern": "^[a-f0-9]{64}$"},
       "go_response_hash": {"type": ["string", "null"], "pattern": "^[a-f0-9]{64}$"},
       "attendance_source": {"type": "string"},
       "rule_version_ids": {"type": "array", "items": {"type": "integer"}},
+      "rate_version_ids": {"type": "array", "items": {"type": "integer"}},
+      "tax_version_ids": {"type": "array", "items": {"type": "integer"}},
+      "tax_version_status": {"type": "string"},
+      "go_internal_path": {"type": "array", "items": {"type": "string"}},
+      "go_internal_trace_status": {"type": "string"},
       "component_codes": {"type": "array", "items": {"type": "string"}},
       "persistence_asserted": {"type": "boolean"},
       "persisted_salary_id": {"type": ["integer", "null"]},
+      "salary_record_id": {"type": ["integer", "null"]},
+      "expected_error_codes": {"type": "array", "items": {"type": "string"}},
+      "actual_error_codes": {"type": "array", "items": {"type": "string"}},
+      "salary_count_before": {"type": "integer", "minimum": 0},
+      "salary_count_after": {"type": "integer", "minimum": 0},
+      "database_unchanged": {"type": "boolean"},
       "expected_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
       "actual_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
       "result": {"enum": ["PASS", "FAIL"]}
     }
   }}
 }
-

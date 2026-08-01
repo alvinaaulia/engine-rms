@@ -35,7 +35,8 @@ for repeat in 1 2; do mkdir -p "$RUNS_DIR/reconstructed-baseline/repeat-$repeat/
 python -m pip install -r "$PACKAGE_DIR/requirements.txt"
 
 export APP_ENV=testing DB_CONNECTION=mysql DB_DATABASE="${DB_DATABASE:-website_papa_v2_testing}"
-export RULE_ENGINE_URL="${RULE_ENGINE_URL:-http://127.0.0.1:8081}"
+FIXED_RULE_ENGINE_URL="${RULE_ENGINE_URL:-http://127.0.0.1:8081}"
+export RULE_ENGINE_URL="http://127.0.0.1:8081"
 export LARAVEL_ROOT="$LARAVEL_DIR" TZ="${TZ:-Asia/Bangkok}" LC_ALL="${LC_ALL:-C.UTF-8}"
 [[ "$DB_DATABASE" == *test* ]] || { echo "Refusing non-test database: $DB_DATABASE" >&2; exit 2; }
 
@@ -59,9 +60,12 @@ cp "$RUNS_DIR/reconstructed-baseline/repeat-2/actual_results.json" "$RUNS_DIR/ba
 cp "$RUNS_DIR/reconstructed-baseline/repeat-2/mismatch_details.json" "$RUNS_DIR/baseline/mismatch_details.json"
 cp "$RUNS_DIR/reconstructed-baseline/repeat-2/differential_results.csv" "$RUNS_DIR/baseline/differential_results.csv"
 
-go -C "$ENGINE_DIR" build -o "$TMP_DIR/fixed$suffix" .
-"$TMP_DIR/fixed$suffix" >"$RUNS_DIR/fixed/raw-logs/engine.stdout.log" 2>"$RUNS_DIR/fixed/raw-logs/engine.stderr.log" & ENGINE_PID=$!
-sleep 2
+export RULE_ENGINE_URL="$FIXED_RULE_ENGINE_URL"
+if [[ "${USE_EXTERNAL_FIXED_ENGINE:-0}" != "1" ]]; then
+  go -C "$ENGINE_DIR" build -o "$TMP_DIR/fixed$suffix" .
+  "$TMP_DIR/fixed$suffix" >"$RUNS_DIR/fixed/raw-logs/engine.stdout.log" 2>"$RUNS_DIR/fixed/raw-logs/engine.stderr.log" & ENGINE_PID=$!
+  sleep 2
+fi
 record --name differential-hardening --output-dir "$RUNS_DIR/fixed/raw-logs" --cwd "$ENGINE_DIR" -- python differential_validation/differential_runner/run_differential.py --output-dir differential_validation/runs/fixed --run-id fixed-hardening
 record --name translator-hardening --output-dir "$HARD_LOGS" --cwd "$ENGINE_DIR" -- go test -json -run TestTranslationValidationFixtures -count=1 .
 record --name go-tests-hardening --output-dir "$HARD_LOGS" --cwd "$ENGINE_DIR" -- go test -json ./... -count=1
