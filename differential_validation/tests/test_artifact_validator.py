@@ -77,6 +77,18 @@ class ArtifactValidatorTest(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             validate_e2e_invariants(payload)
 
+    def test_configuration_guard_with_database_change_is_rejected(self) -> None:
+        payload = {"case_count": 1, "traces": [{
+            "case_id": "E2E-033", "evaluation_category": "LARAVEL_CONFIGURATION_GUARD",
+            "execution_path": ["testing_database", "PayrollRuleEngineService::execute", "configuration validation"],
+            "persistence_asserted": False, "salary_record_id": None,
+            "go_request_correlation_status": "NOT_APPLICABLE_REJECTED_BEFORE_HTTP",
+            "database_unchanged": False, "expected_error_codes": ["rules"], "actual_error_codes": ["rules"],
+            "result": "PASS", "expected_hash": "a" * 64, "actual_hash": "a" * 64,
+        }]}
+        with self.assertRaises(RuntimeError):
+            validate_e2e_invariants(payload)
+
     def test_report_count_inconsistent_with_artifact_is_rejected(self) -> None:
         root = Path(__file__).resolve().parents[1]
         report = load(root / "final-report-data.json")
