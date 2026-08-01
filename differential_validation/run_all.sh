@@ -24,7 +24,7 @@ for tool in git go php python; do require "$tool"; done
 
 for repo in "$ENGINE_DIR" "$LARAVEL_DIR"; do
   git -C "$repo" rev-parse HEAD
-  if [[ -n "$(git -C "$repo" status --porcelain)" && "${ALLOW_DIRTY:-0}" != "1" && "${SOURCE_SNAPSHOT_VERIFIED:-0}" != "1" ]]; then
+  if [[ "${SOURCE_SNAPSHOT_VERIFIED:-0}" != "1" && -n "$(git -C "$repo" status --porcelain)" && "${ALLOW_DIRTY:-0}" != "1" ]]; then
     echo "Refusing dirty repository: $repo" >&2
     exit 2
   fi
