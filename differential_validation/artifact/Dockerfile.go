@@ -1,0 +1,2 @@
+FROM golang:1.26.2-bookworm@sha256:47ce5636e9936b2c5cbf708925578ef386b4f8872aec74a67bd13a627d242b19
+WORKDIR /artifact/engine-rms

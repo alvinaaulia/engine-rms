@@ -31,12 +31,17 @@ def main() -> None:
     if output.exists() and any(output.iterdir()):
         raise RuntimeError(f"output must be absent or empty: {output}")
     archive(ENGINE, output / "engine-rms")
-    archive(LARAVEL, output / "papa-website-v2")
-    for name in ("README.md", "LICENSE-or-ACCESS-NOTE.md"):
+    archive(LARAVEL, output / "laravel")
+    shutil.copytree(output / "engine-rms" / "differential_validation", output / "differential-validation")
+    shutil.copytree(ROOT / "runs", output / "runs")
+    for name in (
+        "README.md", "LICENSE-or-ACCESS-NOTE.md", ".env.example", "Makefile",
+        "docker-compose.yml", "Dockerfile.go", "Dockerfile.laravel",
+        "Dockerfile.validation", "artifact-manifest.json",
+    ):
         shutil.copy2(ROOT / "artifact" / name, output / name)
     print(output)
 
 
 if __name__ == "__main__":
     main()
-

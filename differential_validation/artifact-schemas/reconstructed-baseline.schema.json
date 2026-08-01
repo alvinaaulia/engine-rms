@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "reconstructed-baseline.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["artifact_version", "schema_version", "baseline_type", "reconstruction_method", "source_commit", "source_tag", "applied_or_reverted_patch", "corpus_hash", "expected_hash", "policy_hash", "repeat_runs", "stable_mismatch_case_ids", "limitations", "reproducibility_status"],
+  "properties": {
+    "artifact_version": {"const": "2.0"},
+    "schema_version": {"const": "2.0"},
+    "baseline_type": {"const": "RECONSTRUCTED"},
+    "reconstruction_method": {"type": "string", "minLength": 1},
+    "source_commit": {"type": "string", "pattern": "^[a-f0-9]{40}$"},
+    "source_tag": {"type": "string", "minLength": 1},
+    "applied_or_reverted_patch": {"type": "string", "minLength": 1},
+    "corpus_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "expected_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "policy_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "repeat_runs": {"type": "array", "minItems": 2, "items": {"type": "object"}},
+    "stable_mismatch_case_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string"}},
+    "limitations": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+    "reproducibility_status": {"enum": ["RECONSTRUCTED_REPRODUCED", "RECONSTRUCTION_FAILED", "NOT_EXECUTED"]}
+  }
+}
+

@@ -23,6 +23,12 @@ def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def result_hash(result: dict) -> str:
+    payload = {key: value for key, value in result.items() if key != "expected_hash"}
+    encoded = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
+
+
 def fraction(value) -> Fraction:
     return Fraction(str(value))
 
@@ -214,6 +220,7 @@ def main() -> None:
             result.update({
                 "verification_status": "INDEPENDENTLY_VERIFIED",
                 "verifier": "independent-fraction-verifier-v2",
+                "verifier_id": "independent-fraction-verifier-v2",
                 "verification_method": "Exact Fraction recalculation with separately implemented HALF_UP quantizer",
                 "verification_timestamp": verified_at,
                 "adjudication_reference": None,
@@ -223,11 +230,14 @@ def main() -> None:
             result.update({
                 "verification_status": "POLICY_DERIVED",
                 "verifier": None,
+                "verifier_id": None,
                 "verification_method": "Derived from frozen reference policy; not independently recalculated",
                 "verification_timestamp": None,
                 "adjudication_reference": None,
                 "notes": "Not adjudicated and not independently recalculated.",
             })
+        result["policy_hash"] = sha256(POLICY_PATH)
+        result["expected_hash"] = result_hash(result)
     expected["oracle_status"] = "FROZEN_REFERENCE_ORACLE"
     expected["verification"] = {
         "method": "Stratified independent Fraction-based evaluator with custom HALF_UP quantization",
@@ -244,7 +254,7 @@ def main() -> None:
         fieldnames = list(csv_rows[0]) if csv_rows else []
     for csv_row in csv_rows:
         metadata = metadata_by_id[csv_row["case_id"]]
-        for key in ("verification_status", "verifier", "verification_method", "verification_timestamp", "adjudication_reference", "notes"):
+        for key in ("verification_status", "verifier", "verifier_id", "verification_method", "verification_timestamp", "adjudication_reference", "notes", "expected_hash", "policy_hash"):
             csv_row[key] = metadata.get(key)
     with EXPECTED_CSV_PATH.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=fieldnames)

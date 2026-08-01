@@ -62,9 +62,12 @@ def verification_metadata() -> dict:
     return {
         "verification_status": "REFERENCE_GENERATED",
         "verifier": None,
+        "verifier_id": None,
         "verification_method": "Independent Decimal reference calculator generated from frozen policy",
         "verification_timestamp": None,
         "adjudication_reference": None,
+        "expected_hash": None,
+        "policy_hash": None,
         "notes": "Awaiting independent verifier classification.",
     }
 
@@ -192,8 +195,9 @@ def calculate(case: dict, policy: dict) -> dict:
 
 def write_csv(results: list[dict], policy: dict) -> None:
     columns = [
-        "case_id", "primary_category", "secondary_categories", "verification_status", "verifier",
+        "case_id", "primary_category", "secondary_categories", "verification_status", "verifier", "verifier_id",
         "verification_method", "verification_timestamp", "adjudication_reference", "notes",
+        "expected_hash", "policy_hash",
         "expected_status", "expected_error_code",
         "component_code", "component_type", "raw_amount", "rounded_amount", "taxable_component",
         "source_rule_id", "source_rule_version_id", "basic_salary", "gross_salary",
@@ -207,7 +211,7 @@ def write_csv(results: list[dict], policy: dict) -> None:
                 writer.writerow({
                     "case_id": result["case_id"], "primary_category": result["primary_category"],
                     "secondary_categories": "|".join(result["secondary_categories"]),
-                    **{key: result.get(key) for key in ("verification_status", "verifier", "verification_method", "verification_timestamp", "adjudication_reference", "notes")},
+                    **{key: result.get(key) for key in ("verification_status", "verifier", "verifier_id", "verification_method", "verification_timestamp", "adjudication_reference", "notes", "expected_hash", "policy_hash")},
                     "expected_status": "REJECTED",
                     "expected_error_code": result["expected_error_code"], "component_code": "__ERROR__",
                 })
@@ -218,7 +222,7 @@ def write_csv(results: list[dict], policy: dict) -> None:
                 writer.writerow({
                     "case_id": result["case_id"], "primary_category": result["primary_category"],
                     "secondary_categories": "|".join(result["secondary_categories"]),
-                    **{key: result.get(key) for key in ("verification_status", "verifier", "verification_method", "verification_timestamp", "adjudication_reference", "notes")},
+                    **{key: result.get(key) for key in ("verification_status", "verifier", "verifier_id", "verification_method", "verification_timestamp", "adjudication_reference", "notes", "expected_hash", "policy_hash")},
                     "expected_status": "SUCCESS",
                     "component_code": code, "component_type": policy["component_types"][code],
                     "raw_amount": component["raw_amount"], "rounded_amount": component["rounded_amount"],

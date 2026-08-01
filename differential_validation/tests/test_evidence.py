@@ -48,6 +48,25 @@ class EvidenceParserTest(unittest.TestCase):
         evidence.write_text("looks fine", encoding="utf-8")
         self.assertEqual("FAIL", parse_exit_status(self.meta(evidence, exit_code=7))["status"])
 
+    def test_manual_pass_value_cannot_override_failed_exit(self) -> None:
+        evidence = self.root / "status.txt"
+        evidence.write_text("manual PASS", encoding="utf-8")
+        meta = self.meta(evidence, exit_code=9)
+        payload = json.loads(meta.read_text(encoding="utf-8"))
+        payload["status"] = "PASS"
+        meta.write_text(json.dumps(payload), encoding="utf-8")
+        self.assertEqual("FAIL", parse_exit_status(meta)["status"])
+
+    def test_missing_exit_code_is_rejected(self) -> None:
+        evidence = self.root / "status.txt"
+        evidence.write_text("output", encoding="utf-8")
+        meta = self.meta(evidence)
+        payload = json.loads(meta.read_text(encoding="utf-8"))
+        del payload["exit_code"]
+        meta.write_text(json.dumps(payload), encoding="utf-8")
+        with self.assertRaises(EvidenceError):
+            parse_exit_status(meta)
+
     def test_inconsistent_junit_count_is_rejected(self) -> None:
         evidence = self.root / "junit.xml"
         evidence.write_text('<testsuite tests="2" failures="0"><testcase name="one"/></testsuite>', encoding="utf-8")

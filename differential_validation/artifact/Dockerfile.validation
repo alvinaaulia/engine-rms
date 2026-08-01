@@ -1,0 +1,5 @@
+FROM golang:1.26.2-bookworm@sha256:47ce5636e9936b2c5cbf708925578ef386b4f8872aec74a67bd13a627d242b19
+RUN apt-get update && apt-get install -y --no-install-recommends php8.2-cli php8.2-mysql php8.2-xml php8.2-mbstring php8.2-curl python3 python3-pip make git unzip ca-certificates && rm -rf /var/lib/apt/lists/*
+COPY --from=composer:2.8.10@sha256:20462d70afcfa999ad75dbd9333194067f4d869078bdb37430339e8d97e541d6 /usr/bin/composer /usr/local/bin/composer
+WORKDIR /artifact
+CMD ["make", "-C", "engine-rms/differential_validation", "validate-differential"]

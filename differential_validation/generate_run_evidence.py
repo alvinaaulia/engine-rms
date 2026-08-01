@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import hashlib
+import csv
 import json
 import platform
 import subprocess
@@ -36,34 +37,48 @@ def database_collation() -> str:
     return command(LARAVEL, "php", "-r", php)
 
 
-def metric(name: str, status: str, value, reason: str, comparator: bool, source: bool) -> dict:
-    return {"metric": name, "status": status, "value": value, "reason": reason, "comparator_available": comparator, "source_data_available": source}
+def metric(name: str, status: str, value, denominator, unit: str, reason: str, comparator: bool, source: bool, evidence_file: str) -> dict:
+    return {
+        "metric": name, "status": status, "value": value, "denominator": denominator,
+        "unit": unit, "reason": reason, "comparator_available": comparator,
+        "source_data_available": source, "evidence_file": evidence_file,
+    }
 
 
 def build_metrics(run: str, mismatches: dict) -> dict:
+    with (ROOT / "runs" / run / "differential_results.csv").open(encoding="utf-8", newline="") as handle:
+        rows = list(csv.DictReader(handle))
     counts = Counter(item["category"] for item in mismatches["mismatches"])
+    component_rows = [item for item in rows if item["comparison_scope"] == "COMPONENT"]
+    summary_rows = [item for item in rows if item["comparison_scope"] == "SUMMARY"]
+    summary_denominators = Counter(item["item"] for item in summary_rows)
     measured = [
-        ("COMPONENT_PRESENCE_MISMATCH", counts["MISSING_COMPONENT"] + counts["UNEXPECTED_COMPONENT"]),
-        ("COMPONENT_TYPE_MISMATCH", counts["COMPONENT_TYPE_MISMATCH"]),
-        ("ROUNDED_AMOUNT_MISMATCH", counts["ROUNDED_AMOUNT_MISMATCH"]),
-        ("TAXABLE_BASE_MISMATCH", counts["TAXABLE_BASE_MISMATCH"]),
-        ("GROSS_MISMATCH", counts["GROSS_MISMATCH"]),
-        ("DEDUCTION_MISMATCH", counts["DEDUCTION_MISMATCH"]),
-        ("TAX_MISMATCH", counts["TAX_MISMATCH"]),
-        ("NET_MISMATCH", counts["NET_MISMATCH"]),
-        ("SOURCE_RULE_ID_MISMATCH", counts["RULE_PROVENANCE_MISMATCH"]),
-        ("RULE_VERSION_ID_MISMATCH", counts["RULE_PROVENANCE_MISMATCH"]),
-        ("CONTRIBUTOR_IDS_MISMATCH", counts["RULE_PROVENANCE_MISMATCH"]),
-        ("RUNTIME_ERROR", counts["RUNTIME_ERROR"]),
-        ("TIMEOUT", counts["TIMEOUT"]),
+        ("CASE_EXACT_MATCH", mismatches["case_count"] - mismatches["mismatched_case_count"], mismatches["case_count"], "case"),
+        ("COMPONENT_EXACT_MATCH", sum(item["match"] == "YES" for item in component_rows), len(component_rows), "component comparison"),
+        ("SUMMARY_EXACT_MATCH", sum(item["match"] == "YES" for item in summary_rows), len(summary_rows), "summary comparison"),
+        ("COMPONENT_PRESENCE_MISMATCH", counts["MISSING_COMPONENT"] + counts["UNEXPECTED_COMPONENT"], len(component_rows), "component comparison"),
+        ("COMPONENT_TYPE_MISMATCH", counts["COMPONENT_TYPE_MISMATCH"], len(component_rows), "component comparison"),
+        ("ROUNDED_AMOUNT_MISMATCH", counts["ROUNDED_AMOUNT_MISMATCH"], len(component_rows), "component comparison"),
+        ("TAXABLE_BASE_MISMATCH", counts["TAXABLE_BASE_MISMATCH"], summary_denominators["taxable_amount"], "case summary"),
+        ("GROSS_MISMATCH", counts["GROSS_MISMATCH"], summary_denominators["gross_salary"] + summary_denominators["basic_salary"], "case summary field"),
+        ("DEDUCTION_MISMATCH", counts["DEDUCTION_MISMATCH"], summary_denominators["total_deductions"], "case summary"),
+        ("TAX_MISMATCH", counts["TAX_MISMATCH"], summary_denominators["tax"], "case summary"),
+        ("NET_MISMATCH", counts["NET_MISMATCH"], summary_denominators["net_salary"], "case summary"),
+        ("SOURCE_RULE_ID_MISMATCH", counts["RULE_PROVENANCE_MISMATCH"], len(component_rows), "component provenance"),
+        ("RULE_VERSION_ID_MISMATCH", counts["RULE_PROVENANCE_MISMATCH"], len(component_rows), "component provenance"),
+        ("CONTRIBUTOR_IDS_MISMATCH", counts["RULE_PROVENANCE_MISMATCH"], len(component_rows), "component provenance"),
+        ("RUNTIME_ERROR", counts["RUNTIME_ERROR"], mismatches["case_count"], "case execution"),
+        ("TIMEOUT", counts["TIMEOUT"], mismatches["case_count"], "case execution"),
     ]
-    metrics = [metric(name, "MEASURED", value, "Compared for every applicable response row", True, True) for name, value in measured]
+    comparison_evidence = f"runs/{run}/differential_results.csv"
+    metrics = [metric(name, "MEASURED", value, denominator, unit, "Calculated from differential comparison rows", True, True, comparison_evidence) for name, value, denominator, unit in measured]
     metrics += [
-        metric("RAW_AMOUNT_MISMATCH", "NOT_OBSERVABLE", None, "Production API does not expose the pre-rounding candidate amount", False, False),
-        metric("ROUNDING_POINT_MISMATCH", "NOT_OBSERVABLE", None, "Production API does not expose the exact rounding decision point", False, False),
-        metric("RATE_VERSION_MISMATCH", "NOT_OBSERVABLE", None, "Production response does not identify the resolved payroll-rate version", False, False),
-        metric("TAX_VERSION_MISMATCH", "NOT_OBSERVABLE", None, "Production response does not identify the resolved company-tax version", False, False),
-        metric("TRANSLATION_MISMATCH", "NOT_APPLICABLE", None, "Measured in the separate translator fixture validation, not this runtime run", False, False),
+        metric("RAW_AMOUNT_MISMATCH", "NOT_OBSERVABLE", None, None, "component", "Production API does not expose the pre-rounding candidate amount", False, False, comparison_evidence),
+        metric("ROUNDING_POINT_MISMATCH", "NOT_OBSERVABLE", None, None, "rounding decision", "Production API does not expose the exact rounding decision point", False, False, comparison_evidence),
+        metric("RATE_VERSION_MISMATCH", "NOT_OBSERVABLE", None, None, "rate resolution", "Production response does not identify the resolved payroll-rate version", False, False, comparison_evidence),
+        metric("TAX_VERSION_MISMATCH", "NOT_OBSERVABLE", None, None, "tax resolution", "Production response does not identify the resolved company-tax version", False, False, comparison_evidence),
+        metric("TRANSLATION_MISMATCH", "NOT_APPLICABLE", None, None, "translator fixture", "Measured in the separate translator fixture validation, not this runtime run", False, False, "translation_validation_fixtures.json"),
+        metric("PERSISTENCE_RESULT", "NOT_APPLICABLE", None, None, "E2E transaction", "Measured only by the full-pipeline E2E artifact", False, False, "runs/fixed/full_pipeline_e2e.json"),
     ]
     payload = {"artifact_version": "2.0", "schema_version": "2.0", "run_id": run, "metrics": metrics}
     path = ROOT / "runs" / run / "metrics.json"

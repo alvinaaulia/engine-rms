@@ -8,9 +8,10 @@ from pathlib import Path
 
 from evidence import parse_exit_status, parse_go_test, parse_junit
 from validate_artifacts import main as validate_artifacts
+from generate_hardening_reports import generate as generate_hardening_reports
 
 ROOT = Path(__file__).resolve().parent
-LOGS = ROOT / "runs" / "fixed" / "logs"
+LOGS = ROOT / "runs" / "hardening" / "raw-logs"
 
 
 def load(path: Path) -> dict:
@@ -54,16 +55,16 @@ def generate() -> None:
     e2e_runtime_failures = sum(1 for item in e2e["results"] if item.get("status") == "RUNTIME_FAILURE")
 
     evidence = {
-        "laravel": parse_junit(LOGS / "laravel-tests.meta.json"),
-        "go": parse_go_test(LOGS / "go-tests.meta.json"),
-        "go_vet": parse_exit_status(LOGS / "go-vet.meta.json"),
-        "translator": parse_go_test(LOGS / "translator-go-test.meta.json"),
-        "e2e": parse_junit(LOGS / "e2e.meta.json"),
+        "laravel": parse_junit(LOGS / "laravel-tests-hardening.meta.json"),
+        "go": parse_go_test(LOGS / "go-tests-hardening.meta.json"),
+        "go_vet": parse_exit_status(LOGS / "go-vet-hardening.meta.json"),
+        "translator": parse_go_test(LOGS / "translator-hardening.meta.json"),
+        "e2e": parse_junit(ROOT / "runs/fixed/raw-logs/e2e-hardening.meta.json"),
         "corpus": parse_exit_status(LOGS / "corpus-generation.meta.json"),
         "oracle": parse_exit_status(LOGS / "oracle-generation.meta.json"),
         "oracle_verifier": parse_exit_status(LOGS / "oracle-verification.meta.json"),
-        "baseline_differential": parse_exit_status(ROOT / "runs/baseline/logs/differential.meta.json"),
-        "fixed_differential": parse_exit_status(LOGS / "differential.meta.json"),
+        "baseline_differential": parse_exit_status(ROOT / "runs/reconstructed-baseline/repeat-2/raw-logs/differential.meta.json"),
+        "fixed_differential": parse_exit_status(ROOT / "runs/fixed/raw-logs/differential-hardening.meta.json"),
     }
     if any(item["status"] != "PASS" for item in evidence.values()):
         failed = [name for name, item in evidence.items() if item["status"] != "PASS"]
@@ -243,6 +244,8 @@ Oracle cases: {verification_counts['INDEPENDENTLY_VERIFIED']} independently veri
 - Temporal replay was intentionally not started.
 """)
 
+    generate_hardening_reports()
+    validate_artifacts()
     print(json.dumps({"reports_generated": True, "baseline_mismatches": baseline_mismatch["mismatch_count"], "fixed_mismatches": fixed_mismatch["mismatch_count"], "e2e_cases": e2e["case_count"]}))
 
 

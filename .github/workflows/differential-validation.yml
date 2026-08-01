@@ -1,0 +1,62 @@
+name: differential-validation
+
+on:
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.4.5
+        env:
+          MYSQL_DATABASE: website_papa_v2_testing
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost"
+          --health-interval=2s --health-timeout=3s --health-retries=30
+    steps:
+      - name: Check out engine and validation package
+        uses: actions/checkout@v4
+        with:
+          path: engine-rms
+      - name: Check out Laravel application
+        uses: actions/checkout@v4
+        with:
+          repository: mascitradotcom/papa-website-v2
+          token: ${{ secrets.LARAVEL_REPOSITORY_TOKEN }}
+          path: papa-website-v2
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26.2'
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo_mysql, mbstring, xml, curl
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+      - name: Install Laravel dependencies
+        working-directory: papa-website-v2
+        run: composer install --no-interaction --prefer-dist
+      - name: Execute evidence pipeline
+        working-directory: engine-rms/differential_validation
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: website_papa_v2_testing
+          DB_USERNAME: root
+          DB_PASSWORD: ''
+          ALLOW_DIRTY: '0'
+        run: make validate-differential
+      - name: Upload raw evidence and reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: differential-validation-evidence
+          path: |
+            engine-rms/differential_validation/runs
+            engine-rms/differential_validation/*REPORT*.md
+            engine-rms/differential_validation/final-report-data.json

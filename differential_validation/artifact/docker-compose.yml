@@ -10,24 +10,17 @@ services:
       interval: 2s
       timeout: 3s
       retries: 30
-  differential-validation:
+  validation:
     build:
       context: .
       dockerfile: Dockerfile.validation
-    working_dir: /artifact
     volumes:
-      - ../..:/artifact
+      - .:/artifact
+    env_file: .env
     environment:
       ENGINE_DIR: /artifact/engine-rms
-      LARAVEL_DIR: /artifact/papa-website-v2
-      DB_HOST: mysql
-      DB_DATABASE: website_papa_v2_testing
-      DB_USERNAME: root
-      DB_PASSWORD: ""
-      RULE_ENGINE_URL: http://127.0.0.1:8081
-      ALLOW_DIRTY: "0"
-      TZ: Asia/Bangkok
-      LC_ALL: C.UTF-8
+      LARAVEL_DIR: /artifact/laravel
+      RUNS_DIR: /artifact/runs
     depends_on:
       mysql:
         condition: service_healthy

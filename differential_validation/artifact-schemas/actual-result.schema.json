@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "actual.schema.json",
+  "type": "object", "additionalProperties": false,
+  "required": ["artifact_version", "schema_version", "run_id", "engine_url", "adapter", "frozen_oracle_hash", "case_count", "results"],
+  "properties": {
+    "artifact_version": {"const": "2.0"}, "schema_version": {"const": "2.0"}, "run_id": {"type": "string", "minLength": 1},
+    "engine_url": {"type": "string"}, "adapter": {"type": "string"}, "frozen_oracle_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "case_count": {"type": "integer", "minimum": 1}, "results": {"type": "array", "items": {"$ref": "#/$defs/result"}}
+  },
+  "$defs": {"result": {
+    "type": "object", "additionalProperties": false,
+    "required": ["case_id", "execution_route", "actual_status", "http_status", "components"],
+    "properties": {
+      "case_id": {"type": "string", "pattern": "^(PAY-[0-9]{3}-[0-9]{2}|INVALID-[0-9]{3})$"}, "execution_route": {"enum": ["CANONICAL_TPR_IR", "LEGACY_ADAPTER"]},
+      "actual_status": {"enum": ["SUCCESS", "REJECTED", "TRANSPORT_ERROR"]}, "http_status": {"type": ["integer", "null"]},
+      "error_code": {"type": ["string", "null"]}, "error_path": {"type": ["string", "null"]}, "error_message": {"type": ["string", "null"]},
+      "components": {"type": "array", "items": {"type": "object"}}, "summary": {"type": "object"}
+    }
+  }}
+}
+

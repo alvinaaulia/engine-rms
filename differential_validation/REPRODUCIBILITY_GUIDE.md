@@ -28,7 +28,7 @@ Copy `.env.example`, set credentials for the isolated testing database, and inst
 From `engine-rms/differential_validation` in Git Bash:
 
 ```bash
-make differential-validation
+make validate-differential
 ```
 
 The command refuses a dirty tree by default, verifies repository commits, guards the test database name, prepares migrations, creates and verifies the frozen oracle, builds baseline and fixed engines from source, runs both differential comparisons, runs translator fixtures, full Go tests, Go vet, the full Laravel suite, the true E2E subset, schema validation, evidence-parser tests, manifests, and reports. An unresolved fixed mismatch or failed command returns non-zero.
@@ -56,4 +56,3 @@ The output contains both source repositories and the differential package. Priva
 ## Interpretation
 
 The baseline is `RECONSTRUCTED_BASELINE`, because the original raw eight-mismatch file had previously been overwritten. The fixed result demonstrates equality with a frozen reference policy. It does not establish an authoritative, HRD-validated, company-accurate, or legally compliant payroll policy.
-
