@@ -48,6 +48,8 @@
 - `__init__.py`
 - `__pycache__/__init__.cpython-314.pyc`
 - `__pycache__/evidence.cpython-314.pyc`
+- `__pycache__/finalize_clean_run.cpython-314.pyc`
+- `__pycache__/generate_clean_closure.cpython-314.pyc`
 - `__pycache__/generate_corpus.cpython-314.pyc`
 - `__pycache__/generate_hardening_artifacts.cpython-314.pyc`
 - `__pycache__/generate_hardening_reports.cpython-314.pyc`
@@ -193,6 +195,7 @@
 - `bug_evidence/invalid-023/input.json`
 - `bug_evidence/invalid-023/regression_test_reference.txt`
 - `bug_evidence/invalid-023/root_cause.md`
+- `clean_validate.sh`
 - `differential_results.csv`
 - `differential_runner/__pycache__/run_differential.cpython-314.pyc`
 - `differential_runner/differential-engine.exe`
@@ -202,6 +205,8 @@
 - `e2e-execution-traces.json`
 - `evidence.py`
 - `final-report-data.json`
+- `finalize_clean_run.py`
+- `generate_clean_closure.py`
 - `generate_corpus.py`
 - `generate_hardening_artifacts.py`
 - `generate_hardening_reports.py`
@@ -287,6 +292,8 @@
 - `runs/fixed/raw-logs/e2e-hardening.meta.json`
 - `runs/fixed/raw-logs/e2e-hardening.stderr.log`
 - `runs/fixed/raw-logs/e2e-hardening.stdout.log`
+- `runs/fixed/raw-logs/engine-v3.stderr.log`
+- `runs/fixed/raw-logs/engine-v3.stdout.log`
 - `runs/fixed/raw-logs/engine.stderr.log`
 - `runs/fixed/raw-logs/engine.stdout.log`
 - `runs/fixed/source-state.json`
@@ -340,6 +347,7 @@
 - `runs/reconstructed-baseline/repeat-2/raw-logs/engine.stderr.log`
 - `runs/reconstructed-baseline/repeat-2/raw-logs/engine.stdout.log`
 - `runs/reconstructed-baseline/source-state.json`
+- `scripts/clean_compose.sh`
 - `tests/__init__.py`
 - `tests/__pycache__/__init__.cpython-314.pyc`
 - `tests/__pycache__/test_artifact_validator.cpython-314.pyc`

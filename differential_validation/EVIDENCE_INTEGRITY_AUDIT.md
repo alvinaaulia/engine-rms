@@ -15,11 +15,11 @@
 | Configuration guard cases | 4 | e2e-execution-traces.json | VERIFIED_FROM_RAW_EVIDENCE |
 | Persistence E2E transactions | 32 | e2e-execution-traces.json | VERIFIED_FROM_RAW_EVIDENCE |
 | Laravel tests | 157 | runs/hardening/raw-logs/laravel-tests-hardening.xml | VERIFIED_FROM_RAW_EVIDENCE |
-| Laravel assertions | 1583 | runs/hardening/raw-logs/laravel-tests-hardening.xml | VERIFIED_FROM_RAW_EVIDENCE |
+| Laravel assertions | 1587 | runs/hardening/raw-logs/laravel-tests-hardening.xml | VERIFIED_FROM_RAW_EVIDENCE |
 | Go tests | 204 | runs/hardening/raw-logs/go-tests-hardening.stdout.log | VERIFIED_FROM_RAW_EVIDENCE |
 | Domain validation sample | 89 | DOMAIN_VALIDATION_SAMPLE.csv | VERIFIED_FROM_RAW_EVIDENCE |
 | Clean environment | NOT_EXECUTED | REPRODUCIBILITY_MANIFEST.json | NOT_APPLICABLE |
 
-- Inventoried files: 335 (structured source: `ARTIFACT_INVENTORY.json`).
+- Inventoried files: 341 (structured source: `ARTIFACT_INVENTORY.json`).
 - Duplicate case IDs, frozen hashes, per-case hashes, manifest hashes, metric nullability, E2E paths, command exit evidence, and report counts are enforced by `validate_artifacts.py`.
 - Reconstructed evidence is never labeled original. A command is PASS only when its recorded exit code and parsed result support PASS.

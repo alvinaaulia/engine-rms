@@ -5,11 +5,11 @@ The reporting chain parses raw command metadata, JUnit XML, and Go JSON events; 
 
 | Evidence parser | Tests | Failed | Exit | Duration seconds | Raw metadata |
 |---|---|---|---|---|---|
-| Laravel full suite | 157 | 0 | 0 | 172.729253 | laravel-tests-hardening.xml |
+| Laravel full suite | 157 | 0 | 0 | 138.640974 | laravel-tests-hardening.xml |
 | Go full suite | 204 | 0 | 0 | 13.852348 | go-tests-hardening.stdout.log |
 | Go vet | N/A | N/A | 0 | 16.270726 | go-vet-hardening.stdout.log |
 | Translator fixtures | 13 | 0 | 0 | 45.367986 | translator-hardening.stdout.log |
-| Laravel E2E suite | 1 | 0 | 0 | 49.184512 | e2e-hardening-junit.xml |
+| Laravel E2E suite | 1 | 0 | 0 | 25.872014 | e2e-hardening-junit.xml |
 | Corpus generation | N/A | N/A | 0 | 1.345525 | corpus-generation.stdout.log |
 | Oracle generation | N/A | N/A | 0 | 0.643492 | oracle-generation.stdout.log |
 | Oracle verification | N/A | N/A | 0 | 1.199619 | oracle-verification.stdout.log |
