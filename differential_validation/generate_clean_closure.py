@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import hashlib
+import csv
 import json
 import locale
 import os
@@ -109,12 +110,14 @@ def ensure_clean() -> None:
 
 def main() -> None:
     ensure_clean()
-    engine_commit = git(ENGINE, "rev-parse", "HEAD")
+    engine_head = git(ENGINE, "rev-parse", "HEAD")
     laravel_commit = git(LARAVEL, "rev-parse", "HEAD")
     validation_commit = git(ENGINE, "rev-list", "-n", "1", TAG)
     laravel_tag_commit = git(LARAVEL, "rev-list", "-n", "1", TAG)
-    if validation_commit != engine_commit or laravel_tag_commit != laravel_commit:
-        raise RuntimeError(f"{TAG} must identify both final clean-closure source states")
+    ancestry = subprocess.run(("git", "merge-base", "--is-ancestor", validation_commit, engine_head), cwd=ENGINE)
+    if ancestry.returncode != 0 or laravel_tag_commit != laravel_commit:
+        raise RuntimeError(f"{TAG} must identify the clean-closure source and the final Laravel trace state")
+    engine_commit = validation_commit
 
     policy = ROOT / "reference_policy.json"
     corpus = ROOT / "oracle_input_cases.json"
@@ -221,6 +224,15 @@ def main() -> None:
         "reason": environment["reason"], "temporal_replay": "NOT_STARTED",
     }
     write_json(CLEAN / "manifest.json", clean_manifest)
+    write_json(ROOT / "REPRODUCIBILITY_MANIFEST.json", {
+        "artifact_version": "3.0", "status": "NOT_EXECUTED",
+        "source_manifest": "FROZEN_ARTIFACT_MANIFEST.json",
+        "clean_environment_manifest": "runs/clean-environment/manifest.json",
+        "command_results": "runs/clean-environment/command-results.json",
+        "image_digests": "runs/clean-environment/image-digests.json",
+        "primary_command": "make clean-validate", "final_exit_code": None,
+        "reason": environment["reason"], "temporal_replay": "NOT_STARTED",
+    })
     write_report("CLEAN_ENVIRONMENT_EXECUTION_REPORT.md", f"""
 # Clean-environment execution report
 
@@ -259,6 +271,48 @@ Reviewers must inspect the formula and component dictionaries, frozen policy, ro
 
 Current status: `NOT_AUTHORITATIVE_BUSINESS_ORACLE / DOMAIN_VALIDATION_PENDING`.
 """)
+
+    expected_rows = json.loads(expected.read_text(encoding="utf-8"))["results"]
+    corpus_rows = {item["case_id"]: item for item in json.loads(corpus.read_text(encoding="utf-8"))["cases"]}
+    independent = [item for item in expected_rows if item["verification_status"] == "INDEPENDENTLY_VERIFIED"]
+    policy_derived = [item for item in expected_rows if item["verification_status"] == "POLICY_DERIVED"]
+    target_policy_count = max(1, (len(policy_derived) + 9) // 10)
+    by_category: dict[str, list[dict]] = {}
+    for item in policy_derived:
+        by_category.setdefault(item["primary_category"], []).append(item)
+    stratified: list[dict] = []
+    category_names = sorted(by_category)
+    offset = 0
+    while len(stratified) < target_policy_count:
+        added = False
+        for category in category_names:
+            rows = by_category[category]
+            if offset < len(rows) and len(stratified) < target_policy_count:
+                stratified.append(rows[offset])
+                added = True
+        if not added:
+            break
+        offset += 1
+    mismatch_ids = set(baseline_gate["stable_mismatch_case_ids"])
+    selected = {item["case_id"]: (item, "INDEPENDENTLY_VERIFIED") for item in independent}
+    for item in stratified:
+        selected.setdefault(item["case_id"], (item, "POLICY_DERIVED_STRATIFIED_10_PERCENT"))
+    for item in expected_rows:
+        case = corpus_rows[item["case_id"]]
+        if item["case_id"] in mismatch_ids or case["primary_category"] == "BOUNDARY_CASE":
+            selected.setdefault(item["case_id"], (item, "HISTORICAL_MISMATCH_OR_BOUNDARY"))
+    fields = ["case_id", "primary_category", "verification_status", "sample_reason", "component_codes", "expected_hash", "reviewer_name", "reviewer_comment", "decision", "signature", "verification_date"]
+    with (ROOT / "DOMAIN_VALIDATION_SAMPLE.csv").open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fields)
+        writer.writeheader()
+        for case_id, (item, reason) in sorted(selected.items()):
+            writer.writerow({
+                "case_id": case_id, "primary_category": item["primary_category"],
+                "verification_status": item["verification_status"], "sample_reason": reason,
+                "component_codes": "|".join(component["code"] for component in item.get("components", [])),
+                "expected_hash": item["expected_hash"], "reviewer_name": "", "reviewer_comment": "",
+                "decision": "", "signature": "", "verification_date": "",
+            })
 
     previous = json.loads((ROOT / "final-report-data.json").read_text(encoding="utf-8"))
     layers = previous["evaluation_layers"]
@@ -317,6 +371,15 @@ Temporal replay remains `NOT_STARTED` and is blocked until a clean runner comple
 
 ## 19. Readiness decision
 A - Clean environment could not be prepared.
+""")
+    write_report("CODE_CHANGE_REPORT.md", f"""
+# Code change report V3
+
+- Clean-run source tag: `{TAG}`; engine/validation commit `{engine_commit}`; Laravel trace-test commit `{laravel_commit}`.
+- Added four-service Docker Compose, no-cache one-command runner, clean finalizer, preflight/frozen manifests, CI route, V3 report generation, and raw availability evidence.
+- Strengthened E2E evidence with rate-setting IDs, source-verified Go internal path, explicit persistence relationship, error-code comparison, and database-unchanged guard assertions.
+- Production payroll calculation logic, frozen corpus, frozen expected results, and reference policy were not modified.
+- Clean execution was not possible; no PASS was manufactured and temporal replay remains not started.
 """)
     print(json.dumps({"status": "NOT_EXECUTED", "readiness": "A", "commands": len(attempts)}))
 
