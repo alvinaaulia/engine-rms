@@ -1,0 +1,74 @@
+{
+  "artifact_version": "1.0",
+  "commands": [
+    {
+      "command": [
+        "docker",
+        "--version"
+      ],
+      "started_at": "2026-08-01T10:28:06.995130+00:00",
+      "finished_at": "2026-08-01T10:28:07.009098+00:00",
+      "duration_seconds": 0.013999,
+      "exit_code": 127,
+      "stdout_file": "raw-logs/docker-version.stdout.log",
+      "stderr_file": "raw-logs/docker-version.stderr.log",
+      "status": "NOT_AVAILABLE"
+    },
+    {
+      "command": [
+        "docker",
+        "compose",
+        "version"
+      ],
+      "started_at": "2026-08-01T10:28:07.010122+00:00",
+      "finished_at": "2026-08-01T10:28:07.025796+00:00",
+      "duration_seconds": 0.015709,
+      "exit_code": 127,
+      "stdout_file": "raw-logs/docker-compose-version.stdout.log",
+      "stderr_file": "raw-logs/docker-compose-version.stderr.log",
+      "status": "NOT_AVAILABLE"
+    },
+    {
+      "command": [
+        "wsl.exe",
+        "--list",
+        "--quiet"
+      ],
+      "started_at": "2026-08-01T10:28:07.026685+00:00",
+      "finished_at": "2026-08-01T10:28:07.116358+00:00",
+      "duration_seconds": 0.089704,
+      "exit_code": 1,
+      "stdout_file": "raw-logs/wsl-distributions.stdout.log",
+      "stderr_file": "raw-logs/wsl-distributions.stderr.log",
+      "status": "FAIL"
+    },
+    {
+      "command": [
+        "gh",
+        "--version"
+      ],
+      "started_at": "2026-08-01T10:28:07.118210+00:00",
+      "finished_at": "2026-08-01T10:28:07.130554+00:00",
+      "duration_seconds": 0.012378,
+      "exit_code": 127,
+      "stdout_file": "raw-logs/github-cli-version.stdout.log",
+      "stderr_file": "raw-logs/github-cli-version.stderr.log",
+      "status": "NOT_AVAILABLE"
+    },
+    {
+      "command": [
+        "git",
+        "ls-remote",
+        "https://softmitend@github.com/mascitradotcom/papa-website-v2",
+        "HEAD"
+      ],
+      "started_at": "2026-08-01T10:28:07.132431+00:00",
+      "finished_at": "2026-08-01T10:28:09.458859+00:00",
+      "duration_seconds": 2.326455,
+      "exit_code": 128,
+      "stdout_file": "raw-logs/private-ci-source-access.stdout.log",
+      "stderr_file": "raw-logs/private-ci-source-access.stderr.log",
+      "status": "FAIL"
+    }
+  ]
+}

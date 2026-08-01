@@ -1,6 +1,8 @@
 
 # Clean-environment execution report
 
-Status: `NOT_EXECUTED`. Exit code: `None`. Missing dependencies: docker, docker compose.
+Status: `NOT_EXECUTED`. Final clean-run exit code: `null`.
 
-The intended method is `fresh Docker build without cache` with `docker compose build --no-cache && docker compose run --rm differential-validation`. No build log, container version, runtime timestamps, or peak-memory value is fabricated. Docker was not available on this host, so clean-environment reproduction is not a PASS.
+Docker and Docker Compose were not installed, no Linux distribution was available through WSL, GitHub CLI was absent, and the stored non-interactive Git credential could not access the private Laravel repository. Consequently neither a local clean container nor an external fresh CI run was executed. The attempted availability commands, exit codes, timestamps, durations, stdout, and stderr are retained under `runs/clean-environment/`.
+
+The intended fresh-run command is `make clean-validate`. No local-development result is presented as clean evidence.
