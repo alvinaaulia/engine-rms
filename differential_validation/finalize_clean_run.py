@@ -33,11 +33,20 @@ def main() -> None:
     parser.add_argument("--finished-at", required=True)
     parser.add_argument("--duration-seconds", type=float, required=True)
     parser.add_argument("--container-id", default="")
+    parser.add_argument("--run-id", required=True)
+    parser.add_argument("--failure-stage", default="VALIDATION_RUNNER")
+    parser.add_argument("--failure-reason", default="")
+    parser.add_argument("--primary-log", default="raw-logs/validation-runner.log")
+    parser.add_argument("--runner-id", default="")
+    parser.add_argument("--runner-os", default="")
+    parser.add_argument("--runner-architecture", default="")
     args = parser.parse_args()
 
     status = "FAIL" if args.exit_code else "PASS_PENDING_ARTIFACT_CHECK"
     reason = "validation-runner returned non-zero" if args.exit_code else None
     try:
+        if args.exit_code and args.failure_stage != "VALIDATION_RUNNER":
+            raise RuntimeError(args.failure_reason or f"{args.failure_stage} returned non-zero")
         baseline = load(ROOT / "runs/reconstructed-baseline/manifest.json")
         fixed = load(ROOT / "runs/fixed/mismatch_details.json")
         traces = load(ROOT / "e2e-execution-traces.json")["traces"]
@@ -69,9 +78,12 @@ def main() -> None:
     image_digests = {"actual_images_inspected": image_output.exists(), "docker_compose_images_raw": image_output.relative_to(CLEAN).as_posix() if image_output.exists() else None}
     write(CLEAN / "image-digests.json", image_digests)
     write(CLEAN / "environment.json", {
-        "artifact_version": "1.0", "execution_status": status, "runner_id": platform.node(),
-        "container_ids": [args.container_id] if args.container_id else [], "os": platform.platform(),
-        "architecture": platform.machine(), "timezone": "Asia/Jakarta", "locale": "C.UTF-8",
+        "artifact_version": "1.0", "execution_status": status,
+        "runner_id": args.runner_id or platform.node(),
+        "container_ids": [args.container_id] if args.container_id else [],
+        "os": args.runner_os or platform.platform(),
+        "architecture": args.runner_architecture or platform.machine(),
+        "timezone": "Asia/Jakarta", "locale": "C.UTF-8",
     })
     command_results = []
     meta_roots = [
@@ -106,7 +118,7 @@ def main() -> None:
     command_results.append({
         "command": ["make", "clean-validate"], "started_at": args.started_at, "finished_at": args.finished_at,
         "duration_seconds": args.duration_seconds, "exit_code": args.exit_code,
-        "stdout_file": "raw-logs/validation-runner.log", "stderr_file": None,
+        "working_directory": "differential_validation", "stdout_file": args.primary_log, "stderr_file": None,
         "evidence_file": "manifest.json", "status": status,
     })
     write(CLEAN / "command-results.json", {"artifact_version": "1.0", "commands": command_results})
@@ -125,9 +137,11 @@ def main() -> None:
             destination.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(source, destination)
     manifest = {
-        "artifact_version": "1.0", "status": status, "final_exit_code": args.exit_code,
+        "artifact_version": "1.0", "run_id": args.run_id, "status": status,
+        "final_exit_code": args.exit_code, "failure_stage": None if status == "PASS" else args.failure_stage,
         "started_at": args.started_at, "finished_at": args.finished_at,
-        "total_duration_seconds": args.duration_seconds, "clean_runner_id": platform.node(),
+        "total_duration_seconds": args.duration_seconds,
+        "clean_runner_id": args.runner_id or platform.node(),
         "container_id": args.container_id or None, "hash_verification": "PASS" if status == "PASS" else "FAIL",
         "reconstructed_baseline": "PASS" if status == "PASS" else "FAIL",
         "fixed_differential": "PASS" if status == "PASS" else "FAIL",

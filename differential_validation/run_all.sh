@@ -24,11 +24,21 @@ for tool in git go php python; do require "$tool"; done
 
 for repo in "$ENGINE_DIR" "$LARAVEL_DIR"; do
   git -C "$repo" rev-parse HEAD
-  if [[ -n "$(git -C "$repo" status --porcelain)" && "${ALLOW_DIRTY:-0}" != "1" ]]; then
+  if [[ -n "$(git -C "$repo" status --porcelain)" && "${ALLOW_DIRTY:-0}" != "1" && "${SOURCE_SNAPSHOT_VERIFIED:-0}" != "1" ]]; then
     echo "Refusing dirty repository: $repo" >&2
     exit 2
   fi
 done
+
+if [[ "${CLEAN_OUTPUTS:-0}" == "1" ]]; then
+  expected_runs="$(realpath -m "$PACKAGE_DIR/runs")"
+  requested_runs="$(realpath -m "$RUNS_DIR")"
+  if [[ "$requested_runs" != "$expected_runs" ]]; then
+    echo "Refusing to clear unexpected runs directory: $requested_runs" >&2
+    exit 2
+  fi
+  rm -rf -- "$requested_runs"
+fi
 
 mkdir -p "$HARD_LOGS" "$RUNS_DIR/fixed/raw-logs"
 for repeat in 1 2; do mkdir -p "$RUNS_DIR/reconstructed-baseline/repeat-$repeat/raw-logs"; done
