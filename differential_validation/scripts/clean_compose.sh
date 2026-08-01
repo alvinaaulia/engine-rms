@@ -28,12 +28,6 @@ cleanup() {
   if [[ -n "$COMPOSE_FILE" ]]; then
     docker compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" -f "$OVERRIDE_FILE" down -v --remove-orphans >/dev/null 2>&1 || true
   fi
-  if [[ "$SNAP_ENGINE" == "$TEMP_ROOT"/artifact/engine-rms ]]; then
-    git -C "$ENGINE_REPO" worktree remove --force "$SNAP_ENGINE" >/dev/null 2>&1 || true
-  fi
-  if [[ "$SNAP_LARAVEL" == "$TEMP_ROOT"/artifact/papa-website-v2 ]]; then
-    git -C "$LARAVEL_REPO" worktree remove --force "$SNAP_LARAVEL" >/dev/null 2>&1 || true
-  fi
   if [[ -n "$TEMP_ROOT" && "$TEMP_ROOT" == /tmp/tmp.* ]]; then
     rm -rf -- "$TEMP_ROOT"
   fi
@@ -47,8 +41,10 @@ for repo in "$ENGINE_REPO" "$LARAVEL_REPO"; do
   fi
 done
 
-git -C "$ENGINE_REPO" worktree add --detach "$SNAP_ENGINE" "$ENGINE_REF" >"$TEMP_LOGS/engine-snapshot.log" 2>&1
-git -C "$LARAVEL_REPO" worktree add --detach "$SNAP_LARAVEL" "$LARAVEL_REF" >"$TEMP_LOGS/laravel-snapshot.log" 2>&1
+git clone --local --no-hardlinks --no-checkout "$ENGINE_REPO" "$SNAP_ENGINE" >"$TEMP_LOGS/engine-snapshot.log" 2>&1
+git -C "$SNAP_ENGINE" checkout --detach "$ENGINE_REF" >>"$TEMP_LOGS/engine-snapshot.log" 2>&1
+git clone --local --no-hardlinks --no-checkout "$LARAVEL_REPO" "$SNAP_LARAVEL" >"$TEMP_LOGS/laravel-snapshot.log" 2>&1
+git -C "$SNAP_LARAVEL" checkout --detach "$LARAVEL_REF" >>"$TEMP_LOGS/laravel-snapshot.log" 2>&1
 {
   printf 'engine_ref=%s\nengine_commit=%s\nengine_status=%s\n' "$ENGINE_REF" "$(git -C "$SNAP_ENGINE" rev-parse HEAD)" "$(git -C "$SNAP_ENGINE" status --porcelain)"
   printf 'laravel_ref=%s\nlaravel_commit=%s\nlaravel_status=%s\n' "$LARAVEL_REF" "$(git -C "$SNAP_LARAVEL" rev-parse HEAD)" "$(git -C "$SNAP_LARAVEL" status --porcelain)"
@@ -108,6 +104,9 @@ else
     docker compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" -f "$OVERRIDE_FILE" run --name "$CONTAINER_NAME" validation-runner >"$TEMP_LOGS/validation-runner.log" 2>&1
     VALIDATION_EXIT=$?
     set -e
+    if [[ "$VALIDATION_EXIT" -ne 0 ]]; then
+      FAILURE_REASON="validation-runner exited non-zero; see raw-logs/validation-runner.log"
+    fi
   fi
 fi
 

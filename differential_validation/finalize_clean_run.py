@@ -44,6 +44,7 @@ def main() -> None:
 
     status = "FAIL" if args.exit_code else "PASS_PENDING_ARTIFACT_CHECK"
     reason = "validation-runner returned non-zero" if args.exit_code else None
+    recorded_experiment_commands = False
     try:
         if args.exit_code and args.failure_stage != "VALIDATION_RUNNER":
             raise RuntimeError(args.failure_reason or f"{args.failure_stage} returned non-zero")
@@ -96,6 +97,7 @@ def main() -> None:
             continue
         prefix = "--".join(meta_root.relative_to(ROOT / "runs").parts[:-1])
         for meta_path in sorted(meta_root.glob("*.meta.json")):
+            recorded_experiment_commands = True
             meta = load(meta_path)
             copied = {}
             for key in ("stdout_file", "stderr_file", "evidence_file"):
@@ -122,7 +124,9 @@ def main() -> None:
         "evidence_file": "manifest.json", "status": status,
     })
     write(CLEAN / "command-results.json", {"artifact_version": "1.0", "commands": command_results})
-    early_failure = args.failure_stage in {"DOCKER_BUILD", "SERVICE_READINESS"}
+    early_failure = args.failure_stage in {"DOCKER_BUILD", "SERVICE_READINESS"} or not recorded_experiment_commands
+    if status == "FAIL" and args.failure_stage == "VALIDATION_RUNNER" and not recorded_experiment_commands:
+        reason = args.failure_reason or "validation-runner exited before any recorded experiment command"
     for source, destination in (
         (ROOT / "runs/reconstructed-baseline", CLEAN / "reconstructed-baseline"),
         (ROOT / "runs/fixed", CLEAN / "fixed"),
