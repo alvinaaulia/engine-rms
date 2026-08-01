@@ -8,7 +8,7 @@ The clean-reproduction attempt stopped at runner selection. No experiment comman
 No runner was selected. Laravel source snapshot identity was prepared from the final tagged commit, but no authenticated transport to hosted CI was available.
 
 ## Source identity
-Engine/validation `05eef52cad5a340acecec829dc6a72d5fa1d1f93`; Laravel `569a2ba0ff7fe31457c4d3a5dffc7cc99f1d2dc8`; tag `tpr-ir-clean-closure-v4`. Lock and archive hashes are in `CLEAN_SOURCE_IDENTITY.json`.
+Engine/validation `39371f5af68fea2a6b98402975c2ef2ba63c38ea`; Laravel `569a2ba0ff7fe31457c4d3a5dffc7cc99f1d2dc8`; tag `tpr-ir-clean-closure-v4`. Lock and archive hashes are in `CLEAN_SOURCE_IDENTITY.json`.
 
 ## Clean execution status
 `NOT_EXECUTED`, final exit code `null`, failure stage `RUNNER_SELECTION`.

@@ -1,0 +1,95 @@
+{
+  "artifact_version": "1.0",
+  "commands": [
+    {
+      "command": [
+        "docker",
+        "--version"
+      ],
+      "working_directory": ".",
+      "started_at": "2026-08-01T11:23:19.974439+00:00",
+      "finished_at": "2026-08-01T11:23:19.994718+00:00",
+      "duration_seconds": 0.02031,
+      "exit_code": 127,
+      "stdout_file": "raw-logs/docker-version.stdout.log",
+      "stderr_file": "raw-logs/docker-version.stderr.log",
+      "status": "NOT_AVAILABLE"
+    },
+    {
+      "command": [
+        "docker",
+        "compose",
+        "version"
+      ],
+      "working_directory": ".",
+      "started_at": "2026-08-01T11:23:20.000583+00:00",
+      "finished_at": "2026-08-01T11:23:20.018687+00:00",
+      "duration_seconds": 0.018138,
+      "exit_code": 127,
+      "stdout_file": "raw-logs/docker-compose-version.stdout.log",
+      "stderr_file": "raw-logs/docker-compose-version.stderr.log",
+      "status": "NOT_AVAILABLE"
+    },
+    {
+      "command": [
+        "gh",
+        "--version"
+      ],
+      "working_directory": ".",
+      "started_at": "2026-08-01T11:23:20.019897+00:00",
+      "finished_at": "2026-08-01T11:23:20.043378+00:00",
+      "duration_seconds": 0.023513,
+      "exit_code": 127,
+      "stdout_file": "raw-logs/github-cli-version.stdout.log",
+      "stderr_file": "raw-logs/github-cli-version.stderr.log",
+      "status": "NOT_AVAILABLE"
+    },
+    {
+      "command": [
+        "wsl.exe",
+        "--list",
+        "--quiet"
+      ],
+      "working_directory": ".",
+      "started_at": "2026-08-01T11:23:20.044289+00:00",
+      "finished_at": "2026-08-01T11:23:20.488420+00:00",
+      "duration_seconds": 0.444154,
+      "exit_code": 1,
+      "stdout_file": "raw-logs/wsl-distributions.stdout.log",
+      "stderr_file": "raw-logs/wsl-distributions.stderr.log",
+      "status": "FAIL"
+    },
+    {
+      "command": [
+        "powershell",
+        "-NoProfile",
+        "-Command",
+        "$p=Get-CimInstance Win32_Processor|Select-Object -First 1; [pscustomobject]@{VirtualizationFirmwareEnabled=$p.VirtualizationFirmwareEnabled;VMMonitorModeExtensions=$p.VMMonitorModeExtensions}|ConvertTo-Json -Compress"
+      ],
+      "working_directory": ".",
+      "started_at": "2026-08-01T11:23:20.489276+00:00",
+      "finished_at": "2026-08-01T11:23:24.027181+00:00",
+      "duration_seconds": 3.537928,
+      "exit_code": 0,
+      "stdout_file": "raw-logs/virtualization-capability.stdout.log",
+      "stderr_file": "raw-logs/virtualization-capability.stderr.log",
+      "status": "PASS"
+    },
+    {
+      "command": [
+        "git",
+        "ls-remote",
+        "https://softmitend@github.com/mascitradotcom/papa-website-v2",
+        "HEAD"
+      ],
+      "working_directory": ".",
+      "started_at": "2026-08-01T11:23:24.027985+00:00",
+      "finished_at": "2026-08-01T11:23:26.584270+00:00",
+      "duration_seconds": 2.556319,
+      "exit_code": 128,
+      "stdout_file": "raw-logs/private-laravel-remote-access.stdout.log",
+      "stderr_file": "raw-logs/private-laravel-remote-access.stderr.log",
+      "status": "FAIL"
+    }
+  ]
+}

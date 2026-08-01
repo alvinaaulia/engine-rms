@@ -8,4 +8,4 @@
 | Clean VM | no instance | not applicable | not applicable | no | Virtualization capable, but no clean VM exists |
 | Remote runner | no | no | no | no | No accessible runner endpoint or credential |
 
-Run-scoped command evidence: `runs/clean-environment/runner-audit-20260801T112156Z/command-results.json`.
+Run-scoped command evidence: `runs/clean-environment/runner-audit-20260801T112319Z/command-results.json`.
