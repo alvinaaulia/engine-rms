@@ -20,6 +20,7 @@ services:
     volumes:
       - ../..:/artifact
       - composer-cache:/tmp/composer-cache
+      - laravel-vendor:/artifact/papa-website-v2/vendor
     environment: &testing-environment
       APP_ENV: testing
       DB_CONNECTION: mysql
@@ -68,6 +69,7 @@ services:
     volumes:
       - ../..:/artifact
       - composer-cache:/tmp/composer-cache
+      - laravel-vendor:/artifact/papa-website-v2/vendor
       - go-module-cache:/go/pkg/mod
       - go-build-cache:/root/.cache/go-build
     environment:
@@ -88,5 +90,6 @@ services:
 
 volumes:
   composer-cache:
+  laravel-vendor:
   go-module-cache:
   go-build-cache:
