@@ -122,21 +122,21 @@ def main() -> None:
         "evidence_file": "manifest.json", "status": status,
     })
     write(CLEAN / "command-results.json", {"artifact_version": "1.0", "commands": command_results})
+    early_failure = args.failure_stage in {"DOCKER_BUILD", "SERVICE_READINESS"}
     for source, destination in (
         (ROOT / "runs/reconstructed-baseline", CLEAN / "reconstructed-baseline"),
         (ROOT / "runs/fixed", CLEAN / "fixed"),
     ):
-        if source.exists():
+        if source.exists() and not early_failure:
             shutil.copytree(source, destination, dirs_exist_ok=True)
     for source, destination in (
         (ROOT / "translation_validation_fixtures.json", CLEAN / "translator/translation_validation_fixtures.json"),
         (ROOT / "e2e-execution-traces.json", CLEAN / "e2e/e2e-execution-traces.json"),
         (ROOT / "DIFFERENTIAL_VALIDATION_FINAL_REPORT_V3.md", CLEAN / "reports/DIFFERENTIAL_VALIDATION_FINAL_REPORT_V3.md"),
     ):
-        if source.exists():
+        if source.exists() and not early_failure:
             destination.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(source, destination)
-    early_failure = args.failure_stage in {"DOCKER_BUILD", "SERVICE_READINESS"}
     experiment_status = "PASS" if status == "PASS" else ("NOT_EXECUTED" if early_failure else "FAIL")
     build_status = "FAIL" if args.failure_stage == "DOCKER_BUILD" else "PASS"
     readiness_status = (
