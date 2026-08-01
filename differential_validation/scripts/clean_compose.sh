@@ -53,8 +53,9 @@ git -C "$LARAVEL_REPO" worktree add --detach "$SNAP_LARAVEL" "$LARAVEL_REF" >"$T
   printf 'engine_ref=%s\nengine_commit=%s\nengine_status=%s\n' "$ENGINE_REF" "$(git -C "$SNAP_ENGINE" rev-parse HEAD)" "$(git -C "$SNAP_ENGINE" status --porcelain)"
   printf 'laravel_ref=%s\nlaravel_commit=%s\nlaravel_status=%s\n' "$LARAVEL_REF" "$(git -C "$SNAP_LARAVEL" rev-parse HEAD)" "$(git -C "$SNAP_LARAVEL" status --porcelain)"
 } >"$TEMP_LOGS/source-identity.log"
-if [[ "$SNAP_CLEAN" == "$SNAP_PACKAGE/runs/clean-environment" ]]; then
-  rm -rf -- "$SNAP_CLEAN"
+SNAP_RUNS="$SNAP_PACKAGE/runs"
+if [[ "$SNAP_RUNS" == "$SNAP_PACKAGE/runs" ]]; then
+  rm -rf -- "$SNAP_RUNS"
 fi
 COMPOSE_FILE="$SNAP_PACKAGE/docker-compose.yml"
 
@@ -121,7 +122,7 @@ else
   : >"$TEMP_LOGS/docker-images.json"
 fi
 
-CONTAINER_ID="$(docker inspect --format '{{.Id}}' "$CONTAINER_NAME" 2>/dev/null || true)"
+CONTAINER_ID="$(docker container inspect --format '{{.Id}}' "$CONTAINER_NAME" 2>/dev/null || true)"
 RUNNER_ID="$(docker info --format '{{.ID}}' 2>/dev/null || true)"
 RUNNER_OS="$(docker info --format '{{.OperatingSystem}} {{.KernelVersion}}' 2>/dev/null || true)"
 RUNNER_ARCH="$(docker info --format '{{.Architecture}}' 2>/dev/null || true)"

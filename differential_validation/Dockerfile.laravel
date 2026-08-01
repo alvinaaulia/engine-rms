@@ -1,5 +1,5 @@
 FROM php:8.4-cli-bookworm@sha256:8f0c382c6483a202baaad042c9ad51064f050de1093e5e8db990d055dd18534f
-RUN apt-get update && apt-get install -y --no-install-recommends $PHPIZE_DEPS git unzip libonig-dev libxml2-dev && docker-php-ext-install pdo_mysql mbstring && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends $PHPIZE_DEPS git unzip libonig-dev libxml2-dev libzip-dev && docker-php-ext-install pdo_mysql mbstring zip && rm -rf /var/lib/apt/lists/*
 COPY --from=composer:2.8.10@sha256:20462d70afcfa999ad75dbd9333194067f4d869078bdb37430339e8d97e541d6 /usr/bin/composer /usr/local/bin/composer
 WORKDIR /artifact/papa-website-v2
 CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]

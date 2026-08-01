@@ -136,20 +136,30 @@ def main() -> None:
         if source.exists():
             destination.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(source, destination)
+    early_failure = args.failure_stage in {"DOCKER_BUILD", "SERVICE_READINESS"}
+    experiment_status = "PASS" if status == "PASS" else ("NOT_EXECUTED" if early_failure else "FAIL")
+    build_status = "FAIL" if args.failure_stage == "DOCKER_BUILD" else "PASS"
+    readiness_status = (
+        "NOT_EXECUTED" if args.failure_stage == "DOCKER_BUILD"
+        else "FAIL" if args.failure_stage == "SERVICE_READINESS"
+        else "PASS"
+    )
     manifest = {
         "artifact_version": "1.0", "run_id": args.run_id, "status": status,
         "final_exit_code": args.exit_code, "failure_stage": None if status == "PASS" else args.failure_stage,
         "started_at": args.started_at, "finished_at": args.finished_at,
         "total_duration_seconds": args.duration_seconds,
         "clean_runner_id": args.runner_id or platform.node(),
-        "container_id": args.container_id or None, "hash_verification": "PASS" if status == "PASS" else "FAIL",
-        "reconstructed_baseline": "PASS" if status == "PASS" else "FAIL",
-        "fixed_differential": "PASS" if status == "PASS" else "FAIL",
-        "translator": "PASS" if status == "PASS" else "FAIL",
-        "full_pipeline": "PASS" if status == "PASS" else "FAIL",
-        "configuration_guards": "PASS" if status == "PASS" else "FAIL",
-        "schema_validation": "PASS" if status == "PASS" else "FAIL",
-        "report_generation": "PASS" if status == "PASS" else "FAIL",
+        "container_id": args.container_id or None,
+        "docker_build": build_status, "service_readiness": readiness_status,
+        "hash_verification": experiment_status,
+        "reconstructed_baseline": experiment_status,
+        "fixed_differential": experiment_status,
+        "translator": experiment_status,
+        "full_pipeline": experiment_status,
+        "configuration_guards": experiment_status,
+        "schema_validation": experiment_status,
+        "report_generation": experiment_status,
         "reason": reason, "temporal_replay": "NOT_STARTED",
     }
     write(CLEAN / "manifest.json", manifest)
