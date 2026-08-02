@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/payroll/temporal-execution-manifest-1.0.schema.json",
+  "title": "Temporal Payroll Execution Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "manifest_version", "execution_uuid", "employee_id", "payroll_period", "executed_at",
+    "facts_snapshot", "facts_sha256", "ruleset_snapshot", "ruleset_sha256",
+    "component_types_snapshot", "rule_version_ids", "rate_version_ids", "tax_version_ids",
+    "version_binding_status", "tpr_ir_schema_version", "translator_version", "engine_version",
+    "rounding_policy", "hit_policy", "generated_grl", "generated_grl_sha256",
+    "original_components", "original_summary", "original_provenance", "original_output_sha256",
+    "locked_at", "manifest_sha256"
+  ],
+  "properties": {
+    "manifest_version": { "const": "1.0" },
+    "execution_uuid": { "type": "string", "format": "uuid" },
+    "employee_id": { "type": "string", "minLength": 1, "maxLength": 64 },
+    "payroll_period": {
+      "type": "object", "additionalProperties": false, "required": ["start", "end"],
+      "properties": { "start": { "type": "string", "format": "date" }, "end": { "type": "string", "format": "date" } }
+    },
+    "executed_at": { "type": "string", "format": "date-time" },
+    "facts_snapshot": { "type": "object" },
+    "facts_sha256": { "$ref": "#/$defs/sha256" },
+    "ruleset_snapshot": { "type": "object" },
+    "ruleset_sha256": { "$ref": "#/$defs/sha256" },
+    "component_types_snapshot": {
+      "type": "object", "additionalProperties": { "enum": ["EARNING", "DEDUCTION"] }
+    },
+    "rule_version_ids": { "$ref": "#/$defs/versionIds" },
+    "rate_version_ids": { "$ref": "#/$defs/versionIds" },
+    "tax_version_ids": { "$ref": "#/$defs/versionIds" },
+    "version_binding_status": {
+      "type": "object", "additionalProperties": false, "required": ["rule", "rate", "tax"],
+      "properties": {
+        "rule": { "const": "BOUND" },
+        "rate": { "enum": ["BOUND", "NOT_APPLICABLE"] },
+        "tax": { "enum": ["BOUND", "NOT_APPLICABLE"] }
+      }
+    },
+    "tpr_ir_schema_version": { "const": "1.0" },
+    "translator_version": { "type": "string", "pattern": "^[A-Za-z0-9._-]+$" },
+    "engine_version": { "type": "string", "pattern": "^[A-Za-z0-9._-]+$" },
+    "rounding_policy": {
+      "type": "object", "additionalProperties": false, "required": ["scale", "mode"],
+      "properties": { "scale": { "type": "integer", "const": 6 }, "mode": { "const": "HALF_UP" } }
+    },
+    "hit_policy": { "enum": ["UNIQUE", "FIRST", "PRIORITY", "COLLECT_SUM"] },
+    "generated_grl": { "type": "string", "minLength": 1 },
+    "generated_grl_sha256": { "$ref": "#/$defs/sha256" },
+    "original_components": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["code", "type", "amount", "source_rule_id", "source_rule_version_id", "contributor_rule_ids", "contributor_rule_version_ids"],
+        "properties": {
+          "code": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" },
+          "type": { "enum": ["EARNING", "DEDUCTION"] },
+          "amount": { "$ref": "#/$defs/money" },
+          "source_rule_id": { "type": "string" },
+          "source_rule_version_id": { "type": "integer", "minimum": 1 },
+          "contributor_rule_ids": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+          "contributor_rule_version_ids": { "$ref": "#/$defs/versionIds" }
+        }
+      }
+    },
+    "original_summary": {
+      "type": "object", "additionalProperties": false,
+      "required": ["basic_salary", "gross_salary", "total_deductions", "net_salary"],
+      "properties": {
+        "basic_salary": { "$ref": "#/$defs/money" }, "gross_salary": { "$ref": "#/$defs/money" },
+        "total_deductions": { "$ref": "#/$defs/money" }, "net_salary": { "$ref": "#/$defs/money" }
+      }
+    },
+    "original_provenance": {
+      "type": "object", "additionalProperties": false,
+      "required": ["rule_version_ids", "rate_version_ids", "tax_version_ids", "ruleset_sha256", "facts_sha256", "translator_version", "engine_version", "request_id", "execution_uuid"],
+      "properties": {
+        "rule_version_ids": { "$ref": "#/$defs/versionIds" }, "rate_version_ids": { "$ref": "#/$defs/versionIds" },
+        "tax_version_ids": { "$ref": "#/$defs/versionIds" }, "ruleset_sha256": { "$ref": "#/$defs/sha256" },
+        "facts_sha256": { "$ref": "#/$defs/sha256" }, "translator_version": { "type": "string" },
+        "engine_version": { "type": "string" }, "request_id": { "type": "string", "format": "uuid" },
+        "execution_uuid": { "type": "string", "format": "uuid" }
+      }
+    },
+    "original_output_sha256": { "$ref": "#/$defs/sha256" },
+    "locked_at": { "type": "string", "format": "date-time" },
+    "manifest_sha256": { "$ref": "#/$defs/sha256" }
+  },
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "money": { "type": "string", "pattern": "^-?(0|[1-9][0-9]*)\\.[0-9]{6}$" },
+    "versionIds": { "type": "array", "items": { "type": "integer", "minimum": 1 }, "uniqueItems": true }
+  }
+}
+
