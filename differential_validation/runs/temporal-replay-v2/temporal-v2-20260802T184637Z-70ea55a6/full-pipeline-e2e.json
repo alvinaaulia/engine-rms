@@ -1,0 +1,2649 @@
+{
+    "artifact_version": "2.0",
+    "validation_type": "FULL_PIPELINE_END_TO_END_VALIDATION",
+    "case_count": 36,
+    "exact_match_count": 32,
+    "expected_rejection_count": 4,
+    "mismatch_count": 0,
+    "persistence_count": 32,
+    "results": [
+        {
+            "case_id": "E2E-001",
+            "status": "EXACT_MATCH",
+            "evaluation_category": "FULL_PAYROLL_PIPELINE",
+            "secondary_categories": [
+                "PERSISTENCE_E2E",
+                "LARAVEL_TO_GO_INTEGRATION"
+            ],
+            "execution_path": [
+                "testing_database",
+                "employee/contract/attendance fixtures",
+                "rule master and rule version",
+                "approval and active state",
+                "rate and tax facts",
+                "buildFactsFromDatabase",
+                "PayrollRuleEngineService::execute",
+                "Laravel HTTP client",
+                "Go /execute",
+                "TPR-IR validation",
+                "GRL translation",
+                "GRULE",
+                "Laravel normalization",
+                "expected-versus-actual comparison",
+                "salary persistence",
+                "database assertion"
+            ],
+            "database_fixture": {
+                "user_id": "2105a4c3-77e8-41fc-947d-6901fb692c35",
+                "master_salary_id": 1,
+                "presence_date": "2026-06-01",
+                "overtime_id": "OT-E2E-1"
+            },
+            "laravel_test": "Tests\\Feature\\DifferentialFullPipelineE2ETest::test_database_service_go_and_persistence_subset",
+            "service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "employee_fixture_id": "2105a4c3-77e8-41fc-947d-6901fb692c35",
+            "laravel_service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "go_request_id": null,
+            "go_request_correlation_status": "NOT_OBSERVABLE",
+            "go_request_hash": "88a25124543292abaa898c538ae12ccda9763ee1401fb35c78e83181161cfef6",
+            "go_response_hash": "2d63194293763909bdb710638eecd8c7efe8bd884344125f5f5564c2db0a091f",
+            "attendance_source": "database",
+            "rule_version_ids": [
+                1,
+                2,
+                4,
+                5,
+                6
+            ],
+            "rate_version_ids": [
+                1,
+                2
+            ],
+            "tax_version_ids": [],
+            "tax_version_status": "NOT_APPLICABLE_MANUAL_OVERRIDE",
+            "go_internal_path": [
+                "ExecuteTPRRuleSet",
+                "ValidateTPRRuleSet",
+                "buildTPRGRL",
+                "GRULE ExecuteWithContext"
+            ],
+            "go_internal_trace_status": "SOURCE_VERIFIED_NOT_RUNTIME_INSTRUMENTED",
+            "component_codes": [
+                "ATTENDANCE_INCENTIVE",
+                "LATE_DEDUCTION",
+                "OVERTIME_PAY",
+                "ROUNDING_PROBE",
+                "TAX_FLAT"
+            ],
+            "persistence_asserted": true,
+            "persisted_salary_id": 1,
+            "salary_record_id": 1,
+            "expected_hash": "8205dcce9bfe2a4a823f31c10a45e1bdb71aee00865371a3cd0aae7d538cb6a4",
+            "actual_hash": "8205dcce9bfe2a4a823f31c10a45e1bdb71aee00865371a3cd0aae7d538cb6a4",
+            "result": "PASS"
+        },
+        {
+            "case_id": "E2E-002",
+            "status": "EXACT_MATCH",
+            "evaluation_category": "FULL_PAYROLL_PIPELINE",
+            "secondary_categories": [
+                "PERSISTENCE_E2E",
+                "LARAVEL_TO_GO_INTEGRATION"
+            ],
+            "execution_path": [
+                "testing_database",
+                "employee/contract/attendance fixtures",
+                "rule master and rule version",
+                "approval and active state",
+                "rate and tax facts",
+                "buildFactsFromDatabase",
+                "PayrollRuleEngineService::execute",
+                "Laravel HTTP client",
+                "Go /execute",
+                "TPR-IR validation",
+                "GRL translation",
+                "GRULE",
+                "Laravel normalization",
+                "expected-versus-actual comparison",
+                "salary persistence",
+                "database assertion"
+            ],
+            "database_fixture": {
+                "user_id": "9afadbeb-95b8-4d19-97f0-3a68972962cf",
+                "master_salary_id": 2,
+                "presence_date": "2026-06-01",
+                "overtime_id": "OT-E2E-2"
+            },
+            "laravel_test": "Tests\\Feature\\DifferentialFullPipelineE2ETest::test_database_service_go_and_persistence_subset",
+            "service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "employee_fixture_id": "9afadbeb-95b8-4d19-97f0-3a68972962cf",
+            "laravel_service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "go_request_id": null,
+            "go_request_correlation_status": "NOT_OBSERVABLE",
+            "go_request_hash": "bb4a8e0660199af320f42ce7aece3ab85551a65ea96992f9283dc8a4c48f0907",
+            "go_response_hash": "0557be2e5eca94a7289069cbf27ab7af5dff80e78b4a315950d6d67fd55731b5",
+            "attendance_source": "database",
+            "rule_version_ids": [
+                1,
+                2,
+                4,
+                5,
+                6
+            ],
+            "rate_version_ids": [
+                1,
+                2
+            ],
+            "tax_version_ids": [],
+            "tax_version_status": "NOT_APPLICABLE_MANUAL_OVERRIDE",
+            "go_internal_path": [
+                "ExecuteTPRRuleSet",
+                "ValidateTPRRuleSet",
+                "buildTPRGRL",
+                "GRULE ExecuteWithContext"
+            ],
+            "go_internal_trace_status": "SOURCE_VERIFIED_NOT_RUNTIME_INSTRUMENTED",
+            "component_codes": [
+                "ATTENDANCE_INCENTIVE",
+                "LATE_DEDUCTION",
+                "OVERTIME_PAY",
+                "ROUNDING_PROBE",
+                "TAX_FLAT"
+            ],
+            "persistence_asserted": true,
+            "persisted_salary_id": 2,
+            "salary_record_id": 2,
+            "expected_hash": "2c3803bdf9444ae6021cf103bcc69cc274588cf787b8f23bd116640122783acf",
+            "actual_hash": "2c3803bdf9444ae6021cf103bcc69cc274588cf787b8f23bd116640122783acf",
+            "result": "PASS"
+        },
+        {
+            "case_id": "E2E-003",
+            "status": "EXACT_MATCH",
+            "evaluation_category": "FULL_PAYROLL_PIPELINE",
+            "secondary_categories": [
+                "PERSISTENCE_E2E",
+                "LARAVEL_TO_GO_INTEGRATION"
+            ],
+            "execution_path": [
+                "testing_database",
+                "employee/contract/attendance fixtures",
+                "rule master and rule version",
+                "approval and active state",
+                "rate and tax facts",
+                "buildFactsFromDatabase",
+                "PayrollRuleEngineService::execute",
+                "Laravel HTTP client",
+                "Go /execute",
+                "TPR-IR validation",
+                "GRL translation",
+                "GRULE",
+                "Laravel normalization",
+                "expected-versus-actual comparison",
+                "salary persistence",
+                "database assertion"
+            ],
+            "database_fixture": {
+                "user_id": "a6fc2800-e90f-4f8f-a6b8-f3781aa20b15",
+                "master_salary_id": 3,
+                "presence_date": "2026-06-01",
+                "overtime_id": "OT-E2E-3"
+            },
+            "laravel_test": "Tests\\Feature\\DifferentialFullPipelineE2ETest::test_database_service_go_and_persistence_subset",
+            "service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "employee_fixture_id": "a6fc2800-e90f-4f8f-a6b8-f3781aa20b15",
+            "laravel_service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "go_request_id": null,
+            "go_request_correlation_status": "NOT_OBSERVABLE",
+            "go_request_hash": "d4ff7074cd36e61d8188bc0d14a5d56000161654fe2e1ba4440aa0e0ed59ae47",
+            "go_response_hash": "13a69e0bcb0ef85563729f439be755b6eb6e17884c6900347afcd375910956ad",
+            "attendance_source": "database",
+            "rule_version_ids": [
+                1,
+                2,
+                4,
+                5,
+                6
+            ],
+            "rate_version_ids": [
+                1,
+                2
+            ],
+            "tax_version_ids": [],
+            "tax_version_status": "NOT_APPLICABLE_MANUAL_OVERRIDE",
+            "go_internal_path": [
+                "ExecuteTPRRuleSet",
+                "ValidateTPRRuleSet",
+                "buildTPRGRL",
+                "GRULE ExecuteWithContext"
+            ],
+            "go_internal_trace_status": "SOURCE_VERIFIED_NOT_RUNTIME_INSTRUMENTED",
+            "component_codes": [
+                "ATTENDANCE_INCENTIVE",
+                "LATE_DEDUCTION",
+                "OVERTIME_PAY",
+                "ROUNDING_PROBE",
+                "TAX_FLAT"
+            ],
+            "persistence_asserted": true,
+            "persisted_salary_id": 3,
+            "salary_record_id": 3,
+            "expected_hash": "a607e853cac0138d2d550e2c11409a46f78acdea07f57e68d5c47708736c8959",
+            "actual_hash": "a607e853cac0138d2d550e2c11409a46f78acdea07f57e68d5c47708736c8959",
+            "result": "PASS"
+        },
+        {
+            "case_id": "E2E-004",
+            "status": "EXACT_MATCH",
+            "evaluation_category": "FULL_PAYROLL_PIPELINE",
+            "secondary_categories": [
+                "PERSISTENCE_E2E",
+                "LARAVEL_TO_GO_INTEGRATION"
+            ],
+            "execution_path": [
+                "testing_database",
+                "employee/contract/attendance fixtures",
+                "rule master and rule version",
+                "approval and active state",
+                "rate and tax facts",
+                "buildFactsFromDatabase",
+                "PayrollRuleEngineService::execute",
+                "Laravel HTTP client",
+                "Go /execute",
+                "TPR-IR validation",
+                "GRL translation",
+                "GRULE",
+                "Laravel normalization",
+                "expected-versus-actual comparison",
+                "salary persistence",
+                "database assertion"
+            ],
+            "database_fixture": {
+                "user_id": "a416a289-7590-46fa-aba8-a8e2e2b66738",
+                "master_salary_id": 4,
+                "presence_date": "2026-06-01",
+                "overtime_id": "OT-E2E-4"
+            },
+            "laravel_test": "Tests\\Feature\\DifferentialFullPipelineE2ETest::test_database_service_go_and_persistence_subset",
+            "service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "employee_fixture_id": "a416a289-7590-46fa-aba8-a8e2e2b66738",
+            "laravel_service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "go_request_id": null,
+            "go_request_correlation_status": "NOT_OBSERVABLE",
+            "go_request_hash": "cdffca21b15461392c3361da3c2de18d58af8bf472b88b2ec168954a6a466154",
+            "go_response_hash": "363841755a297155394e7e26a3324063357fa609ad6ea772f3a7b8700f267f40",
+            "attendance_source": "database",
+            "rule_version_ids": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "rate_version_ids": [
+                1,
+                2
+            ],
+            "tax_version_ids": [],
+            "tax_version_status": "NOT_APPLICABLE_MANUAL_OVERRIDE",
+            "go_internal_path": [
+                "ExecuteTPRRuleSet",
+                "ValidateTPRRuleSet",
+                "buildTPRGRL",
+                "GRULE ExecuteWithContext"
+            ],
+            "go_internal_trace_status": "SOURCE_VERIFIED_NOT_RUNTIME_INSTRUMENTED",
+            "component_codes": [
+                "ATTENDANCE_INCENTIVE",
+                "LATE_DEDUCTION",
+                "OVERTIME_PAY",
+                "PERFORMANCE_BONUS",
+                "ROUNDING_PROBE",
+                "TAX_FLAT"
+            ],
+            "persistence_asserted": true,
+            "persisted_salary_id": 4,
+            "salary_record_id": 4,
+            "expected_hash": "afa90b4c2c47a2063e5e071a7dedb0dbe528e43d23011077657f92123fea0252",
+            "actual_hash": "afa90b4c2c47a2063e5e071a7dedb0dbe528e43d23011077657f92123fea0252",
+            "result": "PASS"
+        },
+        {
+            "case_id": "E2E-005",
+            "status": "EXACT_MATCH",
+            "evaluation_category": "FULL_PAYROLL_PIPELINE",
+            "secondary_categories": [
+                "PERSISTENCE_E2E",
+                "LARAVEL_TO_GO_INTEGRATION"
+            ],
+            "execution_path": [
+                "testing_database",
+                "employee/contract/attendance fixtures",
+                "rule master and rule version",
+                "approval and active state",
+                "rate and tax facts",
+                "buildFactsFromDatabase",
+                "PayrollRuleEngineService::execute",
+                "Laravel HTTP client",
+                "Go /execute",
+                "TPR-IR validation",
+                "GRL translation",
+                "GRULE",
+                "Laravel normalization",
+                "expected-versus-actual comparison",
+                "salary persistence",
+                "database assertion"
+            ],
+            "database_fixture": {
+                "user_id": "055046b5-c591-4c6d-b739-a91bce82f27c",
+                "master_salary_id": 5,
+                "presence_date": "2026-06-01",
+                "overtime_id": "OT-E2E-5"
+            },
+            "laravel_test": "Tests\\Feature\\DifferentialFullPipelineE2ETest::test_database_service_go_and_persistence_subset",
+            "service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "employee_fixture_id": "055046b5-c591-4c6d-b739-a91bce82f27c",
+            "laravel_service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "go_request_id": null,
+            "go_request_correlation_status": "NOT_OBSERVABLE",
+            "go_request_hash": "1a6b06c17f86aae693418ce215b1e8da92815cb05fc57ea7431f3f43648623ed",
+            "go_response_hash": "529300e2d8f5907bd2460f9b56601e0ded045fd696edf979fa1701e27aa08838",
+            "attendance_source": "database",
+            "rule_version_ids": [
+                1,
+                2,
+                4,
+                5,
+                6
+            ],
+            "rate_version_ids": [
+                1,
+                2
+            ],
+            "tax_version_ids": [],
+            "tax_version_status": "NOT_APPLICABLE_MANUAL_OVERRIDE",
+            "go_internal_path": [
+                "ExecuteTPRRuleSet",
+                "ValidateTPRRuleSet",
+                "buildTPRGRL",
+                "GRULE ExecuteWithContext"
+            ],
+            "go_internal_trace_status": "SOURCE_VERIFIED_NOT_RUNTIME_INSTRUMENTED",
+            "component_codes": [
+                "ATTENDANCE_INCENTIVE",
+                "LATE_DEDUCTION",
+                "OVERTIME_PAY",
+                "ROUNDING_PROBE",
+                "TAX_FLAT"
+            ],
+            "persistence_asserted": true,
+            "persisted_salary_id": 5,
+            "salary_record_id": 5,
+            "expected_hash": "f3781ec6ee6bd6930c2536f7ec031619e42d982af6c4a307de9fee192de72904",
+            "actual_hash": "f3781ec6ee6bd6930c2536f7ec031619e42d982af6c4a307de9fee192de72904",
+            "result": "PASS"
+        },
+        {
+            "case_id": "E2E-006",
+            "status": "EXACT_MATCH",
+            "evaluation_category": "FULL_PAYROLL_PIPELINE",
+            "secondary_categories": [
+                "PERSISTENCE_E2E",
+                "LARAVEL_TO_GO_INTEGRATION"
+            ],
+            "execution_path": [
+                "testing_database",
+                "employee/contract/attendance fixtures",
+                "rule master and rule version",
+                "approval and active state",
+                "rate and tax facts",
+                "buildFactsFromDatabase",
+                "PayrollRuleEngineService::execute",
+                "Laravel HTTP client",
+                "Go /execute",
+                "TPR-IR validation",
+                "GRL translation",
+                "GRULE",
+                "Laravel normalization",
+                "expected-versus-actual comparison",
+                "salary persistence",
+                "database assertion"
+            ],
+            "database_fixture": {
+                "user_id": "2e635186-f658-4cd8-aa4e-d54023829b70",
+                "master_salary_id": 6,
+                "presence_date": "2026-06-01",
+                "overtime_id": "OT-E2E-6"
+            },
+            "laravel_test": "Tests\\Feature\\DifferentialFullPipelineE2ETest::test_database_service_go_and_persistence_subset",
+            "service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "employee_fixture_id": "2e635186-f658-4cd8-aa4e-d54023829b70",
+            "laravel_service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "go_request_id": null,
+            "go_request_correlation_status": "NOT_OBSERVABLE",
+            "go_request_hash": "e9a2fc460451a0cefa2ad6382aed31a5ecf82d7a5d42c48573a49ca618fb4661",
+            "go_response_hash": "791d974ee4195e6b7442cafcd8fee9a6d30d68ba7ffb75799b5a438e3b2e0b67",
+            "attendance_source": "database",
+            "rule_version_ids": [
+                1,
+                4,
+                5,
+                6
+            ],
+            "rate_version_ids": [
+                1,
+                2
+            ],
+            "tax_version_ids": [],
+            "tax_version_status": "NOT_APPLICABLE_MANUAL_OVERRIDE",
+            "go_internal_path": [
+                "ExecuteTPRRuleSet",
+                "ValidateTPRRuleSet",
+                "buildTPRGRL",
+                "GRULE ExecuteWithContext"
+            ],
+            "go_internal_trace_status": "SOURCE_VERIFIED_NOT_RUNTIME_INSTRUMENTED",
+            "component_codes": [
+                "ATTENDANCE_INCENTIVE",
+                "OVERTIME_PAY",
+                "ROUNDING_PROBE",
+                "TAX_FLAT"
+            ],
+            "persistence_asserted": true,
+            "persisted_salary_id": 6,
+            "salary_record_id": 6,
+            "expected_hash": "7ccaf61d4acd8b766220817e4787b08f67ca3483e7ad5905add6e3fcc59a349d",
+            "actual_hash": "7ccaf61d4acd8b766220817e4787b08f67ca3483e7ad5905add6e3fcc59a349d",
+            "result": "PASS"
+        },
+        {
+            "case_id": "E2E-007",
+            "status": "EXACT_MATCH",
+            "evaluation_category": "FULL_PAYROLL_PIPELINE",
+            "secondary_categories": [
+                "PERSISTENCE_E2E",
+                "LARAVEL_TO_GO_INTEGRATION"
+            ],
+            "execution_path": [
+                "testing_database",
+                "employee/contract/attendance fixtures",
+                "rule master and rule version",
+                "approval and active state",
+                "rate and tax facts",
+                "buildFactsFromDatabase",
+                "PayrollRuleEngineService::execute",
+                "Laravel HTTP client",
+                "Go /execute",
+                "TPR-IR validation",
+                "GRL translation",
+                "GRULE",
+                "Laravel normalization",
+                "expected-versus-actual comparison",
+                "salary persistence",
+                "database assertion"
+            ],
+            "database_fixture": {
+                "user_id": "ed3fd2ee-2ff6-473e-92b2-159e2fcd1f00",
+                "master_salary_id": 7,
+                "presence_date": "2026-06-01",
+                "overtime_id": "OT-E2E-7"
+            },
+            "laravel_test": "Tests\\Feature\\DifferentialFullPipelineE2ETest::test_database_service_go_and_persistence_subset",
+            "service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "employee_fixture_id": "ed3fd2ee-2ff6-473e-92b2-159e2fcd1f00",
+            "laravel_service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "go_request_id": null,
+            "go_request_correlation_status": "NOT_OBSERVABLE",
+            "go_request_hash": "16e073a691482940717b8c3b91cba71a74774761a8dd4265c47f251bbb9d2aaf",
+            "go_response_hash": "b55e65aa7b169aab28c7b765739db3416016297499ce927b61c8a853ec5ae542",
+            "attendance_source": "database",
+            "rule_version_ids": [
+                1,
+                2,
+                4,
+                5,
+                6
+            ],
+            "rate_version_ids": [
+                1,
+                2
+            ],
+            "tax_version_ids": [],
+            "tax_version_status": "NOT_APPLICABLE_MANUAL_OVERRIDE",
+            "go_internal_path": [
+                "ExecuteTPRRuleSet",
+                "ValidateTPRRuleSet",
+                "buildTPRGRL",
+                "GRULE ExecuteWithContext"
+            ],
+            "go_internal_trace_status": "SOURCE_VERIFIED_NOT_RUNTIME_INSTRUMENTED",
+            "component_codes": [
+                "ATTENDANCE_INCENTIVE",
+                "LATE_DEDUCTION",
+                "OVERTIME_PAY",
+                "ROUNDING_PROBE",
+                "TAX_FLAT"
+            ],
+            "persistence_asserted": true,
+            "persisted_salary_id": 7,
+            "salary_record_id": 7,
+            "expected_hash": "a019859afa67ea94cc059ad2306b13a5f01d96c75ee35e47c03c916c7cb0f551",
+            "actual_hash": "a019859afa67ea94cc059ad2306b13a5f01d96c75ee35e47c03c916c7cb0f551",
+            "result": "PASS"
+        },
+        {
+            "case_id": "E2E-008",
+            "status": "EXACT_MATCH",
+            "evaluation_category": "FULL_PAYROLL_PIPELINE",
+            "secondary_categories": [
+                "PERSISTENCE_E2E",
+                "LARAVEL_TO_GO_INTEGRATION"
+            ],
+            "execution_path": [
+                "testing_database",
+                "employee/contract/attendance fixtures",
+                "rule master and rule version",
+                "approval and active state",
+                "rate and tax facts",
+                "buildFactsFromDatabase",
+                "PayrollRuleEngineService::execute",
+                "Laravel HTTP client",
+                "Go /execute",
+                "TPR-IR validation",
+                "GRL translation",
+                "GRULE",
+                "Laravel normalization",
+                "expected-versus-actual comparison",
+                "salary persistence",
+                "database assertion"
+            ],
+            "database_fixture": {
+                "user_id": "db7ced06-400f-4aa1-aaa4-5e98a1f8b53d",
+                "master_salary_id": 8,
+                "presence_date": "2026-06-01",
+                "overtime_id": "OT-E2E-8"
+            },
+            "laravel_test": "Tests\\Feature\\DifferentialFullPipelineE2ETest::test_database_service_go_and_persistence_subset",
+            "service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "employee_fixture_id": "db7ced06-400f-4aa1-aaa4-5e98a1f8b53d",
+            "laravel_service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "go_request_id": null,
+            "go_request_correlation_status": "NOT_OBSERVABLE",
+            "go_request_hash": "4cc1b5e7e6ab5e95552f6003dae1fe7316dd017c2018854f01e31db8c7c99d4b",
+            "go_response_hash": "5f294b786c6c3d6fa69a4d0f3bd399494df915c18a86c935ae0a159952c365db",
+            "attendance_source": "database",
+            "rule_version_ids": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "rate_version_ids": [
+                1,
+                2
+            ],
+            "tax_version_ids": [],
+            "tax_version_status": "NOT_APPLICABLE_MANUAL_OVERRIDE",
+            "go_internal_path": [
+                "ExecuteTPRRuleSet",
+                "ValidateTPRRuleSet",
+                "buildTPRGRL",
+                "GRULE ExecuteWithContext"
+            ],
+            "go_internal_trace_status": "SOURCE_VERIFIED_NOT_RUNTIME_INSTRUMENTED",
+            "component_codes": [
+                "ATTENDANCE_INCENTIVE",
+                "LATE_DEDUCTION",
+                "OVERTIME_PAY",
+                "PERFORMANCE_BONUS",
+                "ROUNDING_PROBE",
+                "TAX_FLAT"
+            ],
+            "persistence_asserted": true,
+            "persisted_salary_id": 8,
+            "salary_record_id": 8,
+            "expected_hash": "3e3ec0186542cc313a25cea39def6bbdd87a7807630a0c38e22146bcdbe4ca56",
+            "actual_hash": "3e3ec0186542cc313a25cea39def6bbdd87a7807630a0c38e22146bcdbe4ca56",
+            "result": "PASS"
+        },
+        {
+            "case_id": "E2E-009",
+            "status": "EXACT_MATCH",
+            "evaluation_category": "FULL_PAYROLL_PIPELINE",
+            "secondary_categories": [
+                "PERSISTENCE_E2E",
+                "LARAVEL_TO_GO_INTEGRATION"
+            ],
+            "execution_path": [
+                "testing_database",
+                "employee/contract/attendance fixtures",
+                "rule master and rule version",
+                "approval and active state",
+                "rate and tax facts",
+                "buildFactsFromDatabase",
+                "PayrollRuleEngineService::execute",
+                "Laravel HTTP client",
+                "Go /execute",
+                "TPR-IR validation",
+                "GRL translation",
+                "GRULE",
+                "Laravel normalization",
+                "expected-versus-actual comparison",
+                "salary persistence",
+                "database assertion"
+            ],
+            "database_fixture": {
+                "user_id": "4570676f-832e-45b1-b55d-67be83f40fe1",
+                "master_salary_id": 9,
+                "presence_date": "2026-06-01",
+                "overtime_id": "OT-E2E-9"
+            },
+            "laravel_test": "Tests\\Feature\\DifferentialFullPipelineE2ETest::test_database_service_go_and_persistence_subset",
+            "service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "employee_fixture_id": "4570676f-832e-45b1-b55d-67be83f40fe1",
+            "laravel_service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "go_request_id": null,
+            "go_request_correlation_status": "NOT_OBSERVABLE",
+            "go_request_hash": "0f66dcb940852b77b2c9a7ba70847049a8061aec7a27420c5b6da5e576b8c79e",
+            "go_response_hash": "026444fdb50ca54417df77c5550a4df194b4f55ced6b2b027b62abd12f275285",
+            "attendance_source": "database",
+            "rule_version_ids": [
+                1,
+                2,
+                4,
+                5,
+                6
+            ],
+            "rate_version_ids": [
+                1,
+                2
+            ],
+            "tax_version_ids": [],
+            "tax_version_status": "NOT_APPLICABLE_MANUAL_OVERRIDE",
+            "go_internal_path": [
+                "ExecuteTPRRuleSet",
+                "ValidateTPRRuleSet",
+                "buildTPRGRL",
+                "GRULE ExecuteWithContext"
+            ],
+            "go_internal_trace_status": "SOURCE_VERIFIED_NOT_RUNTIME_INSTRUMENTED",
+            "component_codes": [
+                "ATTENDANCE_INCENTIVE",
+                "LATE_DEDUCTION",
+                "OVERTIME_PAY",
+                "ROUNDING_PROBE",
+                "TAX_FLAT"
+            ],
+            "persistence_asserted": true,
+            "persisted_salary_id": 9,
+            "salary_record_id": 9,
+            "expected_hash": "1792c25018491acb10f1ef3716b8833ff4eb8eb360bfe865e3aca1fdded4119d",
+            "actual_hash": "1792c25018491acb10f1ef3716b8833ff4eb8eb360bfe865e3aca1fdded4119d",
+            "result": "PASS"
+        },
+        {
+            "case_id": "E2E-010",
+            "status": "EXACT_MATCH",
+            "evaluation_category": "FULL_PAYROLL_PIPELINE",
+            "secondary_categories": [
+                "PERSISTENCE_E2E",
+                "LARAVEL_TO_GO_INTEGRATION"
+            ],
+            "execution_path": [
+                "testing_database",
+                "employee/contract/attendance fixtures",
+                "rule master and rule version",
+                "approval and active state",
+                "rate and tax facts",
+                "buildFactsFromDatabase",
+                "PayrollRuleEngineService::execute",
+                "Laravel HTTP client",
+                "Go /execute",
+                "TPR-IR validation",
+                "GRL translation",
+                "GRULE",
+                "Laravel normalization",
+                "expected-versus-actual comparison",
+                "salary persistence",
+                "database assertion"
+            ],
+            "database_fixture": {
+                "user_id": "6b09d796-66fd-41b6-806c-095814ed6137",
+                "master_salary_id": 10,
+                "presence_date": "2026-06-01",
+                "overtime_id": "OT-E2E-10"
+            },
+            "laravel_test": "Tests\\Feature\\DifferentialFullPipelineE2ETest::test_database_service_go_and_persistence_subset",
+            "service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "employee_fixture_id": "6b09d796-66fd-41b6-806c-095814ed6137",
+            "laravel_service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "go_request_id": null,
+            "go_request_correlation_status": "NOT_OBSERVABLE",
+            "go_request_hash": "7da04cd67273ac5a2f5b76066e52d6aa6465df7d64a9dda9f2fc2b48be46ff78",
+            "go_response_hash": "e65d8758ef1f56e41eaf055e60bb421d8eeeb1530dad983acb7a78e99d8d5ca5",
+            "attendance_source": "database",
+            "rule_version_ids": [
+                1,
+                2,
+                4,
+                5,
+                6
+            ],
+            "rate_version_ids": [
+                1,
+                2
+            ],
+            "tax_version_ids": [],
+            "tax_version_status": "NOT_APPLICABLE_MANUAL_OVERRIDE",
+            "go_internal_path": [
+                "ExecuteTPRRuleSet",
+                "ValidateTPRRuleSet",
+                "buildTPRGRL",
+                "GRULE ExecuteWithContext"
+            ],
+            "go_internal_trace_status": "SOURCE_VERIFIED_NOT_RUNTIME_INSTRUMENTED",
+            "component_codes": [
+                "ATTENDANCE_INCENTIVE",
+                "LATE_DEDUCTION",
+                "OVERTIME_PAY",
+                "ROUNDING_PROBE",
+                "TAX_FLAT"
+            ],
+            "persistence_asserted": true,
+            "persisted_salary_id": 10,
+            "salary_record_id": 10,
+            "expected_hash": "f3ffdca87733cbd858cd206412036ef2d5971d5f1eba0aa3e17d6eb39f61c85c",
+            "actual_hash": "f3ffdca87733cbd858cd206412036ef2d5971d5f1eba0aa3e17d6eb39f61c85c",
+            "result": "PASS"
+        },
+        {
+            "case_id": "E2E-011",
+            "status": "EXACT_MATCH",
+            "evaluation_category": "FULL_PAYROLL_PIPELINE",
+            "secondary_categories": [
+                "PERSISTENCE_E2E",
+                "LARAVEL_TO_GO_INTEGRATION"
+            ],
+            "execution_path": [
+                "testing_database",
+                "employee/contract/attendance fixtures",
+                "rule master and rule version",
+                "approval and active state",
+                "rate and tax facts",
+                "buildFactsFromDatabase",
+                "PayrollRuleEngineService::execute",
+                "Laravel HTTP client",
+                "Go /execute",
+                "TPR-IR validation",
+                "GRL translation",
+                "GRULE",
+                "Laravel normalization",
+                "expected-versus-actual comparison",
+                "salary persistence",
+                "database assertion"
+            ],
+            "database_fixture": {
+                "user_id": "45456626-daa4-4326-842d-95ab02c7720e",
+                "master_salary_id": 11,
+                "presence_date": "2026-06-01",
+                "overtime_id": "OT-E2E-11"
+            },
+            "laravel_test": "Tests\\Feature\\DifferentialFullPipelineE2ETest::test_database_service_go_and_persistence_subset",
+            "service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "employee_fixture_id": "45456626-daa4-4326-842d-95ab02c7720e",
+            "laravel_service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "go_request_id": null,
+            "go_request_correlation_status": "NOT_OBSERVABLE",
+            "go_request_hash": "ffbd0f498d3450f6aaef678bbbaac0754fac3526b6d4dc8d2b37f05a7b364a0e",
+            "go_response_hash": "ecb34eec222f98c521b86fe2a36dac91fc17daba21d9f3da7596314637311dab",
+            "attendance_source": "database",
+            "rule_version_ids": [
+                1,
+                2,
+                4,
+                5,
+                6
+            ],
+            "rate_version_ids": [
+                1,
+                2
+            ],
+            "tax_version_ids": [],
+            "tax_version_status": "NOT_APPLICABLE_MANUAL_OVERRIDE",
+            "go_internal_path": [
+                "ExecuteTPRRuleSet",
+                "ValidateTPRRuleSet",
+                "buildTPRGRL",
+                "GRULE ExecuteWithContext"
+            ],
+            "go_internal_trace_status": "SOURCE_VERIFIED_NOT_RUNTIME_INSTRUMENTED",
+            "component_codes": [
+                "ATTENDANCE_INCENTIVE",
+                "LATE_DEDUCTION",
+                "OVERTIME_PAY",
+                "ROUNDING_PROBE",
+                "TAX_FLAT"
+            ],
+            "persistence_asserted": true,
+            "persisted_salary_id": 11,
+            "salary_record_id": 11,
+            "expected_hash": "b427532f288a74e0ab1116f59dd406070c0d3f310cd2356501b36f76ba3257dd",
+            "actual_hash": "b427532f288a74e0ab1116f59dd406070c0d3f310cd2356501b36f76ba3257dd",
+            "result": "PASS"
+        },
+        {
+            "case_id": "E2E-012",
+            "status": "EXACT_MATCH",
+            "evaluation_category": "FULL_PAYROLL_PIPELINE",
+            "secondary_categories": [
+                "PERSISTENCE_E2E",
+                "LARAVEL_TO_GO_INTEGRATION"
+            ],
+            "execution_path": [
+                "testing_database",
+                "employee/contract/attendance fixtures",
+                "rule master and rule version",
+                "approval and active state",
+                "rate and tax facts",
+                "buildFactsFromDatabase",
+                "PayrollRuleEngineService::execute",
+                "Laravel HTTP client",
+                "Go /execute",
+                "TPR-IR validation",
+                "GRL translation",
+                "GRULE",
+                "Laravel normalization",
+                "expected-versus-actual comparison",
+                "salary persistence",
+                "database assertion"
+            ],
+            "database_fixture": {
+                "user_id": "492d9c93-7684-47b2-8590-6289b110e68f",
+                "master_salary_id": 12,
+                "presence_date": "2026-06-01",
+                "overtime_id": "OT-E2E-12"
+            },
+            "laravel_test": "Tests\\Feature\\DifferentialFullPipelineE2ETest::test_database_service_go_and_persistence_subset",
+            "service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "employee_fixture_id": "492d9c93-7684-47b2-8590-6289b110e68f",
+            "laravel_service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "go_request_id": null,
+            "go_request_correlation_status": "NOT_OBSERVABLE",
+            "go_request_hash": "0d39a8ef16ebf3b32cc7141f91f6e83e32f9444f52409a75fd5d2b79cc105267",
+            "go_response_hash": "6e93f43f10874d1122e792ba1e677d67bae78e4dba33a85621dedf5ecad2c3d2",
+            "attendance_source": "database",
+            "rule_version_ids": [
+                1,
+                3,
+                4,
+                5,
+                6
+            ],
+            "rate_version_ids": [
+                1,
+                2
+            ],
+            "tax_version_ids": [],
+            "tax_version_status": "NOT_APPLICABLE_MANUAL_OVERRIDE",
+            "go_internal_path": [
+                "ExecuteTPRRuleSet",
+                "ValidateTPRRuleSet",
+                "buildTPRGRL",
+                "GRULE ExecuteWithContext"
+            ],
+            "go_internal_trace_status": "SOURCE_VERIFIED_NOT_RUNTIME_INSTRUMENTED",
+            "component_codes": [
+                "ATTENDANCE_INCENTIVE",
+                "OVERTIME_PAY",
+                "PERFORMANCE_BONUS",
+                "ROUNDING_PROBE",
+                "TAX_FLAT"
+            ],
+            "persistence_asserted": true,
+            "persisted_salary_id": 12,
+            "salary_record_id": 12,
+            "expected_hash": "b6c187828532193dd4ea53c7e4f04f845d18057b70bf8375fec24839091ca313",
+            "actual_hash": "b6c187828532193dd4ea53c7e4f04f845d18057b70bf8375fec24839091ca313",
+            "result": "PASS"
+        },
+        {
+            "case_id": "E2E-013",
+            "status": "EXACT_MATCH",
+            "evaluation_category": "FULL_PAYROLL_PIPELINE",
+            "secondary_categories": [
+                "PERSISTENCE_E2E",
+                "LARAVEL_TO_GO_INTEGRATION"
+            ],
+            "execution_path": [
+                "testing_database",
+                "employee/contract/attendance fixtures",
+                "rule master and rule version",
+                "approval and active state",
+                "rate and tax facts",
+                "buildFactsFromDatabase",
+                "PayrollRuleEngineService::execute",
+                "Laravel HTTP client",
+                "Go /execute",
+                "TPR-IR validation",
+                "GRL translation",
+                "GRULE",
+                "Laravel normalization",
+                "expected-versus-actual comparison",
+                "salary persistence",
+                "database assertion"
+            ],
+            "database_fixture": {
+                "user_id": "f7ec0200-d6ab-42ef-81f3-791b86dbdf31",
+                "master_salary_id": 13,
+                "presence_date": "2026-06-01",
+                "overtime_id": "OT-E2E-13"
+            },
+            "laravel_test": "Tests\\Feature\\DifferentialFullPipelineE2ETest::test_database_service_go_and_persistence_subset",
+            "service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "employee_fixture_id": "f7ec0200-d6ab-42ef-81f3-791b86dbdf31",
+            "laravel_service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "go_request_id": null,
+            "go_request_correlation_status": "NOT_OBSERVABLE",
+            "go_request_hash": "b2352025a1de068919e7e56eaba96b99d0aa86d12cb5e7d2acdfde4df17fef7b",
+            "go_response_hash": "c261eaba068290391da0331a5acd1776347afaaadb4ad47a1d1c3f1ca43d97eb",
+            "attendance_source": "database",
+            "rule_version_ids": [
+                1,
+                2,
+                4,
+                5,
+                6
+            ],
+            "rate_version_ids": [
+                1,
+                2
+            ],
+            "tax_version_ids": [],
+            "tax_version_status": "NOT_APPLICABLE_MANUAL_OVERRIDE",
+            "go_internal_path": [
+                "ExecuteTPRRuleSet",
+                "ValidateTPRRuleSet",
+                "buildTPRGRL",
+                "GRULE ExecuteWithContext"
+            ],
+            "go_internal_trace_status": "SOURCE_VERIFIED_NOT_RUNTIME_INSTRUMENTED",
+            "component_codes": [
+                "ATTENDANCE_INCENTIVE",
+                "LATE_DEDUCTION",
+                "OVERTIME_PAY",
+                "ROUNDING_PROBE",
+                "TAX_FLAT"
+            ],
+            "persistence_asserted": true,
+            "persisted_salary_id": 13,
+            "salary_record_id": 13,
+            "expected_hash": "25419bc330de8dbebe1dc9789dc5c4652c1b66177a39f685b4665430586f5276",
+            "actual_hash": "25419bc330de8dbebe1dc9789dc5c4652c1b66177a39f685b4665430586f5276",
+            "result": "PASS"
+        },
+        {
+            "case_id": "E2E-014",
+            "status": "EXACT_MATCH",
+            "evaluation_category": "FULL_PAYROLL_PIPELINE",
+            "secondary_categories": [
+                "PERSISTENCE_E2E",
+                "LARAVEL_TO_GO_INTEGRATION"
+            ],
+            "execution_path": [
+                "testing_database",
+                "employee/contract/attendance fixtures",
+                "rule master and rule version",
+                "approval and active state",
+                "rate and tax facts",
+                "buildFactsFromDatabase",
+                "PayrollRuleEngineService::execute",
+                "Laravel HTTP client",
+                "Go /execute",
+                "TPR-IR validation",
+                "GRL translation",
+                "GRULE",
+                "Laravel normalization",
+                "expected-versus-actual comparison",
+                "salary persistence",
+                "database assertion"
+            ],
+            "database_fixture": {
+                "user_id": "8647e3d6-6a8b-426d-96c9-e00aa32d70c5",
+                "master_salary_id": 14,
+                "presence_date": "2026-06-01",
+                "overtime_id": "OT-E2E-14"
+            },
+            "laravel_test": "Tests\\Feature\\DifferentialFullPipelineE2ETest::test_database_service_go_and_persistence_subset",
+            "service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "employee_fixture_id": "8647e3d6-6a8b-426d-96c9-e00aa32d70c5",
+            "laravel_service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "go_request_id": null,
+            "go_request_correlation_status": "NOT_OBSERVABLE",
+            "go_request_hash": "48c533624dd4ee4255bd248bb0083fe204e833fea487ee214e6f4b45af0ee599",
+            "go_response_hash": "c5186077aa7e0d235e73b74a64eaec948465455a074796686050a965c077922a",
+            "attendance_source": "database",
+            "rule_version_ids": [
+                1,
+                2,
+                4,
+                5,
+                6
+            ],
+            "rate_version_ids": [
+                1,
+                2
+            ],
+            "tax_version_ids": [],
+            "tax_version_status": "NOT_APPLICABLE_MANUAL_OVERRIDE",
+            "go_internal_path": [
+                "ExecuteTPRRuleSet",
+                "ValidateTPRRuleSet",
+                "buildTPRGRL",
+                "GRULE ExecuteWithContext"
+            ],
+            "go_internal_trace_status": "SOURCE_VERIFIED_NOT_RUNTIME_INSTRUMENTED",
+            "component_codes": [
+                "ATTENDANCE_INCENTIVE",
+                "LATE_DEDUCTION",
+                "OVERTIME_PAY",
+                "ROUNDING_PROBE",
+                "TAX_FLAT"
+            ],
+            "persistence_asserted": true,
+            "persisted_salary_id": 14,
+            "salary_record_id": 14,
+            "expected_hash": "f66781e8ab9727df8393320302d65b96c0a54298866597160199db14db3fe378",
+            "actual_hash": "f66781e8ab9727df8393320302d65b96c0a54298866597160199db14db3fe378",
+            "result": "PASS"
+        },
+        {
+            "case_id": "E2E-015",
+            "status": "EXACT_MATCH",
+            "evaluation_category": "FULL_PAYROLL_PIPELINE",
+            "secondary_categories": [
+                "PERSISTENCE_E2E",
+                "LARAVEL_TO_GO_INTEGRATION"
+            ],
+            "execution_path": [
+                "testing_database",
+                "employee/contract/attendance fixtures",
+                "rule master and rule version",
+                "approval and active state",
+                "rate and tax facts",
+                "buildFactsFromDatabase",
+                "PayrollRuleEngineService::execute",
+                "Laravel HTTP client",
+                "Go /execute",
+                "TPR-IR validation",
+                "GRL translation",
+                "GRULE",
+                "Laravel normalization",
+                "expected-versus-actual comparison",
+                "salary persistence",
+                "database assertion"
+            ],
+            "database_fixture": {
+                "user_id": "6a5f2de0-5c6e-428e-80dc-f653f44435be",
+                "master_salary_id": 15,
+                "presence_date": "2026-06-01",
+                "overtime_id": "OT-E2E-15"
+            },
+            "laravel_test": "Tests\\Feature\\DifferentialFullPipelineE2ETest::test_database_service_go_and_persistence_subset",
+            "service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "employee_fixture_id": "6a5f2de0-5c6e-428e-80dc-f653f44435be",
+            "laravel_service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "go_request_id": null,
+            "go_request_correlation_status": "NOT_OBSERVABLE",
+            "go_request_hash": "2b6d0d2cdfab4304ea276b7a10da4f35fccc9ed55551b24e826dd783d31e57d1",
+            "go_response_hash": "42665370003654d2e160f86c2d6accf4eb89777aee7a9f9d9a1f5ec3cb7589a8",
+            "attendance_source": "database",
+            "rule_version_ids": [
+                1,
+                2,
+                4,
+                5,
+                6
+            ],
+            "rate_version_ids": [
+                1,
+                2
+            ],
+            "tax_version_ids": [],
+            "tax_version_status": "NOT_APPLICABLE_MANUAL_OVERRIDE",
+            "go_internal_path": [
+                "ExecuteTPRRuleSet",
+                "ValidateTPRRuleSet",
+                "buildTPRGRL",
+                "GRULE ExecuteWithContext"
+            ],
+            "go_internal_trace_status": "SOURCE_VERIFIED_NOT_RUNTIME_INSTRUMENTED",
+            "component_codes": [
+                "ATTENDANCE_INCENTIVE",
+                "LATE_DEDUCTION",
+                "OVERTIME_PAY",
+                "ROUNDING_PROBE",
+                "TAX_FLAT"
+            ],
+            "persistence_asserted": true,
+            "persisted_salary_id": 15,
+            "salary_record_id": 15,
+            "expected_hash": "5674c7534368b4717c1df92bf78cc11b9b85441b75eb955a6a962be41dbb7dd0",
+            "actual_hash": "5674c7534368b4717c1df92bf78cc11b9b85441b75eb955a6a962be41dbb7dd0",
+            "result": "PASS"
+        },
+        {
+            "case_id": "E2E-016",
+            "status": "EXACT_MATCH",
+            "evaluation_category": "FULL_PAYROLL_PIPELINE",
+            "secondary_categories": [
+                "PERSISTENCE_E2E",
+                "LARAVEL_TO_GO_INTEGRATION"
+            ],
+            "execution_path": [
+                "testing_database",
+                "employee/contract/attendance fixtures",
+                "rule master and rule version",
+                "approval and active state",
+                "rate and tax facts",
+                "buildFactsFromDatabase",
+                "PayrollRuleEngineService::execute",
+                "Laravel HTTP client",
+                "Go /execute",
+                "TPR-IR validation",
+                "GRL translation",
+                "GRULE",
+                "Laravel normalization",
+                "expected-versus-actual comparison",
+                "salary persistence",
+                "database assertion"
+            ],
+            "database_fixture": {
+                "user_id": "21290168-a35b-46eb-bd45-d2bd7161d0f2",
+                "master_salary_id": 16,
+                "presence_date": "2026-06-01",
+                "overtime_id": "OT-E2E-16"
+            },
+            "laravel_test": "Tests\\Feature\\DifferentialFullPipelineE2ETest::test_database_service_go_and_persistence_subset",
+            "service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "employee_fixture_id": "21290168-a35b-46eb-bd45-d2bd7161d0f2",
+            "laravel_service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "go_request_id": null,
+            "go_request_correlation_status": "NOT_OBSERVABLE",
+            "go_request_hash": "ec2588f299c97c98e15d040554296898873d6ea5b7f67dd268c24b02436b71c4",
+            "go_response_hash": "e1bb5503085e35695472ca082e20bfd1a18ba7edee8e8cbb8cf838fd226167b9",
+            "attendance_source": "database",
+            "rule_version_ids": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "rate_version_ids": [
+                1,
+                2
+            ],
+            "tax_version_ids": [],
+            "tax_version_status": "NOT_APPLICABLE_MANUAL_OVERRIDE",
+            "go_internal_path": [
+                "ExecuteTPRRuleSet",
+                "ValidateTPRRuleSet",
+                "buildTPRGRL",
+                "GRULE ExecuteWithContext"
+            ],
+            "go_internal_trace_status": "SOURCE_VERIFIED_NOT_RUNTIME_INSTRUMENTED",
+            "component_codes": [
+                "ATTENDANCE_INCENTIVE",
+                "LATE_DEDUCTION",
+                "OVERTIME_PAY",
+                "PERFORMANCE_BONUS",
+                "ROUNDING_PROBE",
+                "TAX_FLAT"
+            ],
+            "persistence_asserted": true,
+            "persisted_salary_id": 16,
+            "salary_record_id": 16,
+            "expected_hash": "8a491a8536dbaecd0e571755533f9fec7f4da571a7a5dddc0e5e58bf73c87f0a",
+            "actual_hash": "8a491a8536dbaecd0e571755533f9fec7f4da571a7a5dddc0e5e58bf73c87f0a",
+            "result": "PASS"
+        },
+        {
+            "case_id": "E2E-017",
+            "status": "EXACT_MATCH",
+            "evaluation_category": "FULL_PAYROLL_PIPELINE",
+            "secondary_categories": [
+                "PERSISTENCE_E2E",
+                "LARAVEL_TO_GO_INTEGRATION"
+            ],
+            "execution_path": [
+                "testing_database",
+                "employee/contract/attendance fixtures",
+                "rule master and rule version",
+                "approval and active state",
+                "rate and tax facts",
+                "buildFactsFromDatabase",
+                "PayrollRuleEngineService::execute",
+                "Laravel HTTP client",
+                "Go /execute",
+                "TPR-IR validation",
+                "GRL translation",
+                "GRULE",
+                "Laravel normalization",
+                "expected-versus-actual comparison",
+                "salary persistence",
+                "database assertion"
+            ],
+            "database_fixture": {
+                "user_id": "db4fc4d9-45f5-4bba-b2d8-55ea5b9c67d0",
+                "master_salary_id": 17,
+                "presence_date": "2026-06-01",
+                "overtime_id": "OT-E2E-17"
+            },
+            "laravel_test": "Tests\\Feature\\DifferentialFullPipelineE2ETest::test_database_service_go_and_persistence_subset",
+            "service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "employee_fixture_id": "db4fc4d9-45f5-4bba-b2d8-55ea5b9c67d0",
+            "laravel_service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "go_request_id": null,
+            "go_request_correlation_status": "NOT_OBSERVABLE",
+            "go_request_hash": "b639d529b9262c7693941e0cd3a8fe8f045b96c8ace2c9b5bf56c95ee293dc52",
+            "go_response_hash": "08b6fcd0813d6f8a9f83912cd97c24a8f9970ccca2b6262215196d8c8160ee69",
+            "attendance_source": "database",
+            "rule_version_ids": [
+                1,
+                2,
+                4,
+                5,
+                6
+            ],
+            "rate_version_ids": [
+                1,
+                2
+            ],
+            "tax_version_ids": [],
+            "tax_version_status": "NOT_APPLICABLE_MANUAL_OVERRIDE",
+            "go_internal_path": [
+                "ExecuteTPRRuleSet",
+                "ValidateTPRRuleSet",
+                "buildTPRGRL",
+                "GRULE ExecuteWithContext"
+            ],
+            "go_internal_trace_status": "SOURCE_VERIFIED_NOT_RUNTIME_INSTRUMENTED",
+            "component_codes": [
+                "ATTENDANCE_INCENTIVE",
+                "LATE_DEDUCTION",
+                "OVERTIME_PAY",
+                "ROUNDING_PROBE",
+                "TAX_FLAT"
+            ],
+            "persistence_asserted": true,
+            "persisted_salary_id": 17,
+            "salary_record_id": 17,
+            "expected_hash": "3a3e97046c07f4feffa2a1c347b333b3ed6d52dd2ad75f47b97a6b09ed2b7ac0",
+            "actual_hash": "3a3e97046c07f4feffa2a1c347b333b3ed6d52dd2ad75f47b97a6b09ed2b7ac0",
+            "result": "PASS"
+        },
+        {
+            "case_id": "E2E-018",
+            "status": "EXACT_MATCH",
+            "evaluation_category": "FULL_PAYROLL_PIPELINE",
+            "secondary_categories": [
+                "PERSISTENCE_E2E",
+                "LARAVEL_TO_GO_INTEGRATION"
+            ],
+            "execution_path": [
+                "testing_database",
+                "employee/contract/attendance fixtures",
+                "rule master and rule version",
+                "approval and active state",
+                "rate and tax facts",
+                "buildFactsFromDatabase",
+                "PayrollRuleEngineService::execute",
+                "Laravel HTTP client",
+                "Go /execute",
+                "TPR-IR validation",
+                "GRL translation",
+                "GRULE",
+                "Laravel normalization",
+                "expected-versus-actual comparison",
+                "salary persistence",
+                "database assertion"
+            ],
+            "database_fixture": {
+                "user_id": "d32a584d-65ae-4c6c-8854-d09456698771",
+                "master_salary_id": 18,
+                "presence_date": "2026-06-01",
+                "overtime_id": "OT-E2E-18"
+            },
+            "laravel_test": "Tests\\Feature\\DifferentialFullPipelineE2ETest::test_database_service_go_and_persistence_subset",
+            "service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "employee_fixture_id": "d32a584d-65ae-4c6c-8854-d09456698771",
+            "laravel_service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "go_request_id": null,
+            "go_request_correlation_status": "NOT_OBSERVABLE",
+            "go_request_hash": "da6e3174981a8dd0b0862dcca80c55a45b8cb4d20e38ba99df0ff2f0d2482b2c",
+            "go_response_hash": "a8a08aa1eaf6217a3f9191ce2fca3d811f7a466bc4147e21c3f2981f8dbd7860",
+            "attendance_source": "database",
+            "rule_version_ids": [
+                1,
+                4,
+                5,
+                6
+            ],
+            "rate_version_ids": [
+                1,
+                2
+            ],
+            "tax_version_ids": [],
+            "tax_version_status": "NOT_APPLICABLE_MANUAL_OVERRIDE",
+            "go_internal_path": [
+                "ExecuteTPRRuleSet",
+                "ValidateTPRRuleSet",
+                "buildTPRGRL",
+                "GRULE ExecuteWithContext"
+            ],
+            "go_internal_trace_status": "SOURCE_VERIFIED_NOT_RUNTIME_INSTRUMENTED",
+            "component_codes": [
+                "ATTENDANCE_INCENTIVE",
+                "OVERTIME_PAY",
+                "ROUNDING_PROBE",
+                "TAX_FLAT"
+            ],
+            "persistence_asserted": true,
+            "persisted_salary_id": 18,
+            "salary_record_id": 18,
+            "expected_hash": "90f7a66d60778b01b539cfe79c28d095fc5e3b29a228c4b5a8ec2834fc47ca6a",
+            "actual_hash": "90f7a66d60778b01b539cfe79c28d095fc5e3b29a228c4b5a8ec2834fc47ca6a",
+            "result": "PASS"
+        },
+        {
+            "case_id": "E2E-019",
+            "status": "EXACT_MATCH",
+            "evaluation_category": "FULL_PAYROLL_PIPELINE",
+            "secondary_categories": [
+                "PERSISTENCE_E2E",
+                "LARAVEL_TO_GO_INTEGRATION"
+            ],
+            "execution_path": [
+                "testing_database",
+                "employee/contract/attendance fixtures",
+                "rule master and rule version",
+                "approval and active state",
+                "rate and tax facts",
+                "buildFactsFromDatabase",
+                "PayrollRuleEngineService::execute",
+                "Laravel HTTP client",
+                "Go /execute",
+                "TPR-IR validation",
+                "GRL translation",
+                "GRULE",
+                "Laravel normalization",
+                "expected-versus-actual comparison",
+                "salary persistence",
+                "database assertion"
+            ],
+            "database_fixture": {
+                "user_id": "44d4945b-32cb-4a20-8964-5592b62026f8",
+                "master_salary_id": 19,
+                "presence_date": "2026-06-01",
+                "overtime_id": "OT-E2E-19"
+            },
+            "laravel_test": "Tests\\Feature\\DifferentialFullPipelineE2ETest::test_database_service_go_and_persistence_subset",
+            "service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "employee_fixture_id": "44d4945b-32cb-4a20-8964-5592b62026f8",
+            "laravel_service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "go_request_id": null,
+            "go_request_correlation_status": "NOT_OBSERVABLE",
+            "go_request_hash": "32ac98bd2284697c854b08e910307bbe1443fe1fbad0d613a3d77321651a5be4",
+            "go_response_hash": "e995b74de6a1d878461a39fa82aa4dbe7c587a9db6b1c6566a15f4b05b643825",
+            "attendance_source": "database",
+            "rule_version_ids": [
+                1,
+                2,
+                4,
+                5,
+                6
+            ],
+            "rate_version_ids": [
+                1,
+                2
+            ],
+            "tax_version_ids": [],
+            "tax_version_status": "NOT_APPLICABLE_MANUAL_OVERRIDE",
+            "go_internal_path": [
+                "ExecuteTPRRuleSet",
+                "ValidateTPRRuleSet",
+                "buildTPRGRL",
+                "GRULE ExecuteWithContext"
+            ],
+            "go_internal_trace_status": "SOURCE_VERIFIED_NOT_RUNTIME_INSTRUMENTED",
+            "component_codes": [
+                "ATTENDANCE_INCENTIVE",
+                "LATE_DEDUCTION",
+                "OVERTIME_PAY",
+                "ROUNDING_PROBE",
+                "TAX_FLAT"
+            ],
+            "persistence_asserted": true,
+            "persisted_salary_id": 19,
+            "salary_record_id": 19,
+            "expected_hash": "45f690782b70043c386242b49c03d3aac5523a3b88b8b062bffc820a0441a822",
+            "actual_hash": "45f690782b70043c386242b49c03d3aac5523a3b88b8b062bffc820a0441a822",
+            "result": "PASS"
+        },
+        {
+            "case_id": "E2E-020",
+            "status": "EXACT_MATCH",
+            "evaluation_category": "FULL_PAYROLL_PIPELINE",
+            "secondary_categories": [
+                "PERSISTENCE_E2E",
+                "LARAVEL_TO_GO_INTEGRATION"
+            ],
+            "execution_path": [
+                "testing_database",
+                "employee/contract/attendance fixtures",
+                "rule master and rule version",
+                "approval and active state",
+                "rate and tax facts",
+                "buildFactsFromDatabase",
+                "PayrollRuleEngineService::execute",
+                "Laravel HTTP client",
+                "Go /execute",
+                "TPR-IR validation",
+                "GRL translation",
+                "GRULE",
+                "Laravel normalization",
+                "expected-versus-actual comparison",
+                "salary persistence",
+                "database assertion"
+            ],
+            "database_fixture": {
+                "user_id": "b4e1e65e-c3d4-4699-b3be-dab01107bb72",
+                "master_salary_id": 20,
+                "presence_date": "2026-06-01",
+                "overtime_id": "OT-E2E-20"
+            },
+            "laravel_test": "Tests\\Feature\\DifferentialFullPipelineE2ETest::test_database_service_go_and_persistence_subset",
+            "service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "employee_fixture_id": "b4e1e65e-c3d4-4699-b3be-dab01107bb72",
+            "laravel_service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "go_request_id": null,
+            "go_request_correlation_status": "NOT_OBSERVABLE",
+            "go_request_hash": "38e3194daa1030e48df2434bdce7b9d5c0847752410f610b070574e501e2689e",
+            "go_response_hash": "f465f04402ac62bce81906cc11189166ef1e4728752403a01dff5d46929cc686",
+            "attendance_source": "database",
+            "rule_version_ids": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "rate_version_ids": [
+                1,
+                2
+            ],
+            "tax_version_ids": [],
+            "tax_version_status": "NOT_APPLICABLE_MANUAL_OVERRIDE",
+            "go_internal_path": [
+                "ExecuteTPRRuleSet",
+                "ValidateTPRRuleSet",
+                "buildTPRGRL",
+                "GRULE ExecuteWithContext"
+            ],
+            "go_internal_trace_status": "SOURCE_VERIFIED_NOT_RUNTIME_INSTRUMENTED",
+            "component_codes": [
+                "ATTENDANCE_INCENTIVE",
+                "LATE_DEDUCTION",
+                "OVERTIME_PAY",
+                "PERFORMANCE_BONUS",
+                "ROUNDING_PROBE",
+                "TAX_FLAT"
+            ],
+            "persistence_asserted": true,
+            "persisted_salary_id": 20,
+            "salary_record_id": 20,
+            "expected_hash": "2c05d358c4ce0162691ba4ba1b840613feff2a9361f6933affe1b43cf6c39133",
+            "actual_hash": "2c05d358c4ce0162691ba4ba1b840613feff2a9361f6933affe1b43cf6c39133",
+            "result": "PASS"
+        },
+        {
+            "case_id": "E2E-021",
+            "status": "EXACT_MATCH",
+            "evaluation_category": "FULL_PAYROLL_PIPELINE",
+            "secondary_categories": [
+                "PERSISTENCE_E2E",
+                "LARAVEL_TO_GO_INTEGRATION"
+            ],
+            "execution_path": [
+                "testing_database",
+                "employee/contract/attendance fixtures",
+                "rule master and rule version",
+                "approval and active state",
+                "rate and tax facts",
+                "buildFactsFromDatabase",
+                "PayrollRuleEngineService::execute",
+                "Laravel HTTP client",
+                "Go /execute",
+                "TPR-IR validation",
+                "GRL translation",
+                "GRULE",
+                "Laravel normalization",
+                "expected-versus-actual comparison",
+                "salary persistence",
+                "database assertion"
+            ],
+            "database_fixture": {
+                "user_id": "ed53839c-5519-4f6e-9032-443e91466095",
+                "master_salary_id": 21,
+                "presence_date": "2026-06-01",
+                "overtime_id": "OT-E2E-21"
+            },
+            "laravel_test": "Tests\\Feature\\DifferentialFullPipelineE2ETest::test_database_service_go_and_persistence_subset",
+            "service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "employee_fixture_id": "ed53839c-5519-4f6e-9032-443e91466095",
+            "laravel_service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "go_request_id": null,
+            "go_request_correlation_status": "NOT_OBSERVABLE",
+            "go_request_hash": "5e30eec24c2d4a22c9fcf21f94a508a4638446ef5b9b15f1ea0ca576a6d0df6e",
+            "go_response_hash": "9548b5553bd6736bf3ab7677c94cf817cfd1776c1431db875fb7d46c0cee1ffc",
+            "attendance_source": "database",
+            "rule_version_ids": [
+                1,
+                2,
+                4,
+                5,
+                6
+            ],
+            "rate_version_ids": [
+                1,
+                2
+            ],
+            "tax_version_ids": [],
+            "tax_version_status": "NOT_APPLICABLE_MANUAL_OVERRIDE",
+            "go_internal_path": [
+                "ExecuteTPRRuleSet",
+                "ValidateTPRRuleSet",
+                "buildTPRGRL",
+                "GRULE ExecuteWithContext"
+            ],
+            "go_internal_trace_status": "SOURCE_VERIFIED_NOT_RUNTIME_INSTRUMENTED",
+            "component_codes": [
+                "ATTENDANCE_INCENTIVE",
+                "LATE_DEDUCTION",
+                "OVERTIME_PAY",
+                "ROUNDING_PROBE",
+                "TAX_FLAT"
+            ],
+            "persistence_asserted": true,
+            "persisted_salary_id": 21,
+            "salary_record_id": 21,
+            "expected_hash": "5a0857b36433868b5b0a8121caa7e4bf7b1f3fe13dac0198cb55a66422a683a1",
+            "actual_hash": "5a0857b36433868b5b0a8121caa7e4bf7b1f3fe13dac0198cb55a66422a683a1",
+            "result": "PASS"
+        },
+        {
+            "case_id": "E2E-022",
+            "status": "EXACT_MATCH",
+            "evaluation_category": "FULL_PAYROLL_PIPELINE",
+            "secondary_categories": [
+                "PERSISTENCE_E2E",
+                "LARAVEL_TO_GO_INTEGRATION"
+            ],
+            "execution_path": [
+                "testing_database",
+                "employee/contract/attendance fixtures",
+                "rule master and rule version",
+                "approval and active state",
+                "rate and tax facts",
+                "buildFactsFromDatabase",
+                "PayrollRuleEngineService::execute",
+                "Laravel HTTP client",
+                "Go /execute",
+                "TPR-IR validation",
+                "GRL translation",
+                "GRULE",
+                "Laravel normalization",
+                "expected-versus-actual comparison",
+                "salary persistence",
+                "database assertion"
+            ],
+            "database_fixture": {
+                "user_id": "90d58434-40f0-4e8c-ac51-ed83cd93af3d",
+                "master_salary_id": 22,
+                "presence_date": "2026-06-01",
+                "overtime_id": "OT-E2E-22"
+            },
+            "laravel_test": "Tests\\Feature\\DifferentialFullPipelineE2ETest::test_database_service_go_and_persistence_subset",
+            "service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "employee_fixture_id": "90d58434-40f0-4e8c-ac51-ed83cd93af3d",
+            "laravel_service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "go_request_id": null,
+            "go_request_correlation_status": "NOT_OBSERVABLE",
+            "go_request_hash": "07b587ec07c5290b520a14fea5e48e4a009483bab4aafc25c54f1eef6211c0e9",
+            "go_response_hash": "c3466f43d62e1a63049c84c7e0093e585cc3721792e6a9875b0a0025ebe9e392",
+            "attendance_source": "database",
+            "rule_version_ids": [
+                1,
+                2,
+                4,
+                5,
+                6
+            ],
+            "rate_version_ids": [
+                1,
+                2
+            ],
+            "tax_version_ids": [],
+            "tax_version_status": "NOT_APPLICABLE_MANUAL_OVERRIDE",
+            "go_internal_path": [
+                "ExecuteTPRRuleSet",
+                "ValidateTPRRuleSet",
+                "buildTPRGRL",
+                "GRULE ExecuteWithContext"
+            ],
+            "go_internal_trace_status": "SOURCE_VERIFIED_NOT_RUNTIME_INSTRUMENTED",
+            "component_codes": [
+                "ATTENDANCE_INCENTIVE",
+                "LATE_DEDUCTION",
+                "OVERTIME_PAY",
+                "ROUNDING_PROBE",
+                "TAX_FLAT"
+            ],
+            "persistence_asserted": true,
+            "persisted_salary_id": 22,
+            "salary_record_id": 22,
+            "expected_hash": "46cc7dea7f86bfd481ecb46558bf090c8218ccdd96e162ac7bdfacfdd0f9653b",
+            "actual_hash": "46cc7dea7f86bfd481ecb46558bf090c8218ccdd96e162ac7bdfacfdd0f9653b",
+            "result": "PASS"
+        },
+        {
+            "case_id": "E2E-023",
+            "status": "EXACT_MATCH",
+            "evaluation_category": "FULL_PAYROLL_PIPELINE",
+            "secondary_categories": [
+                "PERSISTENCE_E2E",
+                "LARAVEL_TO_GO_INTEGRATION"
+            ],
+            "execution_path": [
+                "testing_database",
+                "employee/contract/attendance fixtures",
+                "rule master and rule version",
+                "approval and active state",
+                "rate and tax facts",
+                "buildFactsFromDatabase",
+                "PayrollRuleEngineService::execute",
+                "Laravel HTTP client",
+                "Go /execute",
+                "TPR-IR validation",
+                "GRL translation",
+                "GRULE",
+                "Laravel normalization",
+                "expected-versus-actual comparison",
+                "salary persistence",
+                "database assertion"
+            ],
+            "database_fixture": {
+                "user_id": "2a60b8e8-315e-480b-9d79-e2cd3113d566",
+                "master_salary_id": 23,
+                "presence_date": "2026-06-01",
+                "overtime_id": "OT-E2E-23"
+            },
+            "laravel_test": "Tests\\Feature\\DifferentialFullPipelineE2ETest::test_database_service_go_and_persistence_subset",
+            "service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "employee_fixture_id": "2a60b8e8-315e-480b-9d79-e2cd3113d566",
+            "laravel_service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "go_request_id": null,
+            "go_request_correlation_status": "NOT_OBSERVABLE",
+            "go_request_hash": "5d45acf91b92ea55f06fe371a457e65d73b41b1aa9f1419adf0e2da484bfc679",
+            "go_response_hash": "c24424eccc9803754b50478c50678bc642b06bfb144ea921a89ab8b2996de17b",
+            "attendance_source": "database",
+            "rule_version_ids": [
+                1,
+                2,
+                4,
+                5,
+                6
+            ],
+            "rate_version_ids": [
+                1,
+                2
+            ],
+            "tax_version_ids": [],
+            "tax_version_status": "NOT_APPLICABLE_MANUAL_OVERRIDE",
+            "go_internal_path": [
+                "ExecuteTPRRuleSet",
+                "ValidateTPRRuleSet",
+                "buildTPRGRL",
+                "GRULE ExecuteWithContext"
+            ],
+            "go_internal_trace_status": "SOURCE_VERIFIED_NOT_RUNTIME_INSTRUMENTED",
+            "component_codes": [
+                "ATTENDANCE_INCENTIVE",
+                "LATE_DEDUCTION",
+                "OVERTIME_PAY",
+                "ROUNDING_PROBE",
+                "TAX_FLAT"
+            ],
+            "persistence_asserted": true,
+            "persisted_salary_id": 23,
+            "salary_record_id": 23,
+            "expected_hash": "3336a386e4b5fe85b10ad27a6a11e37eb22c32138eab0643275d112f525e5489",
+            "actual_hash": "3336a386e4b5fe85b10ad27a6a11e37eb22c32138eab0643275d112f525e5489",
+            "result": "PASS"
+        },
+        {
+            "case_id": "E2E-024",
+            "status": "EXACT_MATCH",
+            "evaluation_category": "FULL_PAYROLL_PIPELINE",
+            "secondary_categories": [
+                "PERSISTENCE_E2E",
+                "LARAVEL_TO_GO_INTEGRATION"
+            ],
+            "execution_path": [
+                "testing_database",
+                "employee/contract/attendance fixtures",
+                "rule master and rule version",
+                "approval and active state",
+                "rate and tax facts",
+                "buildFactsFromDatabase",
+                "PayrollRuleEngineService::execute",
+                "Laravel HTTP client",
+                "Go /execute",
+                "TPR-IR validation",
+                "GRL translation",
+                "GRULE",
+                "Laravel normalization",
+                "expected-versus-actual comparison",
+                "salary persistence",
+                "database assertion"
+            ],
+            "database_fixture": {
+                "user_id": "a7864108-fce4-4e4f-8a25-4771dbf7a46c",
+                "master_salary_id": 24,
+                "presence_date": "2026-06-01",
+                "overtime_id": "OT-E2E-24"
+            },
+            "laravel_test": "Tests\\Feature\\DifferentialFullPipelineE2ETest::test_database_service_go_and_persistence_subset",
+            "service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "employee_fixture_id": "a7864108-fce4-4e4f-8a25-4771dbf7a46c",
+            "laravel_service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "go_request_id": null,
+            "go_request_correlation_status": "NOT_OBSERVABLE",
+            "go_request_hash": "4c8baec824975cfbd1a8083a05a1442346c81b1ffbac1980efc09679f55eb7b3",
+            "go_response_hash": "8e91e63496038cbbe6abafac35fb425eb3471857166715de345b987e4b3a87d7",
+            "attendance_source": "database",
+            "rule_version_ids": [
+                1,
+                3,
+                4,
+                5,
+                6
+            ],
+            "rate_version_ids": [
+                1,
+                2
+            ],
+            "tax_version_ids": [],
+            "tax_version_status": "NOT_APPLICABLE_MANUAL_OVERRIDE",
+            "go_internal_path": [
+                "ExecuteTPRRuleSet",
+                "ValidateTPRRuleSet",
+                "buildTPRGRL",
+                "GRULE ExecuteWithContext"
+            ],
+            "go_internal_trace_status": "SOURCE_VERIFIED_NOT_RUNTIME_INSTRUMENTED",
+            "component_codes": [
+                "ATTENDANCE_INCENTIVE",
+                "OVERTIME_PAY",
+                "PERFORMANCE_BONUS",
+                "ROUNDING_PROBE",
+                "TAX_FLAT"
+            ],
+            "persistence_asserted": true,
+            "persisted_salary_id": 24,
+            "salary_record_id": 24,
+            "expected_hash": "5a6f535367cf188f51325a3f5e82f0a5b73e7b3774f150f796f30c3f5019a556",
+            "actual_hash": "5a6f535367cf188f51325a3f5e82f0a5b73e7b3774f150f796f30c3f5019a556",
+            "result": "PASS"
+        },
+        {
+            "case_id": "E2E-025",
+            "status": "EXACT_MATCH",
+            "evaluation_category": "FULL_PAYROLL_PIPELINE",
+            "secondary_categories": [
+                "PERSISTENCE_E2E",
+                "LARAVEL_TO_GO_INTEGRATION"
+            ],
+            "execution_path": [
+                "testing_database",
+                "employee/contract/attendance fixtures",
+                "rule master and rule version",
+                "approval and active state",
+                "rate and tax facts",
+                "buildFactsFromDatabase",
+                "PayrollRuleEngineService::execute",
+                "Laravel HTTP client",
+                "Go /execute",
+                "TPR-IR validation",
+                "GRL translation",
+                "GRULE",
+                "Laravel normalization",
+                "expected-versus-actual comparison",
+                "salary persistence",
+                "database assertion"
+            ],
+            "database_fixture": {
+                "user_id": "6af7efaa-9047-4729-8dc4-a34e3c9769eb",
+                "master_salary_id": 25,
+                "presence_date": "2026-06-01",
+                "overtime_id": "OT-E2E-25"
+            },
+            "laravel_test": "Tests\\Feature\\DifferentialFullPipelineE2ETest::test_database_service_go_and_persistence_subset",
+            "service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "employee_fixture_id": "6af7efaa-9047-4729-8dc4-a34e3c9769eb",
+            "laravel_service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "go_request_id": null,
+            "go_request_correlation_status": "NOT_OBSERVABLE",
+            "go_request_hash": "515013367869fd873faa93e30dc157fa301d697d62f6ffebeb0e74d386d87fb6",
+            "go_response_hash": "7d66a8b4c4369fe0cb4caa49af3345d51a3a61862f49da4f14e812e43c53e0b0",
+            "attendance_source": "database",
+            "rule_version_ids": [
+                1,
+                2,
+                4,
+                5,
+                6
+            ],
+            "rate_version_ids": [
+                1,
+                2
+            ],
+            "tax_version_ids": [],
+            "tax_version_status": "NOT_APPLICABLE_MANUAL_OVERRIDE",
+            "go_internal_path": [
+                "ExecuteTPRRuleSet",
+                "ValidateTPRRuleSet",
+                "buildTPRGRL",
+                "GRULE ExecuteWithContext"
+            ],
+            "go_internal_trace_status": "SOURCE_VERIFIED_NOT_RUNTIME_INSTRUMENTED",
+            "component_codes": [
+                "ATTENDANCE_INCENTIVE",
+                "LATE_DEDUCTION",
+                "OVERTIME_PAY",
+                "ROUNDING_PROBE",
+                "TAX_FLAT"
+            ],
+            "persistence_asserted": true,
+            "persisted_salary_id": 25,
+            "salary_record_id": 25,
+            "expected_hash": "3094e0096bff7c88120b50b29bbff2141a8bc00827d7853c6ad9d9c467cbd6ac",
+            "actual_hash": "3094e0096bff7c88120b50b29bbff2141a8bc00827d7853c6ad9d9c467cbd6ac",
+            "result": "PASS"
+        },
+        {
+            "case_id": "E2E-026",
+            "status": "EXACT_MATCH",
+            "evaluation_category": "FULL_PAYROLL_PIPELINE",
+            "secondary_categories": [
+                "PERSISTENCE_E2E",
+                "LARAVEL_TO_GO_INTEGRATION"
+            ],
+            "execution_path": [
+                "testing_database",
+                "employee/contract/attendance fixtures",
+                "rule master and rule version",
+                "approval and active state",
+                "rate and tax facts",
+                "buildFactsFromDatabase",
+                "PayrollRuleEngineService::execute",
+                "Laravel HTTP client",
+                "Go /execute",
+                "TPR-IR validation",
+                "GRL translation",
+                "GRULE",
+                "Laravel normalization",
+                "expected-versus-actual comparison",
+                "salary persistence",
+                "database assertion"
+            ],
+            "database_fixture": {
+                "user_id": "9f564511-8ff2-42b1-a38f-85252c855064",
+                "master_salary_id": 26,
+                "presence_date": "2026-06-01",
+                "overtime_id": "OT-E2E-26"
+            },
+            "laravel_test": "Tests\\Feature\\DifferentialFullPipelineE2ETest::test_database_service_go_and_persistence_subset",
+            "service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "employee_fixture_id": "9f564511-8ff2-42b1-a38f-85252c855064",
+            "laravel_service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "go_request_id": null,
+            "go_request_correlation_status": "NOT_OBSERVABLE",
+            "go_request_hash": "57adfe81606283fb6922d27dbbbff5ae6dcae1d960768a86b516877f8af78d34",
+            "go_response_hash": "1ec08854a5382f2090ac7d525fdeb5316c5d30e1d103bdada0b6af667aa98860",
+            "attendance_source": "database",
+            "rule_version_ids": [
+                1,
+                2,
+                4,
+                5,
+                6
+            ],
+            "rate_version_ids": [
+                1,
+                2
+            ],
+            "tax_version_ids": [],
+            "tax_version_status": "NOT_APPLICABLE_MANUAL_OVERRIDE",
+            "go_internal_path": [
+                "ExecuteTPRRuleSet",
+                "ValidateTPRRuleSet",
+                "buildTPRGRL",
+                "GRULE ExecuteWithContext"
+            ],
+            "go_internal_trace_status": "SOURCE_VERIFIED_NOT_RUNTIME_INSTRUMENTED",
+            "component_codes": [
+                "ATTENDANCE_INCENTIVE",
+                "LATE_DEDUCTION",
+                "OVERTIME_PAY",
+                "ROUNDING_PROBE",
+                "TAX_FLAT"
+            ],
+            "persistence_asserted": true,
+            "persisted_salary_id": 26,
+            "salary_record_id": 26,
+            "expected_hash": "a2a2f12f039d75093d8096094f58c3230f41b83c5c10a6af43c49ec8e9e33ab6",
+            "actual_hash": "a2a2f12f039d75093d8096094f58c3230f41b83c5c10a6af43c49ec8e9e33ab6",
+            "result": "PASS"
+        },
+        {
+            "case_id": "E2E-027",
+            "status": "EXACT_MATCH",
+            "evaluation_category": "FULL_PAYROLL_PIPELINE",
+            "secondary_categories": [
+                "PERSISTENCE_E2E",
+                "LARAVEL_TO_GO_INTEGRATION"
+            ],
+            "execution_path": [
+                "testing_database",
+                "employee/contract/attendance fixtures",
+                "rule master and rule version",
+                "approval and active state",
+                "rate and tax facts",
+                "buildFactsFromDatabase",
+                "PayrollRuleEngineService::execute",
+                "Laravel HTTP client",
+                "Go /execute",
+                "TPR-IR validation",
+                "GRL translation",
+                "GRULE",
+                "Laravel normalization",
+                "expected-versus-actual comparison",
+                "salary persistence",
+                "database assertion"
+            ],
+            "database_fixture": {
+                "user_id": "f2eb1cc5-5e26-4aba-aa9c-94a91c339dd5",
+                "master_salary_id": 27,
+                "presence_date": "2026-06-01",
+                "overtime_id": "OT-E2E-27"
+            },
+            "laravel_test": "Tests\\Feature\\DifferentialFullPipelineE2ETest::test_database_service_go_and_persistence_subset",
+            "service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "employee_fixture_id": "f2eb1cc5-5e26-4aba-aa9c-94a91c339dd5",
+            "laravel_service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "go_request_id": null,
+            "go_request_correlation_status": "NOT_OBSERVABLE",
+            "go_request_hash": "fb62d7c7b3c6bce943b34dc53881657b3a1cfe21c974f2a34c914e132db45991",
+            "go_response_hash": "6a367425f481b6b9a9f1d392976f9a4180422cd02d8cb77f15e3b2c3116f12a0",
+            "attendance_source": "database",
+            "rule_version_ids": [
+                1,
+                2,
+                4,
+                5,
+                6
+            ],
+            "rate_version_ids": [
+                1,
+                2
+            ],
+            "tax_version_ids": [],
+            "tax_version_status": "NOT_APPLICABLE_MANUAL_OVERRIDE",
+            "go_internal_path": [
+                "ExecuteTPRRuleSet",
+                "ValidateTPRRuleSet",
+                "buildTPRGRL",
+                "GRULE ExecuteWithContext"
+            ],
+            "go_internal_trace_status": "SOURCE_VERIFIED_NOT_RUNTIME_INSTRUMENTED",
+            "component_codes": [
+                "ATTENDANCE_INCENTIVE",
+                "LATE_DEDUCTION",
+                "OVERTIME_PAY",
+                "ROUNDING_PROBE",
+                "TAX_FLAT"
+            ],
+            "persistence_asserted": true,
+            "persisted_salary_id": 27,
+            "salary_record_id": 27,
+            "expected_hash": "6ad408b6ca8c6c677771a62450f07a059c1bff977c27a3f3964852e4ef595c09",
+            "actual_hash": "6ad408b6ca8c6c677771a62450f07a059c1bff977c27a3f3964852e4ef595c09",
+            "result": "PASS"
+        },
+        {
+            "case_id": "E2E-028",
+            "status": "EXACT_MATCH",
+            "evaluation_category": "FULL_PAYROLL_PIPELINE",
+            "secondary_categories": [
+                "PERSISTENCE_E2E",
+                "LARAVEL_TO_GO_INTEGRATION"
+            ],
+            "execution_path": [
+                "testing_database",
+                "employee/contract/attendance fixtures",
+                "rule master and rule version",
+                "approval and active state",
+                "rate and tax facts",
+                "buildFactsFromDatabase",
+                "PayrollRuleEngineService::execute",
+                "Laravel HTTP client",
+                "Go /execute",
+                "TPR-IR validation",
+                "GRL translation",
+                "GRULE",
+                "Laravel normalization",
+                "expected-versus-actual comparison",
+                "salary persistence",
+                "database assertion"
+            ],
+            "database_fixture": {
+                "user_id": "1fca4e36-77bf-440a-befd-c34046513aa2",
+                "master_salary_id": 28,
+                "presence_date": "2026-06-01",
+                "overtime_id": "OT-E2E-28"
+            },
+            "laravel_test": "Tests\\Feature\\DifferentialFullPipelineE2ETest::test_database_service_go_and_persistence_subset",
+            "service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "employee_fixture_id": "1fca4e36-77bf-440a-befd-c34046513aa2",
+            "laravel_service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "go_request_id": null,
+            "go_request_correlation_status": "NOT_OBSERVABLE",
+            "go_request_hash": "690fbbfc51a5abd71a79a1ec6e250bd10a7bb0ed55add34c123dc55be044373d",
+            "go_response_hash": "09bb307c2758aa25a930d3649709af0f31f36beb03064799adf7378e9781b39a",
+            "attendance_source": "database",
+            "rule_version_ids": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "rate_version_ids": [
+                1,
+                2
+            ],
+            "tax_version_ids": [],
+            "tax_version_status": "NOT_APPLICABLE_MANUAL_OVERRIDE",
+            "go_internal_path": [
+                "ExecuteTPRRuleSet",
+                "ValidateTPRRuleSet",
+                "buildTPRGRL",
+                "GRULE ExecuteWithContext"
+            ],
+            "go_internal_trace_status": "SOURCE_VERIFIED_NOT_RUNTIME_INSTRUMENTED",
+            "component_codes": [
+                "ATTENDANCE_INCENTIVE",
+                "LATE_DEDUCTION",
+                "OVERTIME_PAY",
+                "PERFORMANCE_BONUS",
+                "ROUNDING_PROBE",
+                "TAX_FLAT"
+            ],
+            "persistence_asserted": true,
+            "persisted_salary_id": 28,
+            "salary_record_id": 28,
+            "expected_hash": "3e74aba7f4cbb0fc2bf826b650f520ca6430bb4e1971bb4ae69797a88b4be24e",
+            "actual_hash": "3e74aba7f4cbb0fc2bf826b650f520ca6430bb4e1971bb4ae69797a88b4be24e",
+            "result": "PASS"
+        },
+        {
+            "case_id": "E2E-029",
+            "status": "EXACT_MATCH",
+            "evaluation_category": "FULL_PAYROLL_PIPELINE",
+            "secondary_categories": [
+                "PERSISTENCE_E2E",
+                "LARAVEL_TO_GO_INTEGRATION"
+            ],
+            "execution_path": [
+                "testing_database",
+                "employee/contract/attendance fixtures",
+                "rule master and rule version",
+                "approval and active state",
+                "rate and tax facts",
+                "buildFactsFromDatabase",
+                "PayrollRuleEngineService::execute",
+                "Laravel HTTP client",
+                "Go /execute",
+                "TPR-IR validation",
+                "GRL translation",
+                "GRULE",
+                "Laravel normalization",
+                "expected-versus-actual comparison",
+                "salary persistence",
+                "database assertion"
+            ],
+            "database_fixture": {
+                "user_id": "31f249ff-ae5c-447f-9508-50b99c233012",
+                "master_salary_id": 29,
+                "presence_date": "2026-06-01",
+                "overtime_id": "OT-E2E-29"
+            },
+            "laravel_test": "Tests\\Feature\\DifferentialFullPipelineE2ETest::test_database_service_go_and_persistence_subset",
+            "service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "employee_fixture_id": "31f249ff-ae5c-447f-9508-50b99c233012",
+            "laravel_service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "go_request_id": null,
+            "go_request_correlation_status": "NOT_OBSERVABLE",
+            "go_request_hash": "c93b4c8a753b0c6dcd03137b12282573dd724fc723837ef78d03269006cf96ff",
+            "go_response_hash": "70650c7097f9c0e59e0fef5d007e08ecb674bf500e7082e75a241f09d0075145",
+            "attendance_source": "database",
+            "rule_version_ids": [
+                1,
+                2,
+                4,
+                5,
+                6
+            ],
+            "rate_version_ids": [
+                1,
+                2
+            ],
+            "tax_version_ids": [],
+            "tax_version_status": "NOT_APPLICABLE_MANUAL_OVERRIDE",
+            "go_internal_path": [
+                "ExecuteTPRRuleSet",
+                "ValidateTPRRuleSet",
+                "buildTPRGRL",
+                "GRULE ExecuteWithContext"
+            ],
+            "go_internal_trace_status": "SOURCE_VERIFIED_NOT_RUNTIME_INSTRUMENTED",
+            "component_codes": [
+                "ATTENDANCE_INCENTIVE",
+                "LATE_DEDUCTION",
+                "OVERTIME_PAY",
+                "ROUNDING_PROBE",
+                "TAX_FLAT"
+            ],
+            "persistence_asserted": true,
+            "persisted_salary_id": 29,
+            "salary_record_id": 29,
+            "expected_hash": "b94deccc73d99dc591b41e9b5d5fdd977473cf5a759c33d60cfff53f1f514344",
+            "actual_hash": "b94deccc73d99dc591b41e9b5d5fdd977473cf5a759c33d60cfff53f1f514344",
+            "result": "PASS"
+        },
+        {
+            "case_id": "E2E-030",
+            "status": "EXACT_MATCH",
+            "evaluation_category": "FULL_PAYROLL_PIPELINE",
+            "secondary_categories": [
+                "PERSISTENCE_E2E",
+                "LARAVEL_TO_GO_INTEGRATION"
+            ],
+            "execution_path": [
+                "testing_database",
+                "employee/contract/attendance fixtures",
+                "rule master and rule version",
+                "approval and active state",
+                "rate and tax facts",
+                "buildFactsFromDatabase",
+                "PayrollRuleEngineService::execute",
+                "Laravel HTTP client",
+                "Go /execute",
+                "TPR-IR validation",
+                "GRL translation",
+                "GRULE",
+                "Laravel normalization",
+                "expected-versus-actual comparison",
+                "salary persistence",
+                "database assertion"
+            ],
+            "database_fixture": {
+                "user_id": "a021b1a8-0940-4a1d-a109-b0d84af4e2c8",
+                "master_salary_id": 30,
+                "presence_date": "2026-06-01",
+                "overtime_id": "OT-E2E-30"
+            },
+            "laravel_test": "Tests\\Feature\\DifferentialFullPipelineE2ETest::test_database_service_go_and_persistence_subset",
+            "service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "employee_fixture_id": "a021b1a8-0940-4a1d-a109-b0d84af4e2c8",
+            "laravel_service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "go_request_id": null,
+            "go_request_correlation_status": "NOT_OBSERVABLE",
+            "go_request_hash": "032252d28e6913d7627d1b34a289a2bdf6570a42facd99e50dfe4bfe9f555dfd",
+            "go_response_hash": "afcab4c67796bd4520feaf76637a68f5aa86d07c5fa0b23869045590cf6b74c3",
+            "attendance_source": "database",
+            "rule_version_ids": [
+                1,
+                4,
+                5,
+                6
+            ],
+            "rate_version_ids": [
+                1,
+                2
+            ],
+            "tax_version_ids": [],
+            "tax_version_status": "NOT_APPLICABLE_MANUAL_OVERRIDE",
+            "go_internal_path": [
+                "ExecuteTPRRuleSet",
+                "ValidateTPRRuleSet",
+                "buildTPRGRL",
+                "GRULE ExecuteWithContext"
+            ],
+            "go_internal_trace_status": "SOURCE_VERIFIED_NOT_RUNTIME_INSTRUMENTED",
+            "component_codes": [
+                "ATTENDANCE_INCENTIVE",
+                "OVERTIME_PAY",
+                "ROUNDING_PROBE",
+                "TAX_FLAT"
+            ],
+            "persistence_asserted": true,
+            "persisted_salary_id": 30,
+            "salary_record_id": 30,
+            "expected_hash": "ebd66cfd2ddd758bf1b792c253e45fc4dea5ebccf7c799af548deaeef1265934",
+            "actual_hash": "ebd66cfd2ddd758bf1b792c253e45fc4dea5ebccf7c799af548deaeef1265934",
+            "result": "PASS"
+        },
+        {
+            "case_id": "E2E-031",
+            "status": "EXACT_MATCH",
+            "evaluation_category": "FULL_PAYROLL_PIPELINE",
+            "secondary_categories": [
+                "PERSISTENCE_E2E",
+                "LARAVEL_TO_GO_INTEGRATION"
+            ],
+            "execution_path": [
+                "testing_database",
+                "employee/contract/attendance fixtures",
+                "rule master and rule version",
+                "approval and active state",
+                "rate and tax facts",
+                "buildFactsFromDatabase",
+                "PayrollRuleEngineService::execute",
+                "Laravel HTTP client",
+                "Go /execute",
+                "TPR-IR validation",
+                "GRL translation",
+                "GRULE",
+                "Laravel normalization",
+                "expected-versus-actual comparison",
+                "salary persistence",
+                "database assertion"
+            ],
+            "database_fixture": {
+                "user_id": "eba7f9a6-77f1-457e-8b5b-e8cc1de7dd80",
+                "master_salary_id": 31,
+                "presence_date": "2026-06-01",
+                "overtime_id": "OT-E2E-31"
+            },
+            "laravel_test": "Tests\\Feature\\DifferentialFullPipelineE2ETest::test_database_service_go_and_persistence_subset",
+            "service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "employee_fixture_id": "eba7f9a6-77f1-457e-8b5b-e8cc1de7dd80",
+            "laravel_service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "go_request_id": null,
+            "go_request_correlation_status": "NOT_OBSERVABLE",
+            "go_request_hash": "62ff327df3e1ace690fbda95bbf87b1baba7a455ad39893124789db7d6514ff3",
+            "go_response_hash": "77a74578166d1a68ff85910c42806aee201d58c8cb5cf1992d002ff5b9ab201e",
+            "attendance_source": "database",
+            "rule_version_ids": [
+                1,
+                2,
+                4,
+                5,
+                6
+            ],
+            "rate_version_ids": [
+                1,
+                2
+            ],
+            "tax_version_ids": [],
+            "tax_version_status": "NOT_APPLICABLE_MANUAL_OVERRIDE",
+            "go_internal_path": [
+                "ExecuteTPRRuleSet",
+                "ValidateTPRRuleSet",
+                "buildTPRGRL",
+                "GRULE ExecuteWithContext"
+            ],
+            "go_internal_trace_status": "SOURCE_VERIFIED_NOT_RUNTIME_INSTRUMENTED",
+            "component_codes": [
+                "ATTENDANCE_INCENTIVE",
+                "LATE_DEDUCTION",
+                "OVERTIME_PAY",
+                "ROUNDING_PROBE",
+                "TAX_FLAT"
+            ],
+            "persistence_asserted": true,
+            "persisted_salary_id": 31,
+            "salary_record_id": 31,
+            "expected_hash": "7639148b742b9e4ded872ce74717f8fba0c83cde582a062fcd778437dc4470ca",
+            "actual_hash": "7639148b742b9e4ded872ce74717f8fba0c83cde582a062fcd778437dc4470ca",
+            "result": "PASS"
+        },
+        {
+            "case_id": "E2E-032",
+            "status": "EXACT_MATCH",
+            "evaluation_category": "FULL_PAYROLL_PIPELINE",
+            "secondary_categories": [
+                "PERSISTENCE_E2E",
+                "LARAVEL_TO_GO_INTEGRATION"
+            ],
+            "execution_path": [
+                "testing_database",
+                "employee/contract/attendance fixtures",
+                "rule master and rule version",
+                "approval and active state",
+                "rate and tax facts",
+                "buildFactsFromDatabase",
+                "PayrollRuleEngineService::execute",
+                "Laravel HTTP client",
+                "Go /execute",
+                "TPR-IR validation",
+                "GRL translation",
+                "GRULE",
+                "Laravel normalization",
+                "expected-versus-actual comparison",
+                "salary persistence",
+                "database assertion"
+            ],
+            "database_fixture": {
+                "user_id": "02283e68-9e4d-4181-8f98-b47d3369dcb0",
+                "master_salary_id": 32,
+                "presence_date": "2026-06-01",
+                "overtime_id": "OT-E2E-32"
+            },
+            "laravel_test": "Tests\\Feature\\DifferentialFullPipelineE2ETest::test_database_service_go_and_persistence_subset",
+            "service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "employee_fixture_id": "02283e68-9e4d-4181-8f98-b47d3369dcb0",
+            "laravel_service_method": "PayrollRuleEngineService::buildFactsFromDatabase + PayrollRuleEngineService::execute",
+            "go_request_id": null,
+            "go_request_correlation_status": "NOT_OBSERVABLE",
+            "go_request_hash": "80d5b2b7c867eac6ac2753969bb5614eb856e4a19a3d1fd58219c3f7c7f66134",
+            "go_response_hash": "286e625579e4a3b6da6880c2a51f988f0a3a2d4d54a54eeb47673cf0b424eb28",
+            "attendance_source": "database",
+            "rule_version_ids": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "rate_version_ids": [
+                1,
+                2
+            ],
+            "tax_version_ids": [],
+            "tax_version_status": "NOT_APPLICABLE_MANUAL_OVERRIDE",
+            "go_internal_path": [
+                "ExecuteTPRRuleSet",
+                "ValidateTPRRuleSet",
+                "buildTPRGRL",
+                "GRULE ExecuteWithContext"
+            ],
+            "go_internal_trace_status": "SOURCE_VERIFIED_NOT_RUNTIME_INSTRUMENTED",
+            "component_codes": [
+                "ATTENDANCE_INCENTIVE",
+                "LATE_DEDUCTION",
+                "OVERTIME_PAY",
+                "PERFORMANCE_BONUS",
+                "ROUNDING_PROBE",
+                "TAX_FLAT"
+            ],
+            "persistence_asserted": true,
+            "persisted_salary_id": 32,
+            "salary_record_id": 32,
+            "expected_hash": "f47b4c4aa602e89d8dc515adb2ec61c9b8d590a2d8e9a71ae783b4dae8bb43e6",
+            "actual_hash": "f47b4c4aa602e89d8dc515adb2ec61c9b8d590a2d8e9a71ae783b4dae8bb43e6",
+            "result": "PASS"
+        },
+        {
+            "case_id": "E2E-033",
+            "status": "EXPECTED_REJECTION",
+            "evaluation_category": "LARAVEL_CONFIGURATION_GUARD",
+            "secondary_categories": [],
+            "configuration": "NO_ACTIVE_RULE",
+            "error": {
+                "facts.attendance.work_minutes": [
+                    "Field facts.attendance.work_minutes wajib diisi."
+                ],
+                "facts.attendance.work_hours": [
+                    "Field facts.attendance.work_hours wajib diisi."
+                ],
+                "facts.attendance.overtime_hours": [
+                    "Field facts.attendance.overtime_hours wajib diisi."
+                ]
+            },
+            "execution_path": [
+                "testing_database",
+                "PayrollRuleEngineService::execute",
+                "configuration validation"
+            ],
+            "database_fixture": "isolated rule, component, and rate tables",
+            "laravel_test": "Tests\\Feature\\DifferentialFullPipelineE2ETest::test_database_service_go_and_persistence_subset",
+            "service_method": "PayrollRuleEngineService::execute",
+            "employee_fixture_id": null,
+            "laravel_service_method": "PayrollRuleEngineService::execute",
+            "go_request_id": null,
+            "go_request_correlation_status": "NOT_APPLICABLE_REJECTED_BEFORE_HTTP",
+            "go_request_hash": null,
+            "go_response_hash": null,
+            "rule_version_ids": [],
+            "rate_version_ids": [],
+            "tax_version_ids": [],
+            "tax_version_status": "NOT_APPLICABLE_REJECTED_BEFORE_EXECUTION",
+            "go_internal_path": [],
+            "go_internal_trace_status": "NOT_APPLICABLE_REJECTED_BEFORE_HTTP",
+            "component_codes": [],
+            "persistence_asserted": false,
+            "persisted_salary_id": null,
+            "salary_record_id": null,
+            "expected_error_codes": [
+                "facts.attendance.work_minutes",
+                "facts.attendance.work_hours",
+                "facts.attendance.overtime_hours"
+            ],
+            "actual_error_codes": [
+                "facts.attendance.work_minutes",
+                "facts.attendance.work_hours",
+                "facts.attendance.overtime_hours"
+            ],
+            "salary_count_before": 32,
+            "salary_count_after": 32,
+            "database_unchanged": true,
+            "expected_hash": "22ebaee86554f2e17294f39a11f488a179e7f644254313903aba1d4b8a023ef8",
+            "actual_hash": "22ebaee86554f2e17294f39a11f488a179e7f644254313903aba1d4b8a023ef8",
+            "result": "PASS"
+        },
+        {
+            "case_id": "E2E-034",
+            "status": "EXPECTED_REJECTION",
+            "evaluation_category": "LARAVEL_CONFIGURATION_GUARD",
+            "secondary_categories": [],
+            "configuration": "UNAPPROVED_ACTIVE_RULES",
+            "error": {
+                "facts.attendance.work_minutes": [
+                    "Field facts.attendance.work_minutes wajib diisi."
+                ],
+                "facts.attendance.work_hours": [
+                    "Field facts.attendance.work_hours wajib diisi."
+                ],
+                "facts.attendance.overtime_hours": [
+                    "Field facts.attendance.overtime_hours wajib diisi."
+                ]
+            },
+            "execution_path": [
+                "testing_database",
+                "PayrollRuleEngineService::execute",
+                "configuration validation"
+            ],
+            "database_fixture": "isolated rule, component, and rate tables",
+            "laravel_test": "Tests\\Feature\\DifferentialFullPipelineE2ETest::test_database_service_go_and_persistence_subset",
+            "service_method": "PayrollRuleEngineService::execute",
+            "employee_fixture_id": null,
+            "laravel_service_method": "PayrollRuleEngineService::execute",
+            "go_request_id": null,
+            "go_request_correlation_status": "NOT_APPLICABLE_REJECTED_BEFORE_HTTP",
+            "go_request_hash": null,
+            "go_response_hash": null,
+            "rule_version_ids": [],
+            "rate_version_ids": [],
+            "tax_version_ids": [],
+            "tax_version_status": "NOT_APPLICABLE_REJECTED_BEFORE_EXECUTION",
+            "go_internal_path": [],
+            "go_internal_trace_status": "NOT_APPLICABLE_REJECTED_BEFORE_HTTP",
+            "component_codes": [],
+            "persistence_asserted": false,
+            "persisted_salary_id": null,
+            "salary_record_id": null,
+            "expected_error_codes": [
+                "facts.attendance.work_minutes",
+                "facts.attendance.work_hours",
+                "facts.attendance.overtime_hours"
+            ],
+            "actual_error_codes": [
+                "facts.attendance.work_minutes",
+                "facts.attendance.work_hours",
+                "facts.attendance.overtime_hours"
+            ],
+            "salary_count_before": 32,
+            "salary_count_after": 32,
+            "database_unchanged": true,
+            "expected_hash": "65887618f16991e4f0ab8fd9cf36af05bf3b599297d535397adaa8b0becd6c4f",
+            "actual_hash": "65887618f16991e4f0ab8fd9cf36af05bf3b599297d535397adaa8b0becd6c4f",
+            "result": "PASS"
+        },
+        {
+            "case_id": "E2E-035",
+            "status": "EXPECTED_REJECTION",
+            "evaluation_category": "LARAVEL_CONFIGURATION_GUARD",
+            "secondary_categories": [],
+            "configuration": "INACTIVE_COMPONENTS",
+            "error": {
+                "facts.attendance.work_minutes": [
+                    "Field facts.attendance.work_minutes wajib diisi."
+                ],
+                "facts.attendance.work_hours": [
+                    "Field facts.attendance.work_hours wajib diisi."
+                ],
+                "facts.attendance.overtime_hours": [
+                    "Field facts.attendance.overtime_hours wajib diisi."
+                ]
+            },
+            "execution_path": [
+                "testing_database",
+                "PayrollRuleEngineService::execute",
+                "configuration validation"
+            ],
+            "database_fixture": "isolated rule, component, and rate tables",
+            "laravel_test": "Tests\\Feature\\DifferentialFullPipelineE2ETest::test_database_service_go_and_persistence_subset",
+            "service_method": "PayrollRuleEngineService::execute",
+            "employee_fixture_id": null,
+            "laravel_service_method": "PayrollRuleEngineService::execute",
+            "go_request_id": null,
+            "go_request_correlation_status": "NOT_APPLICABLE_REJECTED_BEFORE_HTTP",
+            "go_request_hash": null,
+            "go_response_hash": null,
+            "rule_version_ids": [],
+            "rate_version_ids": [],
+            "tax_version_ids": [],
+            "tax_version_status": "NOT_APPLICABLE_REJECTED_BEFORE_EXECUTION",
+            "go_internal_path": [],
+            "go_internal_trace_status": "NOT_APPLICABLE_REJECTED_BEFORE_HTTP",
+            "component_codes": [],
+            "persistence_asserted": false,
+            "persisted_salary_id": null,
+            "salary_record_id": null,
+            "expected_error_codes": [
+                "facts.attendance.work_minutes",
+                "facts.attendance.work_hours",
+                "facts.attendance.overtime_hours"
+            ],
+            "actual_error_codes": [
+                "facts.attendance.work_minutes",
+                "facts.attendance.work_hours",
+                "facts.attendance.overtime_hours"
+            ],
+            "salary_count_before": 32,
+            "salary_count_after": 32,
+            "database_unchanged": true,
+            "expected_hash": "1a437a0aa8e85e7cddf2674ae349bab118960129cde23a0e515172beeb323a7b",
+            "actual_hash": "1a437a0aa8e85e7cddf2674ae349bab118960129cde23a0e515172beeb323a7b",
+            "result": "PASS"
+        },
+        {
+            "case_id": "E2E-036",
+            "status": "EXPECTED_REJECTION",
+            "evaluation_category": "LARAVEL_CONFIGURATION_GUARD",
+            "secondary_categories": [],
+            "configuration": "MISSING_RATE_DEPENDENCY",
+            "error": {
+                "facts.attendance.work_minutes": [
+                    "Field facts.attendance.work_minutes wajib diisi."
+                ],
+                "facts.attendance.work_hours": [
+                    "Field facts.attendance.work_hours wajib diisi."
+                ],
+                "facts.attendance.overtime_hours": [
+                    "Field facts.attendance.overtime_hours wajib diisi."
+                ]
+            },
+            "execution_path": [
+                "testing_database",
+                "PayrollRuleEngineService::execute",
+                "configuration validation"
+            ],
+            "database_fixture": "isolated rule, component, and rate tables",
+            "laravel_test": "Tests\\Feature\\DifferentialFullPipelineE2ETest::test_database_service_go_and_persistence_subset",
+            "service_method": "PayrollRuleEngineService::execute",
+            "employee_fixture_id": null,
+            "laravel_service_method": "PayrollRuleEngineService::execute",
+            "go_request_id": null,
+            "go_request_correlation_status": "NOT_APPLICABLE_REJECTED_BEFORE_HTTP",
+            "go_request_hash": null,
+            "go_response_hash": null,
+            "rule_version_ids": [],
+            "rate_version_ids": [],
+            "tax_version_ids": [],
+            "tax_version_status": "NOT_APPLICABLE_REJECTED_BEFORE_EXECUTION",
+            "go_internal_path": [],
+            "go_internal_trace_status": "NOT_APPLICABLE_REJECTED_BEFORE_HTTP",
+            "component_codes": [],
+            "persistence_asserted": false,
+            "persisted_salary_id": null,
+            "salary_record_id": null,
+            "expected_error_codes": [
+                "facts.attendance.work_minutes",
+                "facts.attendance.work_hours",
+                "facts.attendance.overtime_hours"
+            ],
+            "actual_error_codes": [
+                "facts.attendance.work_minutes",
+                "facts.attendance.work_hours",
+                "facts.attendance.overtime_hours"
+            ],
+            "salary_count_before": 32,
+            "salary_count_after": 32,
+            "database_unchanged": true,
+            "expected_hash": "dc5546f810c93276b64d61f526f1116018c3b998e6da8d12f33a056df39f4820",
+            "actual_hash": "dc5546f810c93276b64d61f526f1116018c3b998e6da8d12f33a056df39f4820",
+            "result": "PASS"
+        }
+    ]
+}

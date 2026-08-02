@@ -1,0 +1,228 @@
+
+   PASS  Tests\Unit\AuditTrailPresenterUnitTest
+  ✓ it formats action and entity labels                                                                          1.35s  
+  ✓ it resolves entity id from audit payload                                                                     0.14s  
+  ✓ it builds compact user initials                                                                              0.40s  
+
+   PASS  Tests\Unit\CompanyTaxOperationalStatusUnitTest
+  ✓ approved active future effective tax is scheduled                                                            0.29s  
+  ✓ approved active current effective tax is active                                                              0.12s  
+
+   PASS  Tests\Unit\ExampleTest
+  ✓ that true is true                                                                                            0.01s  
+
+   PASS  Tests\Unit\PayrollBuildFactsAttendanceSourceUnitTest
+  ✓ build facts uses database attendance when records exist                                                      1.90s  
+  ✓ build facts uses manual override when prefer manual attendance true                                          0.47s  
+  ✓ build facts uses overtime per hour override for system component                                             0.37s  
+  ✓ build facts uses manual fallback when database has no attendance records                                     0.47s  
+  ✓ build facts ignores overtime pending director approval                                                       0.52s  
+  ✓ build facts sets performance score from master salary and override                                           0.46s  
+  ✓ build facts uses requested salary date as payroll effective date                                             0.58s  
+  ✓ build facts counts approved leave overlap using weekdays only                                                0.41s  
+
+   PASS  Tests\Unit\PayrollRuleEngineTaxableComputationUnitTest
+  ✓ auto tax uses taxable earning components only                                                                0.20s  
+  ✓ manual tax override skips auto recomputation                                                                 0.15s  
+  ✓ tax component is not injected when no tax rule is active                                                     0.14s  
+  ✓ company tax configuration fails when active tax rule is missing                                              0.19s  
+  ✓ company tax source is treated as auto tax not manual override                                                0.12s  
+  ✓ execute uses payroll effective date before period end for tax resolution                                     0.16s  
+  ✓ tax component is not injected when tax rule does not match                                                   0.20s  
+
+   PASS  Tests\Unit\PayrollRuleEngineWhiteBoxUnitTest
+  ✓ execute uses component map types and recomputes summary from components                                      0.15s  
+  ✓ execute uses engine summary when component list is empty                                                     0.16s  
+  ✓ execute preserves unrounded overtime hours in payload                                                        0.17s  
+  ✓ execute uses database component type without code guessing                                                   0.30s  
+  ✓ execute rejects rule when action code missing from active components                                         0.12s  
+  ✓ execute derives payroll status from contract type when status is active                                      0.15s  
+  ✓ execute preserves rule version source when action codes are duplicated                                       0.16s  
+  ✓ execute rounds money amounts like spreadsheet                                                                0.14s  
+
+   PASS  Tests\Unit\RoleNormalizerUnitTest
+  ✓ normalize aliases to canonical role                                                                          0.16s  
+  ✓ to storage value maps canonical role to database enum                                                        0.15s  
+  ✓ matches supports mixed aliases                                                                               0.11s  
+
+   PASS  Tests\Unit\RuleDefinitionSemanticContractTest
+  ✓ date parser accepts only canonical calendar date                                                             0.12s  
+  ✓ string operator contract keeps contains without expanding boolean                                            0.14s  
+
+   PASS  Tests\Unit\TemporalPayrollReplayUnitTest
+  ✓ canonical json is key order independent and money is fixed six                                               0.18s  
+  ✓ artifact payload hash survives json persistence                                                              0.15s  
+  ✓ manifest integrity accepts complete locked artifact and rejects corruption                                   0.38s  
+  ✓ comparator reports amount provenance and output hash differences                                             0.13s  
+  ✓ version applicability excludes manual tax override from match denominator                                    0.20s  
+  ✓ compatibility registry fails closed for unknown versions                                                     0.14s  
+
+   PASS  Tests\Unit\TypedPayrollRuleIrServiceTest
+  ✓ builds canonical tpr ir payload with shared priority and rounding contract                                   0.15s  
+  ✓ rejects unknown field and unknown formula reference                                                          0.15s  
+  ✓ rejects set add mix and priority tie before execution                                                        0.11s  
+  ✓ rule array permutation has identical canonical order                                                         0.13s  
+  ✓ supports canonical payroll eligibility flags used by active rules                                            0.13s  
+﻿﻿﻿﻿
+   PASS  Tests\Feature\ApiRuntimeRegressionTest
+  ✓ hrd contracts endpoint returns success                                                                      18.49s  
+  ✓ director daily activities endpoint is callable                                                               0.22s  
+  ✓ director contract approval list includes mapped fields                                                       0.25s  
+  ✓ employee contract list includes mapped fields                                                                0.24s  
+  ✓ pm contract list includes mapped fields                                                                      0.25s  
+
+   PASS  Tests\Feature\AuthGroupRoleScopingTest
+  ✓ tasks endpoint requires pm role                                                                              0.36s  
+  ✓ hrd project detail route requires hrd role                                                                   0.26s  
+  ✓ generate pdf requires director role                                                                          0.19s  
+  ✓ presence recap employees allows director and hrd                                                             0.17s  
+  ✓ presence recap employee allows pm and karyawan                                                               0.21s  
+
+   PASS  Tests\Feature\AuthenticationFunctionalTest
+  ✓ bb login 01 login berhasil                                                                                   0.28s  
+  ✓ bb login 02 password salah                                                                                   0.26s  
+  ✓ bb login 03 email tidak terdaftar                                                                            0.17s  
+  ✓ bb login 04 field kosong                                                                                     0.19s  
+  ✓ bb login 05 akses role hrd dan direktur                                                                      0.29s  
+
+   PASS  Tests\Feature\DifferentialFullPipelineE2ETest
+  ✓ database service go and persistence subset                                                                  22.42s  
+
+   PASS  Tests\Feature\ExampleTest
+  ✓ the application returns a successful response                                                                0.17s  
+
+   PASS  Tests\Feature\LeaveApprovalWorkflowTest
+  ✓ karyawan leave requires director decision after hrd approval                                                19.71s  
+  ✓ hrd and director default queue only show ready items                                                         0.26s  
+  ✓ pm leave approval endpoints are disabled                                                                     0.18s  
+  ✓ leave approval requires reason                                                                               0.21s  
+  ✓ approval history endpoints only return processed items                                                       0.37s  
+  ✓ hrd rejection finalizes leave for hrd and director history                                                   0.39s  
+  ✓ submission routes initialize the correct approval stage for each role                                        0.35s  
+  ✓ leave submission validates required fields and date order                                                    0.19s  
+  ✓ leave detail is limited to owner and authorized approvers                                                    0.27s  
+
+   PASS  Tests\Feature\OvertimeApprovalWorkflowTest
+  ✓ employee overtime goes from hrd queue to director queue and can be fully approved                            0.42s  
+  ✓ pm overtime submission requires hrd and director approval and pm approval is disabled                        0.26s  
+  ✓ hrd rejection is final and visible in rejected histories                                                     0.33s  
+  ✓ legacy employee overtime with pending pm status still appears in hrd queue                                   0.19s  
+  ✓ legacy employee overtime with rejected pm status can still be processed by hrd                               0.21s  
+  ✓ employee and pm can upload image proof with overtime submission                                              0.37s  
+
+   PASS  Tests\Feature\OwnershipAccessControlTest
+  ✓ employee cannot access other employee salary scope                                                           0.31s  
+  ✓ hrd can access any employee salary scope                                                                     0.28s  
+  ✓ employee owner cannot mutate own salary scope                                                                0.18s  
+  ✓ generated salary transfer proof cannot be updated                                                            0.17s  
+  ✓ employee cannot open other employee contract detail                                                          0.20s  
+  ✓ hrd can open employee contract detail                                                                        0.18s  
+  ✓ pm cannot approve other pm contract                                                                          0.23s  
+
+   PASS  Tests\Feature\PasswordResetNotificationTest
+  ✓ user sends the mascitra password reset notification                                                          0.25s  
+  ✓ password reset email contains the mascitra context and secure reset link                                     0.30s  
+
+   PASS  Tests\Feature\PasswordResetRequestTest
+  ✓ authenticated user can request password reset link                                                           0.26s  
+  ✓ guest user can request password reset link                                                                   0.30s  
+  ✓ unknown email receives generic reset response without notification                                           0.17s  
+  ✓ successful password reset revokes existing api tokens                                                        0.28s  
+
+   PASS  Tests\Feature\PayrollRuleEngineFormulaMatrixIntegrationTest
+  ✓ real engine arithmetic formula matrix with data set "constant earning"                                       1.45s  
+  ✓ real engine arithmetic formula matrix with data set "constant deduction"                                     0.75s  
+  ✓ real engine arithmetic formula matrix with data set "variable reference"                                     0.68s  
+  ✓ real engine arithmetic formula matrix with data set "addition"                                               0.85s  
+  ✓ real engine arithmetic formula matrix with data set "subtraction"                                            0.78s  
+  ✓ real engine arithmetic formula matrix with data set "multiplication"                                         0.92s  
+  ✓ real engine arithmetic formula matrix with data set "precedence without parentheses"                         0.80s  
+  ✓ real engine arithmetic formula matrix with data set "parentheses override precedence"                        0.97s  
+  ✓ real engine arithmetic formula matrix with data set "mixed expression"                                       0.94s  
+  ✓ real engine arithmetic formula matrix with data set "division expression"                                    0.65s  
+  ✓ real engine arithmetic formula matrix with data set "decimal expression"                                     0.67s  
+  ✓ real engine condition operator matrix with data set "equals true"                                            0.74s  
+  ✓ real engine condition operator matrix with data set "equals false"                                           0.57s  
+  ✓ real engine condition operator matrix with data set "not equals true"                                        0.57s  
+  ✓ real engine condition operator matrix with data set "greater than true"                                      0.59s  
+  ✓ real engine condition operator matrix with data set "greater than or equal true"                             0.60s  
+  ✓ real engine condition operator matrix with data set "less than true"                                         0.64s  
+  ✓ real engine condition operator matrix with data set "less than or equal true"                                0.53s  
+  ✓ real engine condition operator matrix with data set "multiple conditions and false"                          0.65s  
+  ✓ real engine condition operator matrix with data set "multiple conditions and true"                           0.58s  
+  ✓ real engine multi rule summary consistency for mixed components                                              0.81s  
+
+   PASS  Tests\Feature\PayrollRuleEngineRealIntegrationTest
+  ✓ execute with real go rule engine matches expected summary and components                                     0.60s  
+
+   PASS  Tests\Feature\PayrollRuleEngineTaxableComputationTest
+  ✓ auto tax uses taxable earning components only                                                                1.99s  
+  ✓ manual tax override skips auto tax recomputation                                                             0.53s  
+  ✓ percentage tax uses full income within min max range                                                         0.49s  
+
+   PASS  Tests\Feature\PublicApiHardeningRbacTest
+  ✓ master document requires authentication                                                                     18.24s  
+  ✓ master document rejects non admin role                                                                       0.22s  
+  ✓ master document allows hrd role                                                                              0.26s  
+  ✓ activity types is director only                                                                              0.23s  
+  ✓ leave type is auth only and can be accessed by employee                                                      0.89s  
+
+   PASS  Tests\Feature\RateSettingUsageActionsTest
+  ✓ used rate setting is archived instead of deleted                                                             1.25s  
+  ✓ unused rate setting is archived instead of deleted                                                           0.73s  
+  ✓ used rate setting can be deactivated                                                                         0.40s  
+  ✓ approved rate setting can be deactivated even when unused                                                    0.43s  
+  ✓ inactive approved rate detail shows new version and inactive status                                          0.42s  
+  ✓ active approved rate detail shows new version and deactivate actions                                         0.40s  
+  ✓ hrd session creates rate setting as draft through web route                                                  0.47s  
+  ✓ new version from approved rate is prefilled and saved as draft                                               0.47s  
+  ✓ future effective rate approval keeps current rate until effective date                                       0.57s  
+  ✓ hrd and director approved stats count every approved version                                                 0.67s  
+  ✓ draft rate detail shows submit action and submission sets pending                                            0.56s  
+  ✓ draft version for used rate key also shows submit action                                                     0.45s  
+  ✓ pending rate setting cannot be edited                                                                        0.48s  
+  ✓ edit rate setting hides redundant decimal zeroes                                                             0.35s  
+  ✓ rule builder receives active system and custom rate variables                                                0.63s  
+
+   PASS  Tests\Feature\RuleVersionActionWorkflowTest
+  ✓ approved rule waiting for activation only shows activate and locked edit actions                             0.34s  
+  ✓ approved rule version cannot be opened in edit form                                                          0.17s  
+  ✓ active rule only shows new version and deactivate actions                                                    0.33s  
+  ✓ rejected draft rule shows repair action instead of waiting approval                                          0.36s  
+  ✓ pending draft rule still shows waiting approval action                                                       0.29s  
+  ✓ hrd can deactivate an active rule                                                                            0.19s  
+
+   PASS  Tests\Feature\SalaryRuleEnginePersistenceTest
+  ✓ master salary does not calculate tax outside rule engine                                                     4.20s  
+  ✓ pending salary does not apply tax when rule engine is unavailable                                            3.65s  
+  ✓ store salary persists rule engine result and matches salary detail                                           6.18s  
+  ✓ store salary golden case matches take home pay and breakdown                                                 5.71s  
+  ✓ store salary does not inject pph21 when tax rule is not active                                               4.29s  
+  ✓ store salary golden case rounds and clamps negative summary values                                           4.30s  
+
+   PASS  Tests\Feature\TaxApprovalWorkflowTest
+  ✓ hrd can create tax through web session                                                                      19.57s  
+  ✓ invalid tax scope is rejected instead of defaulting to all                                                   0.22s  
+  ✓ tax income max must not be less than income min                                                              0.27s  
+  ✓ hrd can edit tax while it is still draft                                                                     0.65s  
+  ✓ pending and approved taxes cannot be edited                                                                  0.54s  
+  ✓ approved tax cannot be submitted again                                                                       0.24s  
+  ✓ director approval automatically activates tax                                                                0.34s  
+  ✓ director cannot approve tax that overlaps active tax                                                         0.99s  
+  ✓ director can approve tax with non overlapping income range                                                   0.28s  
+  ✓ hrd can create new draft version from approved tax                                                           0.29s  
+  ✓ hrd can create new version from inactive approved tax                                                        0.53s  
+  ✓ hrd cannot create new version from superseded approved tax                                                   0.26s  
+  ✓ hrd can update new draft version with same tax code                                                          0.37s  
+  ✓ approving new tax version supersedes previous active version                                                 0.38s  
+  ✓ hrd can disable an active approved tax                                                                       0.29s  
+  ✓ hrd cannot disable a tax that is not approved                                                                0.25s  
+
+   PASS  Tests\Feature\TemporalPayrollReplayPersistenceTest
+  ✓ locked manifest replays without salary side effect or current state query                                    0.44s  
+  ✓ locked manifest cannot be mutated and corruption fails before run creation                                   0.18s  
+  ✓ real go engine original and replay match after current salary mutation                                       0.25s  
+
+  Tests:    166 passed (1626 assertions)
+  Duration: 190.07s
+

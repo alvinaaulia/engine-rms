@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "replay-response.schema.json",
+  "allOf": [
+    {"$ref": "artifact-envelope.schema.json"},
+    {"properties": {"schema_ref": {"const": "temporal-artifact-schemas/replay-response.schema.json"}, "payload": {
+      "oneOf": [
+        {"type": "object", "additionalProperties": false,
+          "required": ["mode", "execution_uuid", "replay_uuid", "request_id", "laravel_correlation_id", "translator_trace_id", "grule_execution_id", "components", "summary", "provenance", "generated_grl", "generated_grl_sha256", "output_sha256", "matches_original_hash", "correlation_events", "rounding_trace"],
+          "properties": {
+            "mode": {"const": "TEMPORAL_REPLAY"}, "execution_uuid": {"$ref": "artifact-envelope.schema.json#/$defs/uuid"}, "replay_uuid": {"$ref": "artifact-envelope.schema.json#/$defs/uuid"},
+            "request_id": {"$ref": "artifact-envelope.schema.json#/$defs/uuid"}, "laravel_correlation_id": {"$ref": "artifact-envelope.schema.json#/$defs/uuid"},
+            "translator_trace_id": {"$ref": "artifact-envelope.schema.json#/$defs/uuid"}, "grule_execution_id": {"$ref": "artifact-envelope.schema.json#/$defs/uuid"},
+            "components": {"type": "array"}, "summary": {"type": "object"}, "provenance": {"type": "object"}, "generated_grl": {"type": "string"},
+            "generated_grl_sha256": {"$ref": "artifact-envelope.schema.json#/$defs/sha256"}, "output_sha256": {"$ref": "artifact-envelope.schema.json#/$defs/sha256"},
+            "matches_original_hash": {"type": "boolean"}, "correlation_events": {"type": "array", "minItems": 7}, "rounding_trace": {"type": "array"}
+          }
+        },
+        {"type": "object", "additionalProperties": false, "required": ["errors"], "properties": {"errors": {"type": "array", "minItems": 2, "items": {"$ref": "replay-response.schema.json#/$defs/error"}}}},
+        {"type": "object", "additionalProperties": false, "required": ["error_code", "repeat_count"], "properties": {"error_code": {"type": "string"}, "repeat_count": {"type": "integer", "minimum": 2}}}
+      ]
+    }}}
+  ],
+  "$defs": {"error": {"type": "object", "additionalProperties": false, "required": ["error_code", "path", "message", "context"], "properties": {
+    "error_code": {"type": "string"}, "path": {"type": ["string", "null"]}, "message": {"type": "string"}, "context": {}
+  }}}
+}
