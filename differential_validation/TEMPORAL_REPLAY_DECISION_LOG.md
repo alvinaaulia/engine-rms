@@ -1,5 +1,12 @@
 # Temporal Replay Decision Log
 
+## Validation-driven amendments (2026-08-02)
+
+- Facts and ruleset snapshots are stored as canonical JSON text rather than MySQL JSON because MySQL normalizes numeric lexical forms and can invalidate an immutable hash after round-trip persistence.
+- Temporal HTTP calls use an explicit canonical JSON body so transport encoding cannot collapse `0.0` into `0`.
+- Go canonical hashing disables HTML escaping to match Laravel for comparison operators such as `>`.
+- Verification replay remains snapshot-only; correction mode remains deferred.
+
 | ID | Decision | Rationale | Consequence |
 |---|---|---|---|
 | TR-D001 | Keep V4 evidence immutable and create a new `runs/temporal-replay` namespace. | Temporal evidence must not rewrite the accepted differential baseline. | V4 hashes remain independently verifiable. |
@@ -14,4 +21,3 @@
 | TR-D010 | Defer correction replay. | Correctness and read-only verification are prerequisite. | No code path updates active payroll from replay output. |
 | TR-D011 | Preserve original generated GRL and its hash, but regenerate it from the snapshot during replay. | Storing only GRL would lose the typed source; storing only TPR-IR would prevent strict translator verification. | Strict mode compares regenerated GRL hash; semantic mode requires explicit compatibility. |
 | TR-D012 | Original salary, manifest, and output become visible atomically in one database transaction. | A locked orphan or salary without binding is unacceptable. | Any persistence/validation failure rolls back all database rows. |
-

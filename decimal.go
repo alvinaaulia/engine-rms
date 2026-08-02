@@ -123,6 +123,13 @@ func (d payrollDecimal) Float64() float64 {
 	return value
 }
 
+func (d payrollDecimal) StringFixed(scale int32) string {
+	if d.value == nil {
+		return zeroPayrollDecimal().value.FloatString(int(scale))
+	}
+	return d.Rounded(scale).value.FloatString(int(scale))
+}
+
 func normalizePayrollMoney(value interface{}) (float64, bool) {
 	decimal, ok := payrollDecimalFromInterface(value)
 	if !ok {

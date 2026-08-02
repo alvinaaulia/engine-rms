@@ -87,6 +87,7 @@ func health(w http.ResponseWriter, r *http.Request) {
 func main() {
 	http.HandleFunc("/health", health)
 	http.HandleFunc("/execute", executeRules)
+	http.HandleFunc("/replay", replayRules)
 	log.Println("Go Rule Engine running on :8081")
 	server := &http.Server{Addr: ":8081", ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 10 * time.Second, WriteTimeout: 15 * time.Second, IdleTimeout: 60 * time.Second}
 	log.Fatal(server.ListenAndServe())
