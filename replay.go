@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"context"
+	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -10,6 +11,7 @@ import (
 	"io"
 	"net/http"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -37,7 +39,10 @@ type ReplayVersionIdentities struct {
 type ReplayRequest struct {
 	Mode                   string                  `json:"mode"`
 	ExecutionUUID          string                  `json:"execution_uuid"`
+	ReplayUUID             string                  `json:"replay_uuid,omitempty"`
 	RequestID              string                  `json:"request_id"`
+	OriginalRequestID      string                  `json:"original_request_id,omitempty"`
+	LaravelCorrelationID   string                  `json:"laravel_correlation_id,omitempty"`
 	ManifestVersion        string                  `json:"manifest_version"`
 	TPRIRSchemaVersion     string                  `json:"tpr_ir_schema_version"`
 	FactsSnapshot          map[string]interface{}  `json:"facts_snapshot"`
@@ -48,6 +53,8 @@ type ReplayRequest struct {
 	TranslatorVersion      string                  `json:"translator_version"`
 	EngineVersion          string                  `json:"engine_version"`
 	RoundingPolicy         TPRRoundingPolicy       `json:"rounding_policy"`
+	ResearchTrace          bool                    `json:"research_trace,omitempty"`
+	HTTPRequestID          string                  `json:"-"`
 }
 
 type ReplayComponent struct {
@@ -80,16 +87,46 @@ type ReplayProvenance struct {
 }
 
 type ReplayResponse struct {
-	Mode                string            `json:"mode"`
-	ExecutionUUID       string            `json:"execution_uuid"`
-	RequestID           string            `json:"request_id"`
-	Components          []ReplayComponent `json:"components"`
-	Summary             ReplaySummary     `json:"summary"`
-	Provenance          ReplayProvenance  `json:"provenance"`
-	GeneratedGRL        string            `json:"generated_grl"`
-	GeneratedGRLSHA256  string            `json:"generated_grl_sha256"`
-	OutputSHA256        string            `json:"output_sha256"`
-	MatchesOriginalHash *bool             `json:"matches_original_hash,omitempty"`
+	Mode                 string                   `json:"mode"`
+	ExecutionUUID        string                   `json:"execution_uuid"`
+	ReplayUUID           string                   `json:"replay_uuid,omitempty"`
+	RequestID            string                   `json:"request_id"`
+	LaravelCorrelationID string                   `json:"laravel_correlation_id,omitempty"`
+	TranslatorTraceID    string                   `json:"translator_trace_id,omitempty"`
+	GRULEExecutionID     string                   `json:"grule_execution_id,omitempty"`
+	Components           []ReplayComponent        `json:"components"`
+	Summary              ReplaySummary            `json:"summary"`
+	Provenance           ReplayProvenance         `json:"provenance"`
+	GeneratedGRL         string                   `json:"generated_grl"`
+	GeneratedGRLSHA256   string                   `json:"generated_grl_sha256"`
+	OutputSHA256         string                   `json:"output_sha256"`
+	MatchesOriginalHash  *bool                    `json:"matches_original_hash,omitempty"`
+	CorrelationEvents    []ReplayCorrelationEvent `json:"correlation_events,omitempty"`
+	RoundingTrace        []ReplayRoundingTrace    `json:"rounding_trace,omitempty"`
+}
+
+type ReplayCorrelationEvent struct {
+	EventID              string `json:"event_id"`
+	OccurredAt           string `json:"occurred_at"`
+	Stage                string `json:"stage"`
+	Event                string `json:"event"`
+	RequestID            string `json:"request_id"`
+	ExecutionUUID        string `json:"execution_uuid"`
+	ReplayUUID           string `json:"replay_uuid"`
+	LaravelCorrelationID string `json:"laravel_correlation_id"`
+	TranslatorTraceID    string `json:"translator_trace_id"`
+	GRULEExecutionID     string `json:"grule_execution_id"`
+}
+
+type ReplayRoundingTrace struct {
+	ComponentCode       string `json:"component_code"`
+	SourceRule          string `json:"source_rule"`
+	RawCandidateDecimal string `json:"raw_candidate_decimal"`
+	ScaleBeforeRounding int    `json:"scale_before_rounding"`
+	RoundingMode        string `json:"rounding_mode"`
+	RoundingQuantum     string `json:"rounding_quantum"`
+	RoundedResult       string `json:"rounded_result"`
+	OperationTimestamp  string `json:"operation_timestamp"`
 }
 
 func replayRules(w http.ResponseWriter, r *http.Request) {
@@ -111,6 +148,14 @@ func replayRules(w http.ResponseWriter, r *http.Request) {
 		writeAPIError(w, http.StatusBadRequest, validationError("REPLAY_MANIFEST_INVALID", "request", "request must contain exactly one JSON object"))
 		return
 	}
+	req.HTTPRequestID = strings.TrimSpace(r.Header.Get("X-Request-ID"))
+	if req.HTTPRequestID == "" {
+		req.HTTPRequestID = req.RequestID
+	}
+	if req.HTTPRequestID != req.RequestID {
+		writeAPIError(w, http.StatusBadRequest, validationError("REPLAY_MANIFEST_INVALID", "headers.X-Request-ID", "HTTP and body request correlation IDs must match"))
+		return
+	}
 	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 	response, err := executeTemporalReplay(ctx, req)
@@ -118,6 +163,7 @@ func replayRules(w http.ResponseWriter, r *http.Request) {
 		writeAPIError(w, http.StatusUnprocessableEntity, err)
 		return
 	}
+	w.Header().Set("X-Request-ID", response.RequestID)
 	_ = json.NewEncoder(w).Encode(response)
 }
 
@@ -128,6 +174,24 @@ func executeTemporalReplay(ctx context.Context, req ReplayRequest) (ReplayRespon
 	if strings.TrimSpace(req.ExecutionUUID) == "" || strings.TrimSpace(req.RequestID) == "" {
 		return ReplayResponse{}, validationError("REPLAY_MANIFEST_INVALID", "execution_uuid", "execution and request correlation IDs are required")
 	}
+	if req.ReplayUUID != "" && req.LaravelCorrelationID == "" {
+		return ReplayResponse{}, validationError("REPLAY_MANIFEST_INVALID", "laravel_correlation_id", "Laravel correlation ID is required for an instrumented replay")
+	}
+	originalRequestID := req.OriginalRequestID
+	if originalRequestID == "" {
+		originalRequestID = req.RequestID
+	}
+	translatorTraceID := newReplayUUID()
+	gruleExecutionID := newReplayUUID()
+	events := make([]ReplayCorrelationEvent, 0, 7)
+	recordEvent := func(stage, event string) {
+		events = append(events, ReplayCorrelationEvent{
+			EventID: newReplayUUID(), OccurredAt: time.Now().UTC().Format(time.RFC3339Nano), Stage: stage, Event: event,
+			RequestID: req.RequestID, ExecutionUUID: req.ExecutionUUID, ReplayUUID: req.ReplayUUID,
+			LaravelCorrelationID: req.LaravelCorrelationID, TranslatorTraceID: translatorTraceID, GRULEExecutionID: gruleExecutionID,
+		})
+	}
+	recordEvent("GO_HTTP", "REQUEST_RECEIVED")
 	if req.ManifestVersion != temporalManifestVersion || req.TPRIRSchemaVersion != TPRSchemaVersion {
 		return ReplayResponse{}, validationError("REPLAY_SCHEMA_UNSUPPORTED", "manifest_version", "manifest and TPR-IR versions are unsupported")
 	}
@@ -140,6 +204,7 @@ func executeTemporalReplay(ctx context.Context, req ReplayRequest) (ReplayRespon
 	if req.FactsSnapshot == nil || req.RuleSetSnapshot == nil || req.ComponentTypesSnapshot == nil {
 		return ReplayResponse{}, validationError("REPLAY_MANIFEST_INVALID", "facts_snapshot", "facts, ruleset, and component types snapshots are required")
 	}
+	recordEvent("TPR_IR_VALIDATOR", "SCHEMA_VALIDATED")
 
 	factsHash, err := canonicalSHA256(req.FactsSnapshot)
 	if err != nil || factsHash != req.ExpectedHashes.FactsSHA256 {
@@ -149,6 +214,7 @@ func executeTemporalReplay(ctx context.Context, req ReplayRequest) (ReplayRespon
 	if err != nil || rulesetHash != req.ExpectedHashes.RuleSetSHA256 {
 		return ReplayResponse{}, &ValidationError{ErrorCode: "REPLAY_HASH_MISMATCH", Path: "ruleset_sha256", Message: "ruleset snapshot hash mismatch", Details: map[string]interface{}{"expected_sha256": req.ExpectedHashes.RuleSetSHA256, "actual_sha256": rulesetHash}}
 	}
+	recordEvent("TPR_IR_VALIDATOR", "HASHES_VALIDATED")
 
 	rulesetBytes, err := json.Marshal(req.RuleSetSnapshot)
 	if err != nil {
@@ -183,6 +249,13 @@ func executeTemporalReplay(ctx context.Context, req ReplayRequest) (ReplayRespon
 		return ReplayResponse{}, err
 	}
 
+	recordEvent("GRL_TRANSLATOR", "TRANSLATION_STARTED")
+	generatedGRL, err := buildTPRGRL(&ruleset)
+	if err != nil {
+		return ReplayResponse{}, validationError("REPLAY_EXECUTION_FAILED", "generated_grl", err.Error())
+	}
+	recordEvent("GRL_TRANSLATOR", "TRANSLATION_FINISHED")
+	recordEvent("GRULE", "EXECUTION_STARTED")
 	result, err := ExecuteTPRRuleSet(ctx, &ruleset, req.FactsSnapshot, req.ComponentTypesSnapshot)
 	if err != nil {
 		if validation, ok := err.(*ValidationError); ok {
@@ -191,16 +264,14 @@ func executeTemporalReplay(ctx context.Context, req ReplayRequest) (ReplayRespon
 		}
 		return ReplayResponse{}, validationError("REPLAY_EXECUTION_FAILED", "ruleset_snapshot", err.Error())
 	}
-	generatedGRL, err := buildTPRGRL(&ruleset)
-	if err != nil {
-		return ReplayResponse{}, validationError("REPLAY_EXECUTION_FAILED", "generated_grl", err.Error())
-	}
+	recordEvent("GRULE", "EXECUTION_FINISHED")
 	generatedHash := sha256Text(generatedGRL)
 	if req.ExpectedHashes.GeneratedGRLSHA256 != "" && generatedHash != req.ExpectedHashes.GeneratedGRLSHA256 {
 		return ReplayResponse{}, validationError("REPLAY_HASH_MISMATCH", "generated_grl_sha256", "generated GRL hash mismatch")
 	}
 
 	components := make([]ReplayComponent, 0, len(result.Components))
+	roundingTrace := make([]ReplayRoundingTrace, 0, len(result.Components))
 	for _, component := range result.Components {
 		contributorIDs := uniqueSortedStrings(component.SourceRuleIDs)
 		contributorVersions := uniqueSortedInts(component.SourceRuleVersionIDs)
@@ -213,6 +284,15 @@ func executeTemporalReplay(ctx context.Context, req ReplayRequest) (ReplayRespon
 			ContributorRuleIDs:        contributorIDs,
 			ContributorRuleVersionIDs: contributorVersions,
 		})
+		if req.ResearchTrace {
+			raw := strconv.FormatFloat(component.Amount, 'f', -1, 64)
+			roundingTrace = append(roundingTrace, ReplayRoundingTrace{
+				ComponentCode: strings.ToUpper(strings.TrimSpace(component.Code)), SourceRule: component.SourceRuleID,
+				RawCandidateDecimal: raw, ScaleBeforeRounding: decimalScale(raw), RoundingMode: req.RoundingPolicy.Mode,
+				RoundingQuantum: "0.000001", RoundedResult: payrollDecimalFromFloat(component.Amount).StringFixed(payrollMoneyScale),
+				OperationTimestamp: time.Now().UTC().Format(time.RFC3339Nano),
+			})
+		}
 	}
 	sort.Slice(components, func(i, j int) bool { return components[i].Code < components[j].Code })
 	summary := ReplaySummary{
@@ -225,7 +305,7 @@ func executeTemporalReplay(ctx context.Context, req ReplayRequest) (ReplayRespon
 		RuleVersionIDs: ruleIDs, RateVersionIDs: rateIDs, TaxVersionIDs: taxIDs,
 		RuleSetSHA256: rulesetHash, FactsSHA256: factsHash,
 		TranslatorVersion: temporalTranslatorVersion, EngineVersion: temporalEngineVersion,
-		RequestID: req.RequestID, ExecutionUUID: req.ExecutionUUID,
+		RequestID: originalRequestID, ExecutionUUID: req.ExecutionUUID,
 	}
 	output := map[string]interface{}{"components": components, "summary": summary, "provenance": provenance}
 	outputHash, err := canonicalSHA256(output)
@@ -237,12 +317,31 @@ func executeTemporalReplay(ctx context.Context, req ReplayRequest) (ReplayRespon
 		value := outputHash == req.ExpectedHashes.OriginalOutputSHA256
 		matches = &value
 	}
+	recordEvent("GO_HTTP", "RESPONSE_GENERATED")
 	return ReplayResponse{
-		Mode: req.Mode, ExecutionUUID: req.ExecutionUUID, RequestID: req.RequestID,
+		Mode: req.Mode, ExecutionUUID: req.ExecutionUUID, ReplayUUID: req.ReplayUUID, RequestID: req.RequestID,
+		LaravelCorrelationID: req.LaravelCorrelationID, TranslatorTraceID: translatorTraceID, GRULEExecutionID: gruleExecutionID,
 		Components: components, Summary: summary, Provenance: provenance,
 		GeneratedGRL: generatedGRL, GeneratedGRLSHA256: generatedHash,
-		OutputSHA256: outputHash, MatchesOriginalHash: matches,
+		OutputSHA256: outputHash, MatchesOriginalHash: matches, CorrelationEvents: events, RoundingTrace: roundingTrace,
 	}, nil
+}
+
+func newReplayUUID() string {
+	value := make([]byte, 16)
+	if _, err := rand.Read(value); err != nil {
+		return fmt.Sprintf("00000000-0000-4000-8000-%012x", time.Now().UnixNano()&0xffffffffffff)
+	}
+	value[6] = (value[6] & 0x0f) | 0x40
+	value[8] = (value[8] & 0x3f) | 0x80
+	return fmt.Sprintf("%08x-%04x-%04x-%04x-%012x", value[0:4], value[4:6], value[6:8], value[8:10], value[10:16])
+}
+
+func decimalScale(value string) int {
+	if index := strings.IndexByte(value, '.'); index >= 0 {
+		return len(value) - index - 1
+	}
+	return 0
 }
 
 func canonicalSHA256(value interface{}) (string, error) {

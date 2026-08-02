@@ -1,0 +1,21 @@
+claim,value,raw_evidence,generator,status
+manifest_count,"408 lines; 408 unique execution UUIDs; 408 unique manifest hashes",temporal-execution-manifests.jsonl,Laravel temporal experiment,VERIFIED
+replay_attempt_count,"816 unique case/repeat records",replay-results.jsonl,Laravel temporal experiment,VERIFIED
+supported_exact_replay,"808 MATCHED",replay-results.jsonl,Laravel replay service,VERIFIED
+expected_rejections,"8 EXPECTED_REJECTION",replay-results.jsonl,Laravel temporal experiment,VERIFIED
+original_request_ids,"408 present and unique",temporal-execution-manifests.jsonl,Go response and Laravel capture,VERIFIED
+runtime_replay_request_ids,"not stored",replay-results.jsonl,Laravel temporal experiment,MISSING
+go_runtime_correlation,"36 null go_request_id",full-pipeline-e2e.json,Laravel full-pipeline test,NOT_VERIFIED
+go_internal_runtime_trace,"32 source-only and 4 pre-HTTP rejection",full-pipeline-e2e.json,Laravel full-pipeline test,NOT_VERIFIED
+temporal_tax_binding,"408 BOUND with non-empty IDs",temporal-execution-manifests.jsonl,Laravel and Go,VERIFIED
+e2e_tax_applicability,"32 manual override and 4 rejected; zero version IDs",full-pipeline-e2e.json,Laravel full-pipeline test,NOT_APPLICABLE
+granular_exactness,"aggregate percent only",experiment-summary.json,Laravel temporal experiment,MISSING
+per_case_comparator,"status/hash/difference count only",replay-results.jsonl,Laravel temporal experiment,PARTIALLY_VERIFIED
+independent_mutation,"no reset between waves",mutation-waves.json,Laravel temporal experiment,NOT_VERIFIED
+cumulative_mutation,"7 sequential waves",mutation-waves.json,Laravel temporal experiment,VERIFIED
+current_state_contamination,"aggregate zero; no per-case trace",replay-results.jsonl,Laravel query guard,PARTIALLY_VERIFIED
+salary_side_effect,"before and after hash equal",experiment-summary.json,Laravel temporal experiment,VERIFIED
+time_provenance,"folder 160000Z; source start 152815Z; experiment start 153711Z; no summary run_id","source-identity.json; experiment-summary.json",clean runner and experiment,INCONSISTENT
+command_exit_codes,"15 files all zero",raw-logs/*.exit-code.txt,clean runner,VERIFIED
+second_environment,"no independent raw run",package contents,N/A,MISSING
+domain_validation,DOMAIN_VALIDATION_PENDING,experiment-summary.json,finalizer,VERIFIED

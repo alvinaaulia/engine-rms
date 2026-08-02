@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"net/http"
+	"net/http/httptest"
 	"reflect"
 	"strings"
 	"testing"
@@ -109,5 +111,75 @@ func TestCanonicalSHA256DoesNotHTMLEscapeComparisonOperators(t *testing.T) {
 	expected := sha256Text(`{"formula":"attendance.late_minutes > 0","operator":">"}`)
 	if actual != expected {
 		t.Fatalf("canonical hash escaped comparison operators: got %s want %s", actual, expected)
+	}
+}
+
+func TestTemporalReplayRuntimeCorrelationAndResearchTrace(t *testing.T) {
+	original := temporalReplayFixture(t)
+	original.ExecutionUUID = "11111111-1111-4111-8111-111111111111"
+	original.RequestID = "22222222-2222-4222-8222-222222222222"
+	baseline, err := executeTemporalReplay(context.Background(), original)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	replay := original
+	replay.RequestID = "33333333-3333-4333-8333-333333333333"
+	replay.OriginalRequestID = original.RequestID
+	replay.ReplayUUID = "44444444-4444-4444-8444-444444444444"
+	replay.LaravelCorrelationID = "55555555-5555-4555-8555-555555555555"
+	replay.ResearchTrace = true
+	replay.ExpectedHashes.OriginalOutputSHA256 = baseline.OutputSHA256
+	actual, err := executeTemporalReplay(context.Background(), replay)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if actual.RequestID != replay.RequestID || actual.ReplayUUID != replay.ReplayUUID || actual.LaravelCorrelationID != replay.LaravelCorrelationID {
+		t.Fatalf("runtime correlation was not returned: %#v", actual)
+	}
+	if actual.Provenance.RequestID != original.RequestID || actual.OutputSHA256 != baseline.OutputSHA256 {
+		t.Fatalf("runtime IDs changed historical output provenance/hash: %#v", actual.Provenance)
+	}
+	if len(actual.CorrelationEvents) < 7 || actual.TranslatorTraceID == "" || actual.GRULEExecutionID == "" {
+		t.Fatalf("runtime events are incomplete: %#v", actual.CorrelationEvents)
+	}
+	if len(actual.RoundingTrace) == 0 || actual.RoundingTrace[0].RoundedResult == "" {
+		t.Fatalf("research rounding trace is missing: %#v", actual.RoundingTrace)
+	}
+}
+
+func TestReplayHandlerRejectsMismatchedHTTPCorrelation(t *testing.T) {
+	req := temporalReplayFixture(t)
+	raw, err := json.Marshal(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	httpRequest := httptest.NewRequest(http.MethodPost, "/replay", strings.NewReader(string(raw)))
+	httpRequest.Header.Set("X-Request-ID", "different-request")
+	recorder := httptest.NewRecorder()
+	replayRules(recorder, httpRequest)
+	if recorder.Code != http.StatusBadRequest || !strings.Contains(recorder.Body.String(), "REPLAY_MANIFEST_INVALID") {
+		t.Fatalf("unexpected response: status=%d body=%s", recorder.Code, recorder.Body.String())
+	}
+}
+
+func TestCurrentExecutionSupportsIndependentScaleTwoRoundingPolicy(t *testing.T) {
+	req := temporalReplayFixture(t)
+	req.FactsSnapshot["rates"].(map[string]interface{})["bonus_rate"] = json.Number("1000.125001")
+	raw, err := json.Marshal(req.RuleSetSnapshot)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var ruleset TPRRuleSet
+	if err := json.Unmarshal(raw, &ruleset); err != nil {
+		t.Fatal(err)
+	}
+	ruleset.RoundingPolicy.Scale = 2
+	result, err := ExecuteTPRRuleSet(context.Background(), &ruleset, req.FactsSnapshot, req.ComponentTypesSnapshot)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(result.Components) != 1 || result.Components[0].Amount != 1000.13 {
+		t.Fatalf("scale-2 HALF_UP was not applied: %#v", result.Components)
 	}
 }

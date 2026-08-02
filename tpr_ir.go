@@ -477,8 +477,8 @@ func ValidateTPRRuleSet(rs *TPRRuleSet, facts map[string]interface{}) error {
 	if len(rs.Rules) == 0 || len(rs.Rules) > TPRMaxRules {
 		return validationError("INVALID_RULE_COUNT", "ruleset.rules", "ruleset must contain 1..500 rules")
 	}
-	if rs.RoundingPolicy.Scale != int(payrollMoneyScale) || rs.RoundingPolicy.Mode != "HALF_UP" {
-		return validationError("INVALID_ROUNDING_POLICY", "ruleset.rounding_policy", "TPR-IR 1.0 requires scale 6 HALF_UP")
+	if !containsInt([]int{2, int(payrollMoneyScale)}, rs.RoundingPolicy.Scale) || rs.RoundingPolicy.Mode != "HALF_UP" {
+		return validationError("INVALID_ROUNDING_POLICY", "ruleset.rounding_policy", "TPR-IR 1.0 supports scale 2 or 6 with HALF_UP")
 	}
 	if !containsString([]string{"UNIQUE", "FIRST", "PRIORITY", "COLLECT_SUM"}, rs.DefaultHitPolicy) {
 		return validationError("INVALID_HIT_POLICY", "ruleset.default_hit_policy", "unsupported hit policy")
@@ -595,6 +595,15 @@ func ValidateTPRRuleSet(rs *TPRRuleSet, facts map[string]interface{}) error {
 	}
 	_ = leaves
 	return validateConflicts(rs)
+}
+
+func containsInt(values []int, target int) bool {
+	for _, value := range values {
+		if value == target {
+			return true
+		}
+	}
+	return false
 }
 
 func canonicalRuleSemanticFingerprint(rule TPRRule) (string, error) {

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "side-effect-result.schema.json",
+  "allOf": [
+    {"$ref": "artifact-envelope.schema.json"},
+    {"properties": {"schema_ref": {"const": "temporal-artifact-schemas/side-effect-result.schema.json"}, "payload": {
+      "type": "object", "additionalProperties": false,
+      "required": ["salary_state_sha256_before", "salary_state_sha256_after", "salary_side_effect_count", "result"],
+      "properties": {
+        "salary_state_sha256_before": {"$ref": "artifact-envelope.schema.json#/$defs/sha256"},
+        "salary_state_sha256_after": {"$ref": "artifact-envelope.schema.json#/$defs/sha256"},
+        "salary_side_effect_count": {"type": "integer", "minimum": 0}, "result": {"enum": ["PASS", "FAIL"]}
+      },
+      "allOf": [{"if": {"properties": {"result": {"const": "PASS"}}}, "then": {"properties": {"salary_side_effect_count": {"const": 0}}}}]
+    }}}
+  ]
+}

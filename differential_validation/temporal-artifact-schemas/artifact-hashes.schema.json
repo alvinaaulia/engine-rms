@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "artifact-hashes.schema.json",
+  "allOf": [
+    {"$ref": "artifact-envelope.schema.json"},
+    {"properties": {"schema_ref": {"const": "temporal-artifact-schemas/artifact-hashes.schema.json"}, "payload": {
+      "type": "object", "additionalProperties": false, "required": ["artifacts"],
+      "properties": {"artifacts": {"type": "object", "minProperties": 1, "additionalProperties": {"$ref": "artifact-envelope.schema.json#/$defs/sha256"}}}
+    }}}
+  ]
+}

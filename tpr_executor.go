@@ -206,6 +206,9 @@ func ExecuteTPRRuleSet(ctx context.Context, rs *TPRRuleSet, facts map[string]int
 	if err != nil {
 		return ExecuteResponse{}, err
 	}
+	for index := range components {
+		components[index].Amount = payrollDecimalFromFloat(components[index].Amount).Rounded(int32(rs.RoundingPolicy.Scale)).Float64()
+	}
 	return ExecuteResponse{Components: components, Summary: calculateSummary(emp, components, componentTypes)}, nil
 }
 

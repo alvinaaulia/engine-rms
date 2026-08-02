@@ -1,4 +1,4 @@
-.PHONY: differential-validation validate-differential clean-validate clean-validate-wsl clean-temporal-replay finalize-v4-wsl validate package
+.PHONY: differential-validation validate-differential clean-validate clean-validate-wsl clean-temporal-replay clean-temporal-v2 finalize-v4-wsl validate package
 
 differential-validation:
 	bash ./run_all.sh
@@ -13,6 +13,9 @@ clean-validate-wsl:
 
 clean-temporal-replay:
 	bash ./scripts/clean_temporal_replay.sh
+
+clean-temporal-v2:
+	bash ./scripts/clean_temporal_v2.sh
 
 finalize-v4-wsl:
 	python ./generate_v4_clean_execution.py --run-id "$(RUN_ID)"
