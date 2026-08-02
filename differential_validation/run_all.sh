@@ -100,6 +100,6 @@ record --name laravel-tests-hardening --output-dir "$HARD_LOGS" --cwd "$LARAVEL_
 record --name run-evidence-generation --output-dir "$HARD_LOGS" --cwd "$ENGINE_DIR" -- python differential_validation/generate_run_evidence.py
 record --name hardening-artifact-generation --output-dir "$HARD_LOGS" --cwd "$ENGINE_DIR" -- python differential_validation/generate_hardening_artifacts.py
 record --name schema-validation --output-dir "$HARD_LOGS" --cwd "$ENGINE_DIR" -- python differential_validation/validate_artifacts.py
-record --name validator-tests --output-dir "$HARD_LOGS" --cwd "$ENGINE_DIR" -- python -m unittest differential_validation.tests.test_evidence differential_validation.tests.test_artifact_validator
+record --name validator-tests --output-dir "$HARD_LOGS" --cwd "$ENGINE_DIR" -- python -m unittest differential_validation.tests.test_evidence differential_validation.tests.test_artifact_validator differential_validation.tests.test_canonical_json
 record --name report-generation --output-dir "$HARD_LOGS" --cwd "$ENGINE_DIR" -- python differential_validation/generate_reports.py
 record --name final-schema-validation --output-dir "$HARD_LOGS" --cwd "$ENGINE_DIR" -- python differential_validation/validate_artifacts.py

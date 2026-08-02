@@ -3,10 +3,13 @@ from __future__ import annotations
 import hashlib
 import csv
 import json
+import sys
 import math
-from datetime import datetime, timezone
 from fractions import Fraction
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from canonical_json import encode_frozen_json
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -185,6 +188,7 @@ def main() -> None:
     corpus = json.loads(INPUT_PATH.read_text(encoding="utf-8"))
     expected = json.loads(EXPECTED_PATH.read_text(encoding="utf-8"))
     policy = json.loads(POLICY_PATH.read_text(encoding="utf-8"))
+    freeze_metadata = json.loads(FREEZE_PATH.read_text(encoding="utf-8"))
     by_id = {result["case_id"]: result for result in expected["results"]}
     sample = select_sample(corpus["cases"])
     disagreements: list[dict] = []
@@ -214,7 +218,9 @@ def main() -> None:
         raise SystemExit(f"Oracle verification failed: {len(disagreements)} disagreement(s)")
 
     sample_ids = {case["case_id"] for case in sample}
-    verified_at = datetime.now(timezone.utc).isoformat()
+    verified_at = freeze_metadata.get("verification_timestamp")
+    if not verified_at:
+        raise SystemExit("Frozen oracle metadata lacks verification_timestamp")
     for result in expected["results"]:
         if result["case_id"] in sample_ids:
             result.update({
@@ -246,7 +252,7 @@ def main() -> None:
         "disagreement_count": 0,
         "hrd_verified": False,
     }
-    EXPECTED_PATH.write_text(json.dumps(expected, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    EXPECTED_PATH.write_bytes(encode_frozen_json(expected))
 
     metadata_by_id = {result["case_id"]: result for result in expected["results"]}
     with EXPECTED_CSV_PATH.open(encoding="utf-8", newline="") as handle:
@@ -284,12 +290,13 @@ def main() -> None:
         encoding="utf-8",
     )
 
-    frozen_at = datetime.now(timezone.utc).isoformat()
+    frozen_at = freeze_metadata["frozen_at_utc"]
     freeze = {
         "artifact_version": "2.0",
         "schema_version": "2.0",
         "status": "FROZEN_REFERENCE_ORACLE",
         "frozen_at_utc": frozen_at,
+        "verification_timestamp": verified_at,
         "policy_version": policy["policy_version"],
         "case_count": len(corpus["cases"]),
         "independently_verified_count": len(sample),

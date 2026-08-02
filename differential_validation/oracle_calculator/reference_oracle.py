@@ -3,8 +3,12 @@ from __future__ import annotations
 import csv
 import hashlib
 import json
+import sys
 from decimal import Decimal, ROUND_HALF_UP, localcontext
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from canonical_json import encode_frozen_json
 
 ROOT = Path(__file__).resolve().parents[1]
 INPUT_PATH = ROOT / "oracle_input_cases.json"
@@ -247,10 +251,10 @@ def main() -> None:
         "case_count": len(results),
         "results": results,
     }
-    encoded = json.dumps(payload, ensure_ascii=False, indent=2) + "\n"
-    JSON_PATH.write_text(encoded, encoding="utf-8")
+    encoded = encode_frozen_json(payload)
+    JSON_PATH.write_bytes(encoded)
     write_csv(results, policy)
-    print(json.dumps({"case_count": len(results), "sha256": hashlib.sha256(encoded.encode()).hexdigest()}))
+    print(json.dumps({"case_count": len(results), "sha256": hashlib.sha256(encoded).hexdigest()}))
 
 
 if __name__ == "__main__":

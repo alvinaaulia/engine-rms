@@ -10,6 +10,8 @@ from datetime import date
 from decimal import Decimal
 from pathlib import Path
 
+from canonical_json import encode_frozen_json
+
 
 ROOT = Path(__file__).resolve().parent
 POLICY_PATH = ROOT / "reference_policy.json"
@@ -322,10 +324,10 @@ def main() -> None:
         "random_seed": SEED, "profile_count": len(profiles), "period_count": 12,
         "case_count": len(cases), "valid_case_count": len(valid), "invalid_case_count": len(cases) - len(valid), "cases": cases,
     }
-    encoded = json.dumps(payload, ensure_ascii=False, indent=2) + "\n"
-    JSON_PATH.write_text(encoded, encoding="utf-8")
+    encoded = encode_frozen_json(payload)
+    JSON_PATH.write_bytes(encoded)
     write_csv(cases)
-    print(json.dumps({"case_count": len(cases), "valid": len(valid), "invalid": len(cases) - len(valid), "sha256": hashlib.sha256(encoded.encode()).hexdigest()}))
+    print(json.dumps({"case_count": len(cases), "valid": len(valid), "invalid": len(cases) - len(valid), "sha256": hashlib.sha256(encoded).hexdigest()}))
 
 
 if __name__ == "__main__":
