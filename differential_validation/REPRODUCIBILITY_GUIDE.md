@@ -15,34 +15,63 @@ Do not use the precompiled Windows binary as experimental evidence. The runner b
 
 ## Prerequisites
 
-- Go 1.26.2
-- PHP 8.4 and Composer dependencies for Laravel
+- Go 1.25.6 (the version declared by `go.mod`)
+- PHP 8.1 or newer and Composer dependencies for Laravel
 - Python 3.14 with `requirements.txt`
-- Git Bash and Make, or Docker Compose
+- WSL 2 with Ubuntu and Make, or Docker Compose
 - isolated MySQL database whose name contains `test` or `testing`
 
 Copy `.env.example`, set credentials for the isolated testing database, and install Laravel dependencies with `composer install`. The deterministic corpus seed, timezone, locale, dependency version, and container image digests are committed.
 
-## Primary command
+## Primary command on WSL 2
 
-From `engine-rms/differential_validation` in Git Bash:
+Install the native Linux prerequisites once:
 
 ```bash
-make clean-validate
+sudo apt-get -o Acquire::ForceIPv4=true update
+sudo apt-get install -y make jq unzip ca-certificates curl php-cli php-mysql \
+  php-mbstring php-xml php-curl php-zip php-bcmath composer \
+  python3-pip python3-venv default-mysql-client
 ```
 
-The command builds containers without cache, starts MySQL, the Laravel application, and the fixed Go service, then runs the validation container. It refuses a dirty tree, verifies repository commits and frozen hashes, guards the test database name, prepares migrations, builds the reconstructed engine from source, executes both baseline repeats and the fixed comparison, runs translator fixtures, Go and Laravel tests, Go vet, E2E traces, schemas, manifests, and reports. An unresolved mismatch or failed command returns non-zero.
+Install the exact Go toolchain declared by `go.mod` from the official Go archive and
+verify the published SHA-256 before extraction. Then, from Ubuntu WSL 2, provide a
+dedicated empty testing database without printing its password:
 
-The PowerShell file is only a convenience wrapper around the same Bash route.
+```bash
+cd /mnt/c/PROJECT/engine-rms/differential_validation
+export DB_HOST="$(ip route show default | awk '{print $3; exit}')"
+export DB_PORT=3306
+export DB_DATABASE=website_papa_v2_wsl_clean
+export DB_USERNAME=tpr_ir_wsl
+read -rsp 'Testing DB password: ' DB_PASSWORD; echo
+export DB_PASSWORD
+make clean-validate-wsl
+```
 
-## Optional clean container route
+`clean-validate-wsl` clones both tagged repositories into a new directory on the
+Linux filesystem, creates new Python, Composer, Go module, and Go build cache
+directories, installs from lockfiles, verifies the frozen hashes, checks MySQL and
+Laravel readiness, runs the complete validation workflow, and copies only the
+run-scoped evidence back to `runs/clean-environment/<run-id>/`. It never uses the
+Windows Laravel `vendor` directory or a precompiled Windows Go binary. Any failed
+dependency, readiness check, mismatch, test, schema, or report returns non-zero.
+
+The MySQL schema must be dedicated to this audit. `migrate:fresh` is the first
+recorded experiment command, so tables from an application or previous run are not
+accepted as starting evidence.
+
+## Optional Docker route
 
 ```bash
 docker compose build --no-cache
 docker compose run --rm validation-runner
 ```
 
-The PHP, Python, Go, Composer, and MySQL image references use registry digests. Docker, WSL Linux, and usable external-CI credentials were unavailable on the audit host, so this route is supplied but its clean-environment result is `NOT_EXECUTED`, not success.
+The PHP, Python, Go, Composer, and MySQL image references use registry digests. Use
+this route only on a machine that can sustain Docker Desktop. Docker and WSL runs
+have separate run identifiers and runner metadata; a WSL run never claims image
+digests or container IDs.
 
 ## Review bundle
 

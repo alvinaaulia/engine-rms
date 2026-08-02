@@ -19,7 +19,7 @@ cleanup() {
 trap cleanup EXIT
 
 require() { command -v "$1" >/dev/null 2>&1 || { echo "Missing dependency: $1" >&2; exit 2; }; }
-for tool in git go php python; do require "$tool"; done
+for tool in curl git go php python; do require "$tool"; done
 [[ -f "$LARAVEL_DIR/artisan" ]] || { echo "Laravel repository not found: $LARAVEL_DIR" >&2; exit 2; }
 
 for repo in "$ENGINE_DIR" "$LARAVEL_DIR"; do
@@ -51,6 +51,18 @@ export LARAVEL_ROOT="$LARAVEL_DIR" TZ="${TZ:-Asia/Bangkok}" LC_ALL="${LC_ALL:-C.
 [[ "$DB_DATABASE" == *test* ]] || { echo "Refusing non-test database: $DB_DATABASE" >&2; exit 2; }
 
 record() { python "$PACKAGE_DIR/record_command.py" "$@"; }
+wait_for_engine() {
+  local attempt
+  for attempt in $(seq 1 60); do
+    if curl --fail --silent --show-error "$RULE_ENGINE_URL/health" >/dev/null 2>&1; then
+      return 0
+    fi
+    sleep 1
+  done
+  echo "Rule engine did not become ready at $RULE_ENGINE_URL after 60 seconds" >&2
+  return 1
+}
+
 record --name migration --output-dir "$HARD_LOGS" --cwd "$LARAVEL_DIR" -- php artisan migrate:fresh --env=testing --force
 record --name corpus-generation --output-dir "$HARD_LOGS" --cwd "$ENGINE_DIR" -- python differential_validation/generate_corpus.py
 record --name oracle-generation --output-dir "$HARD_LOGS" --cwd "$ENGINE_DIR" -- python differential_validation/oracle_calculator/reference_oracle.py
@@ -61,7 +73,7 @@ go -C "$ENGINE_DIR" build -tags differential_baseline -o "$TMP_DIR/baseline$suff
 for repeat in 1 2; do
   repeat_dir="$RUNS_DIR/reconstructed-baseline/repeat-$repeat"
   "$TMP_DIR/baseline$suffix" >"$repeat_dir/raw-logs/engine.stdout.log" 2>"$repeat_dir/raw-logs/engine.stderr.log" & ENGINE_PID=$!
-  sleep 2
+  wait_for_engine
   record --name differential --output-dir "$repeat_dir/raw-logs" --cwd "$ENGINE_DIR" -- python differential_validation/differential_runner/run_differential.py --output-dir "differential_validation/runs/reconstructed-baseline/repeat-$repeat" --run-id "reconstructed-baseline-repeat-$repeat" --allow-mismatches
   kill "$ENGINE_PID"; wait "$ENGINE_PID" 2>/dev/null || true; ENGINE_PID=""
 done
@@ -74,7 +86,7 @@ export RULE_ENGINE_URL="$FIXED_RULE_ENGINE_URL"
 if [[ "${USE_EXTERNAL_FIXED_ENGINE:-0}" != "1" ]]; then
   go -C "$ENGINE_DIR" build -o "$TMP_DIR/fixed$suffix" .
   "$TMP_DIR/fixed$suffix" >"$RUNS_DIR/fixed/raw-logs/engine.stdout.log" 2>"$RUNS_DIR/fixed/raw-logs/engine.stderr.log" & ENGINE_PID=$!
-  sleep 2
+  wait_for_engine
 fi
 record --name differential-hardening --output-dir "$RUNS_DIR/fixed/raw-logs" --cwd "$ENGINE_DIR" -- python differential_validation/differential_runner/run_differential.py --output-dir differential_validation/runs/fixed --run-id fixed-hardening
 record --name translator-hardening --output-dir "$HARD_LOGS" --cwd "$ENGINE_DIR" -- go test -json -run TestTranslationValidationFixtures -count=1 .

@@ -1,4 +1,4 @@
-.PHONY: differential-validation validate-differential clean-validate validate package
+.PHONY: differential-validation validate-differential clean-validate clean-validate-wsl validate package
 
 differential-validation:
 	bash ./run_all.sh
@@ -7,6 +7,9 @@ validate-differential: differential-validation
 
 clean-validate:
 	bash ./scripts/clean_compose.sh
+
+clean-validate-wsl:
+	bash ./scripts/clean_wsl.sh
 
 validate:
 	python ./validate_artifacts.py

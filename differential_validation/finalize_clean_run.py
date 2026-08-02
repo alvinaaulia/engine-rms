@@ -1,4 +1,4 @@
-"""Finalize a Docker/CI clean run; never upgrades a failed run to PASS."""
+"""Finalize an isolated clean run; never upgrades a failed run to PASS."""
 from __future__ import annotations
 
 import argparse
@@ -40,6 +40,7 @@ def main() -> None:
     parser.add_argument("--runner-id", default="")
     parser.add_argument("--runner-os", default="")
     parser.add_argument("--runner-architecture", default="")
+    parser.add_argument("--runner-type", choices=("DOCKER", "WSL_NATIVE", "CI"), default="DOCKER")
     args = parser.parse_args()
 
     status = "FAIL" if args.exit_code else "PASS_PENDING_ARTIFACT_CHECK"
@@ -76,10 +77,23 @@ def main() -> None:
         status, reason = "FAIL", str(exc)
 
     image_output = CLEAN / "raw-logs/docker-images.json"
-    image_digests = {"actual_images_inspected": image_output.exists(), "docker_compose_images_raw": image_output.relative_to(CLEAN).as_posix() if image_output.exists() else None}
+    if args.runner_type == "DOCKER":
+        image_digests = {
+            "applicable": True,
+            "actual_images_inspected": image_output.exists(),
+            "docker_compose_images_raw": image_output.relative_to(CLEAN).as_posix() if image_output.exists() else None,
+        }
+    else:
+        image_digests = {
+            "applicable": False,
+            "actual_images_inspected": False,
+            "docker_compose_images_raw": None,
+            "reason": f"{args.runner_type} executes pinned host packages and lockfiles without container images",
+        }
     write(CLEAN / "image-digests.json", image_digests)
     write(CLEAN / "environment.json", {
         "artifact_version": "1.0", "execution_status": status,
+        "runner_type": args.runner_type,
         "runner_id": args.runner_id or platform.node(),
         "container_ids": [args.container_id] if args.container_id else [],
         "os": args.runner_os or platform.platform(),
@@ -124,7 +138,7 @@ def main() -> None:
         "evidence_file": "manifest.json", "status": status,
     })
     write(CLEAN / "command-results.json", {"artifact_version": "1.0", "commands": command_results})
-    early_failure = args.failure_stage in {"DOCKER_BUILD", "SERVICE_READINESS"} or not recorded_experiment_commands
+    early_failure = args.failure_stage in {"SOURCE_SNAPSHOT", "ENVIRONMENT_PREPARATION", "DOCKER_BUILD", "SERVICE_READINESS"} or not recorded_experiment_commands
     if status == "FAIL" and args.failure_stage == "VALIDATION_RUNNER" and not recorded_experiment_commands:
         reason = args.failure_reason or "validation-runner exited before any recorded experiment command"
     for source, destination in (
@@ -142,9 +156,17 @@ def main() -> None:
             destination.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(source, destination)
     experiment_status = "PASS" if status == "PASS" else ("NOT_EXECUTED" if early_failure else "FAIL")
-    build_status = "FAIL" if args.failure_stage == "DOCKER_BUILD" else "PASS"
+    build_status = (
+        "NOT_APPLICABLE" if args.runner_type != "DOCKER"
+        else "FAIL" if args.failure_stage == "DOCKER_BUILD"
+        else "PASS"
+    )
+    preparation_status = (
+        "FAIL" if args.failure_stage in {"SOURCE_SNAPSHOT", "ENVIRONMENT_PREPARATION"}
+        else "PASS"
+    )
     readiness_status = (
-        "NOT_EXECUTED" if args.failure_stage == "DOCKER_BUILD"
+        "NOT_EXECUTED" if args.failure_stage in {"SOURCE_SNAPSHOT", "ENVIRONMENT_PREPARATION", "DOCKER_BUILD"}
         else "FAIL" if args.failure_stage == "SERVICE_READINESS"
         else "PASS"
     )
@@ -154,7 +176,9 @@ def main() -> None:
         "started_at": args.started_at, "finished_at": args.finished_at,
         "total_duration_seconds": args.duration_seconds,
         "clean_runner_id": args.runner_id or platform.node(),
+        "runner_type": args.runner_type,
         "container_id": args.container_id or None,
+        "environment_preparation": preparation_status,
         "docker_build": build_status, "service_readiness": readiness_status,
         "hash_verification": experiment_status,
         "reconstructed_baseline": experiment_status,
