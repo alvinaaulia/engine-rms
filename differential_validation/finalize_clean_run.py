@@ -131,8 +131,9 @@ def main() -> None:
                 "evidence_file": copied.get("evidence_file"),
                 "status": "PASS" if meta["exit_code"] == 0 and evidence_exists else "FAIL",
             })
+    wrapper_target = "clean-validate-wsl" if args.runner_type == "WSL_NATIVE" else "clean-validate"
     command_results.append({
-        "command": ["make", "clean-validate"], "started_at": args.started_at, "finished_at": args.finished_at,
+        "command": ["make", wrapper_target], "started_at": args.started_at, "finished_at": args.finished_at,
         "duration_seconds": args.duration_seconds, "exit_code": args.exit_code,
         "working_directory": "differential_validation", "stdout_file": args.primary_log, "stderr_file": None,
         "evidence_file": "manifest.json", "status": status,

@@ -42,7 +42,7 @@ dedicated empty testing database without printing its password:
 cd /mnt/c/PROJECT/engine-rms/differential_validation
 export DB_HOST="$(ip route show default | awk '{print $3; exit}')"
 export DB_PORT=3306
-export DB_DATABASE=website_papa_v2_wsl_clean
+export DB_DATABASE=website_papa_v2_wsl_clean_testing
 export DB_USERNAME=tpr_ir_wsl
 read -rsp 'Testing DB password: ' DB_PASSWORD; echo
 export DB_PASSWORD

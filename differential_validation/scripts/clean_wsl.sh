@@ -43,8 +43,8 @@ for tool in composer curl git go jq make mysql mysqladmin php python3; do requir
 for variable in DB_HOST DB_DATABASE DB_USERNAME; do
   [[ -n "${!variable:-}" ]] || { echo "Missing required environment variable: $variable" >&2; exit 2; }
 done
-[[ "$DB_DATABASE" == *test* || "$DB_DATABASE" == *clean* ]] || {
-  echo "Refusing database without test/clean marker: $DB_DATABASE" >&2
+[[ "$DB_DATABASE" == *test* ]] || {
+  echo "Refusing database without test marker: $DB_DATABASE" >&2
   exit 2
 }
 
@@ -168,6 +168,7 @@ PY
   fi
 fi
 
+mkdir -p "$SNAP_CLEAN/raw-logs"
 cp "$TEMP_LOGS"/* "$SNAP_CLEAN/raw-logs/" 2>/dev/null || true
 FINISHED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 DURATION="$(( $(date +%s) - START_SECONDS ))"
