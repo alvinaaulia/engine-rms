@@ -52,10 +52,8 @@ mkdir -p "$TEMP_LOGS" "$SNAP_ROOT"
 set +e
 {
   git clone --no-hardlinks --no-checkout "$ENGINE_REPO" "$SNAP_ENGINE"
-  git -C "$SNAP_ENGINE" config core.autocrlf true
   git -C "$SNAP_ENGINE" checkout --detach "$ENGINE_REF"
   git clone --no-hardlinks --no-checkout "$LARAVEL_REPO" "$SNAP_LARAVEL"
-  git -C "$SNAP_LARAVEL" config core.autocrlf true
   git -C "$SNAP_LARAVEL" checkout --detach "$LARAVEL_REF"
   printf 'engine_ref=%s\nengine_commit=%s\nengine_status=%s\n' \
     "$ENGINE_REF" "$(git -C "$SNAP_ENGINE" rev-parse HEAD)" "$(git -C "$SNAP_ENGINE" status --porcelain)"
