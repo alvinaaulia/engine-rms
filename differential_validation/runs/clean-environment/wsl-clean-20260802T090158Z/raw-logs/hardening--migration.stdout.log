@@ -1,0 +1,82 @@
+
+  Dropping all tables ........................................... 4,636ms DONE
+
+   INFO  Preparing database.  
+
+  Creating migration table ......................................... 54ms DONE
+
+﻿﻿   INFO  Running migrations.  
+
+  2014_10_12_100000_create_password_reset_tokens_table ............. 59ms DONE
+  2019_08_19_000000_create_failed_jobs_table ....................... 95ms DONE
+  2019_12_14_000001_create_personal_access_tokens_table ........... 118ms DONE
+  2025_09_10_064456_create_last_educations_table ................... 48ms DONE
+  2025_09_10_065418_create_experiences_table ....................... 33ms DONE
+  2025_09_10_065419_create_users_table ............................ 116ms DONE
+  2025_09_10_065420_create_profiles_table ......................... 757ms DONE
+  2025_09_10_070617_create_projects_table .......................... 36ms DONE
+  2025_09_11_014802_leave ......................................... 270ms DONE
+  2025_09_11_014813_presence ...................................... 205ms DONE
+  2025_09_11_014830_master_salary ................................. 151ms DONE
+  2025_09_11_014838_master_leave ................................... 44ms DONE
+  2025_09_11_014844_salary ........................................ 193ms DONE
+  2025_09_11_020108_overtime ...................................... 163ms DONE
+  2025_09_11_020609_contract ...................................... 266ms DONE
+  2025_11_14_032849_create_activty_types_table ..................... 48ms DONE
+  2025_11_17_044217_create_master_positions_table .................. 30ms DONE
+  2025_11_17_044419_create_positions_table ........................ 326ms DONE
+  2025_11_17_060409_create_master_leave_type_table ................. 93ms DONE
+  2025_11_19_033904_create_daily_activities_table ................. 148ms DONE
+  2025_11_19_053304_create_master_document_table ................... 32ms DONE
+  2025_12_07_030229_add_pph21_and_net_salary_to_master_salaries_table  59ms DONE
+  2026_01_27_022842_create_rules_tables ........................... 250ms DONE
+  2026_01_28_050906_create_salary_components_table ................. 98ms DONE
+  2026_01_28_063250_create_rule_version_components_tables ......... 272ms DONE
+  2026_01_28_130747_create_rule_audit_logs_table .................. 111ms DONE
+  2026_01_29_014446_change_action_type_to_varchar ................. 148ms DONE
+  2026_02_26_001800_alter_personal_access_tokens_tokenable_id_for_uuid  479ms DONE
+  2026_03_01_163836_change_user_id_to_uuid_in_rule_audit_logs ..... 280ms DONE
+  2026_03_01_174401_create_project_teams_table .................... 251ms DONE
+  2026_03_04_184212_alter_rule_versions_user_columns .............. 111ms DONE
+  2026_03_09_000000_create_employees_table ........................ 153ms DONE
+  2026_03_09_000001_create_weights_table ........................... 34ms DONE
+  2026_03_09_000002_create_priorities_table ........................ 33ms DONE
+  2026_03_09_000004_create_tasks_table ............................ 514ms DONE
+  2026_03_17_100000_create_company_taxes_table ..................... 89ms DONE
+  2026_03_22_010000_create_salary_grades_table ..................... 72ms DONE
+  2026_03_22_010100_add_grade_and_period_to_master_salary_table .... 36ms DONE
+  2026_03_23_010200_add_rule_engine_columns_to_salary_table ........ 30ms DONE
+  2026_04_06_120000_add_tax_and_payslip_actions_to_rule_audit_logs  117ms DONE
+  2026_04_09_000000_create_performance_summary_table .............. 149ms DONE
+  2026_04_16_000001_add_employee_category_to_salary_grade_and_master_salary_tables  56ms DONE
+  2026_04_16_000002_add_approval_columns_to_company_taxes_table .... 24ms DONE
+  2026_04_17_000001_fix_company_tax_approval_user_columns_to_uuid . 172ms DONE
+  2026_04_17_000002_extend_rule_audit_log_action_type_for_tax_approval  99ms DONE
+  2026_05_10_000003_change_rule_audit_logs_action_type_to_varchar .. 91ms DONE
+  2026_05_10_000004_make_user_id_nullable_in_rule_audit_logs ....... 92ms DONE
+  2026_05_12_000005_create_payroll_rate_settings_table ............ 161ms DONE
+  2026_05_12_085404_add_status_pm_to_overtimes_table ............... 34ms DONE
+  2026_05_14_004808_add_status_hrd_to_overtimes_table .............. 33ms DONE
+  2026_05_14_120000_add_regency_to_profiles_table .................. 37ms DONE
+  2026_05_16_000001_add_employment_status_to_profiles_table ........ 45ms DONE
+  2026_05_17_000001_backfill_approved_company_taxes_as_active ...... 51ms DONE
+﻿  2026_05_17_000002_add_rate_type_to_payroll_rate_settings_table ... 77ms DONE
+﻿  2026_05_17_000003_fix_deduction_rate_type_aliases ................ 18ms DONE
+  2026_05_18_000001_add_applicability_scopes_to_company_taxes_table  26ms DONE
+  2026_05_18_000002_add_tax_identity_fields_to_profiles_table ...... 36ms DONE
+  2026_05_18_000003_normalize_profile_employment_types ............ 252ms DONE
+  2026_05_18_000004_create_payroll_rate_key_catalog_table ......... 294ms DONE
+  2026_05_19_000001_add_rate_versioning_and_rate_audit_context .... 453ms DONE
+  2026_05_31_000000_add_done_status_to_contract_table .............. 37ms DONE
+  2026_06_04_000001_add_status_director_to_overtimes_table ......... 47ms DONE
+  2026_06_06_000001_clear_legacy_master_salary_tax ................. 37ms DONE
+  2026_06_07_000001_ensure_rule_engine_tax_configuration ........... 82ms DONE
+  2026_06_24_000001_add_versioning_to_company_taxes_table ......... 196ms DONE
+  2026_07_07_000001_create_work_schedule_settings_table ............ 90ms DONE
+  2026_07_08_000001_add_day_of_week_to_work_schedule_settings_table  17ms DONE
+  2026_07_08_000002_add_expired_status_to_rule_versions ............ 52ms DONE
+  2026_07_08_000002_add_is_working_day_to_work_schedule_settings_table  12ms DONE
+  2026_07_12_000001_increase_payroll_decimal_precision .......... 1,041ms DONE
+  2026_07_12_000002_restore_payroll_money_precision ............... 924ms DONE
+  2026_07_12_000003_add_descriptions_to_system_rate_key_catalog .... 51ms DONE
+

@@ -1,0 +1,66 @@
+{
+  "artifact_version": "2.0",
+  "schema_version": "2.0",
+  "baseline_type": "RECONSTRUCTED",
+  "reconstruction_method": "Fixed source was built with the non-production differential_baseline tag, which disables only formula-fact runtime type validation and reproduces the tagged pre-remediation behavior.",
+  "source_commit": "1dcad9df1be852263590fd23ab11ce569ea1c99e",
+  "source_tag": "tpr-ir-differential-baseline-v1",
+  "applied_or_reverted_patch": "remediation-revert.patch; implemented at reconstruction time by formula_fact_validation_baseline.go",
+  "corpus_hash": "08f16457e2ba3a3ce614ba4e71d9d2629f496c9249c43fe6b09828618161f011",
+  "expected_hash": "e6d5a74fef5b739134796bb83b41641d155160d16fe563276fc4f57940d9e91c",
+  "policy_hash": "1edaaed6094facf558de01e741f12beb0ac3a828d950c2d7ab8e58d2da9ddca1",
+  "repeat_runs": [
+    {
+      "run_id": "reconstructed-baseline-repeat-1",
+      "actual_file": "runs/reconstructed-baseline/repeat-1/actual_results.json",
+      "actual_file_hash": "af82ca2b85a7e91129a533db6a4b13570b7106c26138f77d04049c0ebbf75bfe",
+      "semantic_results_hash": "4a1d6b5941e7fa7747eb5888d80c83d61988797c772fdbf6c7edc12910930317",
+      "mismatch_file_hash": "a520a166145b37600890a05e2afe9cfc14429af8c64e85eea554482051517819",
+      "mismatch_count": 8,
+      "mismatch_case_ids": [
+        "INVALID-002",
+        "INVALID-005",
+        "INVALID-008",
+        "INVALID-011",
+        "INVALID-014",
+        "INVALID-017",
+        "INVALID-020",
+        "INVALID-023"
+      ],
+      "command_evidence": "runs/reconstructed-baseline/repeat-1/raw-logs/differential.meta.json"
+    },
+    {
+      "run_id": "reconstructed-baseline-repeat-2",
+      "actual_file": "runs/reconstructed-baseline/repeat-2/actual_results.json",
+      "actual_file_hash": "aef5ea93b6f3185fa20949e4fb0e24dfd96323eb60161d659117aba6560fce20",
+      "semantic_results_hash": "4a1d6b5941e7fa7747eb5888d80c83d61988797c772fdbf6c7edc12910930317",
+      "mismatch_file_hash": "2eea0532d62aebf7411af8283ebe4e64312964c17ef62e353f3433d93fa11bd6",
+      "mismatch_count": 8,
+      "mismatch_case_ids": [
+        "INVALID-002",
+        "INVALID-005",
+        "INVALID-008",
+        "INVALID-011",
+        "INVALID-014",
+        "INVALID-017",
+        "INVALID-020",
+        "INVALID-023"
+      ],
+      "command_evidence": "runs/reconstructed-baseline/repeat-2/raw-logs/differential.meta.json"
+    }
+  ],
+  "stable_mismatch_case_ids": [
+    "INVALID-002",
+    "INVALID-005",
+    "INVALID-008",
+    "INVALID-011",
+    "INVALID-014",
+    "INVALID-017",
+    "INVALID-020",
+    "INVALID-023"
+  ],
+  "limitations": [
+    "The original historical raw baseline was overwritten before hardening; these are newly executed reconstruction runs."
+  ],
+  "reproducibility_status": "RECONSTRUCTED_REPRODUCED"
+}

@@ -1,4 +1,4 @@
-.PHONY: differential-validation validate-differential clean-validate clean-validate-wsl validate package
+.PHONY: differential-validation validate-differential clean-validate clean-validate-wsl finalize-v4-wsl validate package
 
 differential-validation:
 	bash ./run_all.sh
@@ -10,6 +10,9 @@ clean-validate:
 
 clean-validate-wsl:
 	bash ./scripts/clean_wsl.sh
+
+finalize-v4-wsl:
+	python ./generate_v4_clean_execution.py --run-id "$(RUN_ID)"
 
 validate:
 	python ./validate_artifacts.py

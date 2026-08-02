@@ -61,6 +61,17 @@ The MySQL schema must be dedicated to this audit. `migrate:fresh` is the first
 recorded experiment command, so tables from an application or previous run are not
 accepted as starting evidence.
 
+After a successful run, validate that complete evidence set and regenerate the V4
+closure reports from it:
+
+```bash
+make finalize-v4-wsl RUN_ID=wsl-clean-YYYYMMDDTHHMMSSZ
+```
+
+This finalization command refuses a non-PASS manifest, a failed recorded command,
+changed frozen hash, unstable reconstructed baseline, fixed mismatch, incomplete
+translator/pipeline/guard evidence, or failed JUnit/Go evidence.
+
 ## Optional Docker route
 
 ```bash
