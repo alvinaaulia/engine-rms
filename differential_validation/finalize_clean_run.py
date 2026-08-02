@@ -101,6 +101,7 @@ def main() -> None:
         "timezone": "Asia/Jakarta", "locale": "C.UTF-8",
     })
     command_results = []
+    failed_command_summaries = []
     meta_roots = [
         ROOT / "runs/hardening/raw-logs", ROOT / "runs/fixed/raw-logs",
         ROOT / "runs/reconstructed-baseline/repeat-1/raw-logs",
@@ -124,13 +125,20 @@ def main() -> None:
                     shutil.copy2(source, destination)
                     copied[key] = destination.relative_to(CLEAN).as_posix()
             evidence_exists = bool(copied.get("evidence_file"))
+            command_status = "PASS" if meta["exit_code"] == 0 and evidence_exists else "FAIL"
+            if command_status == "FAIL":
+                failed_command_summaries.append(
+                    f"{' '.join(meta['command'])} (exit_code={meta['exit_code']}, evidence_exists={evidence_exists})"
+                )
             command_results.append({
                 "command": meta["command"], "started_at": meta["started_at"], "finished_at": meta["finished_at"],
                 "duration_seconds": meta["duration_seconds"], "exit_code": meta["exit_code"],
                 "stdout_file": copied.get("stdout_file"), "stderr_file": copied.get("stderr_file"),
                 "evidence_file": copied.get("evidence_file"),
-                "status": "PASS" if meta["exit_code"] == 0 and evidence_exists else "FAIL",
+                "status": command_status,
             })
+    if args.exit_code and failed_command_summaries:
+        reason = f"recorded command failed: {failed_command_summaries[0]}"
     wrapper_target = "clean-validate-wsl" if args.runner_type == "WSL_NATIVE" else "clean-validate"
     command_results.append({
         "command": ["make", wrapper_target], "started_at": args.started_at, "finished_at": args.finished_at,

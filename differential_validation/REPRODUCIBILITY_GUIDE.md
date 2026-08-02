@@ -30,7 +30,7 @@ Install the native Linux prerequisites once:
 ```bash
 sudo apt-get -o Acquire::ForceIPv4=true update
 sudo apt-get install -y make jq unzip ca-certificates curl php-cli php-mysql \
-  php-mbstring php-xml php-curl php-zip php-bcmath composer \
+  php-mbstring php-xml php-curl php-zip php-bcmath php-gd composer \
   python3-pip python3-venv default-mysql-client
 ```
 

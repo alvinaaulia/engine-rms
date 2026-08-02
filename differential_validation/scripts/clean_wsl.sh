@@ -39,6 +39,7 @@ require() {
 }
 
 for tool in composer curl git go jq make mysql mysqladmin php python3; do require "$tool"; done
+php -r 'foreach (["bcmath", "curl", "dom", "gd", "mbstring", "pdo_mysql", "zip"] as $extension) { if (!extension_loaded($extension)) { fwrite(STDERR, "Missing PHP extension: {$extension}\n"); exit(2); } }'
 [[ "$(uname -s)" == "Linux" ]] || { echo "This runner must execute inside WSL/Linux" >&2; exit 2; }
 for variable in DB_HOST DB_DATABASE DB_USERNAME; do
   [[ -n "${!variable:-}" ]] || { echo "Missing required environment variable: $variable" >&2; exit 2; }
