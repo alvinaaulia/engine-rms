@@ -73,7 +73,7 @@ suffix=""
 
 run_step migration "$LARAVEL_DIR" php artisan migrate:fresh --force --no-ansi
 run_step environment-laravel "$LARAVEL_DIR" php artisan about --only=environment --no-ansi
-run_step environment-database "$LARAVEL_DIR" php artisan db:show --no-ansi
+run_step environment-database "$LARAVEL_DIR" php -r 'require "vendor/autoload.php"; $app=require "bootstrap/app.php"; $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap(); $row=Illuminate\Support\Facades\DB::selectOne("SELECT VERSION() AS version, DATABASE() AS database_name, @@collation_server AS collation_name, @@time_zone AS server_timezone"); echo json_encode($row, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES), PHP_EOL;'
 run_step environment-go "$ENGINE_DIR" go version
 run_step environment-python "$ENGINE_DIR" python --version
 run_step go-tests "$ENGINE_DIR" go test -count=1 ./...
