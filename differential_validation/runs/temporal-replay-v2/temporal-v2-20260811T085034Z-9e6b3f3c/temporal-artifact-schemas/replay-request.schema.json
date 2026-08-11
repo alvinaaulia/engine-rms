@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "replay-request.schema.json",
+  "allOf": [
+    {"$ref": "artifact-envelope.schema.json"},
+    {"properties": {"schema_ref": {"const": "temporal-artifact-schemas/replay-request.schema.json"}, "payload": {
+      "type": "object", "additionalProperties": false,
+      "required": ["mode", "execution_uuid", "replay_uuid", "request_id", "original_request_id", "laravel_correlation_id", "manifest_version", "tpr_ir_schema_version", "facts_snapshot", "ruleset_snapshot", "component_types_snapshot", "expected_hashes", "version_identities", "translator_version", "engine_version", "rounding_policy", "research_trace"],
+      "properties": {
+        "mode": {"const": "TEMPORAL_REPLAY"}, "execution_uuid": {"$ref": "artifact-envelope.schema.json#/$defs/uuid"},
+        "replay_uuid": {"$ref": "artifact-envelope.schema.json#/$defs/uuid"}, "request_id": {"$ref": "artifact-envelope.schema.json#/$defs/uuid"},
+        "original_request_id": {"$ref": "artifact-envelope.schema.json#/$defs/uuid"}, "laravel_correlation_id": {"$ref": "artifact-envelope.schema.json#/$defs/uuid"},
+        "manifest_version": {"type": "string"}, "tpr_ir_schema_version": {"type": "string"}, "facts_snapshot": {"type": "object"},
+        "ruleset_snapshot": {"type": "object"}, "component_types_snapshot": {"type": "object"},
+        "expected_hashes": {"type": "object", "additionalProperties": false, "required": ["facts_sha256", "ruleset_sha256", "generated_grl_sha256", "original_output_sha256"], "properties": {
+          "facts_sha256": {"$ref": "artifact-envelope.schema.json#/$defs/sha256"}, "ruleset_sha256": {"$ref": "artifact-envelope.schema.json#/$defs/sha256"},
+          "generated_grl_sha256": {"$ref": "artifact-envelope.schema.json#/$defs/sha256"}, "original_output_sha256": {"$ref": "artifact-envelope.schema.json#/$defs/sha256"}
+        }},
+        "version_identities": {"type": "object", "additionalProperties": false, "required": ["rule_version_ids", "rate_version_ids", "tax_version_ids", "binding_status"], "properties": {
+          "rule_version_ids": {"type": "array", "items": {"type": "integer"}}, "rate_version_ids": {"type": "array", "items": {"type": "integer"}},
+          "tax_version_ids": {"type": "array", "items": {"type": "integer"}}, "binding_status": {"type": "object"}
+        }},
+        "translator_version": {"type": "string"}, "engine_version": {"type": "string"}, "rounding_policy": {"type": "object"}, "research_trace": {"const": true}
+      }
+    }}}
+  ]
+}

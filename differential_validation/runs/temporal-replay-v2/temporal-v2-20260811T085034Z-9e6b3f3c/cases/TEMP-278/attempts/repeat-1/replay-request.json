@@ -1,0 +1,561 @@
+{
+    "artifact_version": "2.0",
+    "run_id": "temporal-v2-20260811T085034Z-9e6b3f3c",
+    "case_id": "TEMP-278",
+    "generated_at": "2026-08-11T09:16:59.749324Z",
+    "schema_ref": "temporal-artifact-schemas/replay-request.schema.json",
+    "payload_sha256": "e25fae764d74436cd56f799ca55a3ac93718d2bab4b2da77074bdcb629fe92e7",
+    "payload": {
+        "component_types_snapshot": {
+            "BONUS": "EARNING",
+            "LATE_DEDUCTION": "DEDUCTION"
+        },
+        "engine_version": "go-grule-tpr-engine-1.0",
+        "execution_uuid": "e55cb801-bfe7-4907-b5ee-fdb479fef8e5",
+        "expected_hashes": {
+            "facts_sha256": "6ca5322918c01890785e819881ba9e5cdd1f1f9895e7213cc472d77c87084f1f",
+            "generated_grl_sha256": "6d8bf4d5ee1848bbd4c5ae7d36044cda333e2768c05a80cfeacce607e92736f2",
+            "original_output_sha256": "7246ce4b64a3c441600f53148c3bd530e32a57f1a43138c3322061f88dd98e58",
+            "ruleset_sha256": "99ad65a1274e4a3a5cf278091c605f5cba9319e73621c1c5f46daabd15da1a7f"
+        },
+        "facts_snapshot": {
+            "attendance": {
+                "days_absent": 0,
+                "days_present": 20,
+                "late_minutes": 9,
+                "overtime_hours": 0,
+                "overtime_minutes": 48,
+                "unpaid_leave_days": 0,
+                "work_hours": 160,
+                "work_minutes": 9600
+            },
+            "components": {
+                "BASIC_SALARY": "5402000"
+            },
+            "employee": {
+                "annual_bonus_eligible": true,
+                "basic_salary": "5402000",
+                "contract_type": "karyawan_tetap",
+                "grade": "SYNTHETIC",
+                "has_npwp": true,
+                "join_date": "2020-01-01",
+                "performance_score": 94,
+                "ptkp_status": "TK/0",
+                "status": "aktif",
+                "thr_eligible": true,
+                "years_of_service": 5
+            },
+            "rates": {
+                "bonus_rate": "10200",
+                "late_rate": "502"
+            },
+            "source": {
+                "resolved_rate_version_ids": [
+                    1002
+                ],
+                "resolved_tax_version_ids": [
+                    2002
+                ]
+            }
+        },
+        "laravel_correlation_id": "fa01c814-fe48-4e62-af44-2c5a3496a93b",
+        "manifest_version": "1.0",
+        "mode": "TEMPORAL_REPLAY",
+        "original_request_id": "3ea55266-987f-4733-a809-ca4cd565eef7",
+        "replay_uuid": "d965aad1-c754-451c-b8b3-d7a17d6d06f9",
+        "request_id": "d9da52e2-4ea9-4b89-b18c-67a797527e2f",
+        "research_trace": true,
+        "rounding_policy": {
+            "mode": "HALF_UP",
+            "scale": 6
+        },
+        "ruleset_snapshot": {
+            "component_policies": {
+                "BONUS": "COLLECT_SUM",
+                "LATE_DEDUCTION": "COLLECT_SUM"
+            },
+            "default_hit_policy": "PRIORITY",
+            "field_catalog": [
+                {
+                    "allowed_operators": [
+                        "EQ",
+                        "NEQ",
+                        "GT",
+                        "GTE",
+                        "LT",
+                        "LTE",
+                        "IN",
+                        "NOT_IN"
+                    ],
+                    "reference": {
+                        "data_type": "numeric",
+                        "name": "days_absent",
+                        "namespace": "attendance",
+                        "nullable": false
+                    }
+                },
+                {
+                    "allowed_operators": [
+                        "EQ",
+                        "NEQ",
+                        "GT",
+                        "GTE",
+                        "LT",
+                        "LTE",
+                        "IN",
+                        "NOT_IN"
+                    ],
+                    "reference": {
+                        "data_type": "numeric",
+                        "name": "days_present",
+                        "namespace": "attendance",
+                        "nullable": false
+                    }
+                },
+                {
+                    "allowed_operators": [
+                        "EQ",
+                        "NEQ",
+                        "GT",
+                        "GTE",
+                        "LT",
+                        "LTE",
+                        "IN",
+                        "NOT_IN"
+                    ],
+                    "reference": {
+                        "data_type": "numeric",
+                        "name": "late_minutes",
+                        "namespace": "attendance",
+                        "nullable": false
+                    }
+                },
+                {
+                    "allowed_operators": [
+                        "EQ",
+                        "NEQ",
+                        "GT",
+                        "GTE",
+                        "LT",
+                        "LTE",
+                        "IN",
+                        "NOT_IN"
+                    ],
+                    "reference": {
+                        "data_type": "numeric",
+                        "name": "overtime_hours",
+                        "namespace": "attendance",
+                        "nullable": false
+                    }
+                },
+                {
+                    "allowed_operators": [
+                        "EQ",
+                        "NEQ",
+                        "GT",
+                        "GTE",
+                        "LT",
+                        "LTE",
+                        "IN",
+                        "NOT_IN"
+                    ],
+                    "reference": {
+                        "data_type": "numeric",
+                        "name": "overtime_minutes",
+                        "namespace": "attendance",
+                        "nullable": false
+                    }
+                },
+                {
+                    "allowed_operators": [
+                        "EQ",
+                        "NEQ",
+                        "GT",
+                        "GTE",
+                        "LT",
+                        "LTE",
+                        "IN",
+                        "NOT_IN"
+                    ],
+                    "reference": {
+                        "data_type": "numeric",
+                        "name": "unpaid_leave_days",
+                        "namespace": "attendance",
+                        "nullable": false
+                    }
+                },
+                {
+                    "allowed_operators": [
+                        "EQ",
+                        "NEQ",
+                        "GT",
+                        "GTE",
+                        "LT",
+                        "LTE",
+                        "IN",
+                        "NOT_IN"
+                    ],
+                    "reference": {
+                        "data_type": "numeric",
+                        "name": "work_hours",
+                        "namespace": "attendance",
+                        "nullable": false
+                    }
+                },
+                {
+                    "allowed_operators": [
+                        "EQ",
+                        "NEQ",
+                        "GT",
+                        "GTE",
+                        "LT",
+                        "LTE",
+                        "IN",
+                        "NOT_IN"
+                    ],
+                    "reference": {
+                        "data_type": "numeric",
+                        "name": "work_minutes",
+                        "namespace": "attendance",
+                        "nullable": false
+                    }
+                },
+                {
+                    "allowed_operators": [
+                        "EQ",
+                        "NEQ",
+                        "GT",
+                        "GTE",
+                        "LT",
+                        "LTE",
+                        "IN",
+                        "NOT_IN"
+                    ],
+                    "reference": {
+                        "data_type": "numeric",
+                        "name": "BASIC_SALARY",
+                        "namespace": "components",
+                        "nullable": false
+                    }
+                },
+                {
+                    "allowed_operators": [
+                        "EQ",
+                        "NEQ"
+                    ],
+                    "reference": {
+                        "data_type": "boolean",
+                        "name": "annual_bonus_eligible",
+                        "namespace": "employee",
+                        "nullable": false
+                    }
+                },
+                {
+                    "allowed_operators": [
+                        "EQ",
+                        "NEQ",
+                        "GT",
+                        "GTE",
+                        "LT",
+                        "LTE",
+                        "IN",
+                        "NOT_IN"
+                    ],
+                    "reference": {
+                        "data_type": "numeric",
+                        "name": "basic_salary",
+                        "namespace": "employee",
+                        "nullable": false
+                    }
+                },
+                {
+                    "allowed_operators": [
+                        "EQ",
+                        "NEQ",
+                        "CONTAINS",
+                        "IN",
+                        "NOT_IN"
+                    ],
+                    "reference": {
+                        "data_type": "string",
+                        "name": "contract_type",
+                        "namespace": "employee",
+                        "nullable": false
+                    }
+                },
+                {
+                    "allowed_operators": [
+                        "EQ",
+                        "NEQ",
+                        "CONTAINS",
+                        "IN",
+                        "NOT_IN"
+                    ],
+                    "reference": {
+                        "data_type": "string",
+                        "name": "grade",
+                        "namespace": "employee",
+                        "nullable": false
+                    }
+                },
+                {
+                    "allowed_operators": [
+                        "EQ",
+                        "NEQ"
+                    ],
+                    "reference": {
+                        "data_type": "boolean",
+                        "name": "has_npwp",
+                        "namespace": "employee",
+                        "nullable": false
+                    }
+                },
+                {
+                    "allowed_operators": [
+                        "EQ",
+                        "NEQ",
+                        "BEFORE",
+                        "AFTER",
+                        "ON_OR_BEFORE",
+                        "ON_OR_AFTER",
+                        "IN",
+                        "NOT_IN"
+                    ],
+                    "reference": {
+                        "data_type": "date",
+                        "name": "join_date",
+                        "namespace": "employee",
+                        "nullable": false
+                    }
+                },
+                {
+                    "allowed_operators": [
+                        "EQ",
+                        "NEQ",
+                        "GT",
+                        "GTE",
+                        "LT",
+                        "LTE",
+                        "IN",
+                        "NOT_IN"
+                    ],
+                    "reference": {
+                        "data_type": "numeric",
+                        "name": "performance_score",
+                        "namespace": "employee",
+                        "nullable": false
+                    }
+                },
+                {
+                    "allowed_operators": [
+                        "EQ",
+                        "NEQ",
+                        "CONTAINS",
+                        "IN",
+                        "NOT_IN"
+                    ],
+                    "reference": {
+                        "data_type": "string",
+                        "name": "ptkp_status",
+                        "namespace": "employee",
+                        "nullable": false
+                    }
+                },
+                {
+                    "allowed_operators": [
+                        "EQ",
+                        "NEQ",
+                        "CONTAINS",
+                        "IN",
+                        "NOT_IN"
+                    ],
+                    "reference": {
+                        "data_type": "string",
+                        "name": "status",
+                        "namespace": "employee",
+                        "nullable": false
+                    }
+                },
+                {
+                    "allowed_operators": [
+                        "EQ",
+                        "NEQ"
+                    ],
+                    "reference": {
+                        "data_type": "boolean",
+                        "name": "thr_eligible",
+                        "namespace": "employee",
+                        "nullable": false
+                    }
+                },
+                {
+                    "allowed_operators": [
+                        "EQ",
+                        "NEQ",
+                        "GT",
+                        "GTE",
+                        "LT",
+                        "LTE",
+                        "IN",
+                        "NOT_IN"
+                    ],
+                    "reference": {
+                        "data_type": "numeric",
+                        "name": "years_of_service",
+                        "namespace": "employee",
+                        "nullable": false
+                    }
+                },
+                {
+                    "allowed_operators": [
+                        "EQ",
+                        "NEQ",
+                        "GT",
+                        "GTE",
+                        "LT",
+                        "LTE",
+                        "IN",
+                        "NOT_IN"
+                    ],
+                    "reference": {
+                        "data_type": "numeric",
+                        "name": "bonus_rate",
+                        "namespace": "rates",
+                        "nullable": false
+                    }
+                },
+                {
+                    "allowed_operators": [
+                        "EQ",
+                        "NEQ",
+                        "GT",
+                        "GTE",
+                        "LT",
+                        "LTE",
+                        "IN",
+                        "NOT_IN"
+                    ],
+                    "reference": {
+                        "data_type": "numeric",
+                        "name": "late_rate",
+                        "namespace": "rates",
+                        "nullable": false
+                    }
+                }
+            ],
+            "rounding_policy": {
+                "mode": "HALF_UP",
+                "scale": 6
+            },
+            "rules": [
+                {
+                    "actions": [
+                        {
+                            "formula": {
+                                "expression": "rates.bonus_rate",
+                                "language": "TPR-EXPR-1.0"
+                            },
+                            "target": {
+                                "code": "BONUS"
+                            },
+                            "type": "ADD_COMPONENT"
+                        }
+                    ],
+                    "condition": {
+                        "children": [
+                            {
+                                "field": {
+                                    "data_type": "string",
+                                    "name": "status",
+                                    "namespace": "employee",
+                                    "nullable": false
+                                },
+                                "kind": "leaf",
+                                "literal": {
+                                    "type": "string",
+                                    "value": "aktif"
+                                },
+                                "operator": "EQ"
+                            }
+                        ],
+                        "kind": "group",
+                        "operator": "AND"
+                    },
+                    "effective_period": null,
+                    "id": "rule-version-3004",
+                    "legacy_index": 0,
+                    "metadata": {
+                        "rule_id": 0,
+                        "version": 0
+                    },
+                    "priority": 100,
+                    "version_id": 3004
+                },
+                {
+                    "actions": [
+                        {
+                            "formula": {
+                                "expression": "attendance.late_minutes * rates.late_rate",
+                                "language": "TPR-EXPR-1.0"
+                            },
+                            "target": {
+                                "code": "LATE_DEDUCTION"
+                            },
+                            "type": "ADD_COMPONENT"
+                        }
+                    ],
+                    "condition": {
+                        "children": [
+                            {
+                                "field": {
+                                    "data_type": "numeric",
+                                    "name": "late_minutes",
+                                    "namespace": "attendance",
+                                    "nullable": false
+                                },
+                                "kind": "leaf",
+                                "literal": {
+                                    "type": "numeric",
+                                    "value": 0.0
+                                },
+                                "operator": "GT"
+                            }
+                        ],
+                        "kind": "group",
+                        "operator": "AND"
+                    },
+                    "effective_period": null,
+                    "id": "rule-version-3005",
+                    "legacy_index": 1,
+                    "metadata": {
+                        "rule_id": 0,
+                        "version": 0
+                    },
+                    "priority": 50,
+                    "version_id": 3005
+                }
+            ],
+            "ruleset_id": "temporal-TEMP-278",
+            "schema_version": "1.0"
+        },
+        "tpr_ir_schema_version": "1.0",
+        "translator_version": "laravel-go-tpr-translator-1.0",
+        "version_identities": {
+            "binding_status": {
+                "rate": "BOUND",
+                "rule": "BOUND",
+                "tax": "BOUND"
+            },
+            "rate_version_ids": [
+                1002
+            ],
+            "rule_version_ids": [
+                3004,
+                3005
+            ],
+            "tax_version_ids": [
+                2002
+            ]
+        }
+    }
+}

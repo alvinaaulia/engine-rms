@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comparator-result.schema.json",
+  "allOf": [
+    {"$ref": "artifact-envelope.schema.json"},
+    {"properties": {"schema_ref": {"const": "temporal-artifact-schemas/comparator-result.schema.json"}, "payload": {
+      "oneOf": [
+        {"$ref": "comparator-result.schema.json#/$defs/attempt"},
+        {"type": "object", "additionalProperties": false, "required": ["status", "repeat_count", "matched_repeats", "attempts"], "properties": {
+          "status": {"enum": ["MATCHED", "MISMATCHED"]}, "repeat_count": {"type": "integer", "minimum": 2},
+          "matched_repeats": {"type": "integer", "minimum": 0}, "attempts": {"type": "array", "minItems": 2, "items": {"$ref": "comparator-result.schema.json#/$defs/attempt"}}
+        }},
+        {"type": "object", "additionalProperties": false, "required": ["status", "accepted", "total"], "properties": {
+          "status": {"enum": ["EXPECTED_REJECTION", "FAIL"]}, "accepted": {"type": "integer", "minimum": 0}, "total": {"type": "integer", "minimum": 1}
+        }}
+      ]
+    }}}
+  ],
+  "$defs": {
+    "attempt": {"type": "object", "additionalProperties": false, "required": ["status", "metrics", "differences"], "properties": {
+      "status": {"enum": ["MATCHED", "MISMATCHED"]},
+      "metrics": {"type": "object", "additionalProperties": false,
+        "required": ["component_presence", "component_type", "component_amount", "component_provenance", "summary", "provenance", "facts_hash", "ruleset_hash", "output_hash"],
+        "properties": {
+          "component_presence": {"$ref": "artifact-envelope.schema.json#/$defs/countMetric"}, "component_type": {"$ref": "artifact-envelope.schema.json#/$defs/countMetric"},
+          "component_amount": {"$ref": "artifact-envelope.schema.json#/$defs/countMetric"}, "component_provenance": {"$ref": "artifact-envelope.schema.json#/$defs/countMetric"},
+          "summary": {"$ref": "artifact-envelope.schema.json#/$defs/countMetric"}, "provenance": {"$ref": "artifact-envelope.schema.json#/$defs/countMetric"},
+          "facts_hash": {"$ref": "artifact-envelope.schema.json#/$defs/countMetric"}, "ruleset_hash": {"$ref": "artifact-envelope.schema.json#/$defs/countMetric"},
+          "output_hash": {"$ref": "artifact-envelope.schema.json#/$defs/countMetric"}
+        }
+      },
+      "differences": {"type": "array", "items": {"type": "object"}}
+    }}
+  }
+}
