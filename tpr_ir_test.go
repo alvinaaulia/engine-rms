@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -13,9 +14,13 @@ import (
 	"reflect"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestLaravelNormalizedPayloadIsAcceptedByGo(t *testing.T) {
+	if testing.Short() {
+		t.Skip("cross-language integration is excluded from the short unit suite")
+	}
 	laravelRoot := filepath.Clean(filepath.Join("..", "papa-website-v2"))
 	if _, err := os.Stat(filepath.Join(laravelRoot, "bootstrap", "app.php")); err != nil {
 		t.Skip("Laravel sibling repository is unavailable")
@@ -29,8 +34,13 @@ func TestLaravelNormalizedPayloadIsAcceptedByGo(t *testing.T) {
 	factsJSON, _ := json.Marshal(semanticFacts())
 	root := filepath.ToSlash(laravelRoot)
 	code := fmt.Sprintf(`require '%s/vendor/autoload.php'; $app=require '%s/bootstrap/app.php'; $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap(); $defs=json_decode('%s',true); $facts=json_decode('%s',true); echo json_encode($app->make(App\Services\TypedPayrollRuleIrService::class)->buildExecutePayload($defs,$facts,['BONUS'=>'EARNING'],'cross-language-test'));`, root, root, definitionsJSON, factsJSON)
-	command := exec.Command("php", "-r", code)
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+	command := exec.CommandContext(ctx, "php", "-r", code)
 	output, err := command.CombinedOutput()
+	if errors.Is(ctx.Err(), context.DeadlineExceeded) {
+		t.Fatal("Laravel normalizer integration exceeded the 60 second deadline")
+	}
 	if err != nil {
 		t.Fatalf("Laravel normalizer failed: %v: %s", err, output)
 	}
@@ -100,6 +110,76 @@ func TestHealthEndpoint(t *testing.T) {
 	})
 }
 
+func TestInternalServiceAuthentication(t *testing.T) {
+	t.Setenv("RULE_ENGINE_INTERNAL_TOKEN", "research-test-token")
+	handler := requireInternalToken(executeRules)
+
+	t.Run("missing token is rejected", func(t *testing.T) {
+		recorder := httptest.NewRecorder()
+		handler(recorder, httptest.NewRequest(http.MethodPost, "/execute", strings.NewReader(`{}`)))
+		if recorder.Code != http.StatusUnauthorized {
+			t.Fatalf("got status %d", recorder.Code)
+		}
+	})
+
+	t.Run("valid token reaches endpoint", func(t *testing.T) {
+		recorder := httptest.NewRecorder()
+		request := httptest.NewRequest(http.MethodGet, "/execute", nil)
+		request.Header.Set(internalTokenHeader, "research-test-token")
+		handler(recorder, request)
+		if recorder.Code != http.StatusMethodNotAllowed {
+			t.Fatalf("got status %d", recorder.Code)
+		}
+	})
+}
+
+func FuzzExecuteHTTPTrustBoundary(f *testing.F) {
+	for _, seed := range []string{
+		`{}`,
+		`{"schema_version":"1.0"}`,
+		`{"unknown":true}`,
+		`not-json`,
+	} {
+		f.Add(seed)
+	}
+
+	f.Fuzz(func(t *testing.T, body string) {
+		// Keep fuzz cases below the endpoint's documented transport limit so a
+		// fuzz worker cannot turn one generated string into unbounded memory use.
+		if len(body) > int(maxExecuteRequestBytes)+1024 {
+			t.Skip()
+		}
+		recorder := httptest.NewRecorder()
+		executeRules(recorder, httptest.NewRequest(http.MethodPost, "/execute", strings.NewReader(body)))
+		if recorder.Code < 200 || recorder.Code > 599 {
+			t.Fatalf("invalid HTTP status %d", recorder.Code)
+		}
+	})
+}
+
+func BenchmarkRuleEngineScale(b *testing.B) {
+	for _, count := range []int{1, 10, 50} {
+		b.Run(fmt.Sprintf("rules_%d", count), func(b *testing.B) {
+			rules := make([]Rule, count)
+			for index := range rules {
+				rules[index] = semanticRule(fmt.Sprintf("BENCH_%03d", index), "rates.bonus_rate", "NORMAL")
+			}
+			ruleSet := adaptedRuleSet(b, rules)
+			componentTypes := make(map[string]string, count)
+			for index := range rules {
+				componentTypes[fmt.Sprintf("BENCH_%03d", index)] = "EARNING"
+			}
+			b.ReportAllocs()
+			b.ResetTimer()
+			for iteration := 0; iteration < b.N; iteration++ {
+				if _, err := ExecuteTPRRuleSet(context.Background(), ruleSet, semanticFacts(), componentTypes); err != nil {
+					b.Fatal(err)
+				}
+			}
+		})
+	}
+}
+
 func semanticFacts() map[string]interface{} {
 	return map[string]interface{}{
 		"employee":   map[string]interface{}{"status": "aktif", "contract_type": "karyawan_tetap", "has_npwp": true, "ptkp_status": "TK/0", "grade": "A", "join_date": "2020-01-01", "years_of_service": 6.0, "performance_score": 90.0, "basic_salary": "5000000.00", "annual_bonus_eligible": true, "thr_eligible": true},
@@ -113,7 +193,7 @@ func semanticRule(code, formula string, priority string) Rule {
 	return Rule{Conditions: []interface{}{map[string]interface{}{"field": "employee.status", "operator": "==", "value": "aktif"}}, Action: Action{Type: "ADD_COMPONENT", Code: code, Formula: formula}, Meta: RuleMetadata{Priority: priority}}
 }
 
-func adaptedRuleSet(t *testing.T, rules []Rule) *TPRRuleSet {
+func adaptedRuleSet(t testing.TB, rules []Rule) *TPRRuleSet {
 	t.Helper()
 	rs, err := AdaptLegacyPayload(rules, semanticFacts())
 	if err != nil {

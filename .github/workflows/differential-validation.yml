@@ -2,6 +2,11 @@ name: differential-validation
 
 on:
   workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - main
+      - 'feature/**'
 
 jobs:
   validate:
@@ -25,9 +30,9 @@ jobs:
       - name: Check out Laravel application
         uses: actions/checkout@v4
         with:
-          repository: mascitradotcom/papa-website-v2
-          token: ${{ secrets.LARAVEL_REPOSITORY_TOKEN }}
+          repository: alvinaaulia/papa-web
           path: papa-website-v2
+          ref: ${{ vars.LARAVEL_RESEARCH_REF || github.head_ref || github.ref_name }}
       - uses: actions/setup-go@v5
         with:
           go-version: '1.26.2'
@@ -41,6 +46,29 @@ jobs:
       - name: Install Laravel dependencies
         working-directory: papa-website-v2
         run: composer install --no-interaction --prefer-dist
+      - name: Record paired source revisions
+        shell: bash
+        run: |
+          printf 'engine_commit=%s\n' "$(git -C engine-rms rev-parse HEAD)" | tee paired-source-revisions.txt
+          printf 'laravel_commit=%s\n' "$(git -C papa-website-v2 rev-parse HEAD)" | tee -a paired-source-revisions.txt
+      - name: Fast source quality gates
+        shell: bash
+        env:
+          DB_CONNECTION: mysql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: website_papa_v2_testing
+          DB_USERNAME: root
+          DB_PASSWORD: ''
+        run: |
+          cd engine-rms
+          go test -short ./... -count=1 -timeout=3m
+          go vet ./...
+          cd ../papa-website-v2
+          cp .env.example .env
+          php artisan key:generate
+          php artisan migrate --env=testing --force
+          php artisan test tests/Unit tests/Feature/RuleVersionActionWorkflowTest.php --stop-on-failure
       - name: Execute clean evidence pipeline
         working-directory: engine-rms/differential_validation
         env:
@@ -62,3 +90,4 @@ jobs:
             engine-rms/differential_validation/final-report-data.json
             engine-rms/differential_validation/DIFFERENTIAL_VALIDATION_FINAL_REPORT_V3.md
             engine-rms/differential_validation/runs/clean-environment
+            paired-source-revisions.txt
