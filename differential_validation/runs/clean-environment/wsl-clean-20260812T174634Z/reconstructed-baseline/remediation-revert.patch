@@ -1,0 +1,100 @@
+diff --git a/formula_fact_validation.go b/formula_fact_validation.go
+new file mode 100644
+index 00000000..72f19976
+--- /dev/null
++++ b/formula_fact_validation.go
+@@ -0,0 +1,8 @@
++//go:build !differential_baseline
++
++package main
++
++func validateFormulaFactRuntimeType(fact interface{}, dataType, path string) error {
++	_, err := strictScalar(fact, dataType, path, true)
++	return err
++}
+diff --git a/formula_fact_validation_baseline.go b/formula_fact_validation_baseline.go
+new file mode 100644
+index 00000000..63558114
+--- /dev/null
++++ b/formula_fact_validation_baseline.go
+@@ -0,0 +1,9 @@
++//go:build differential_baseline
++
++package main
++
++// This build profile reproduces the pre-remediation validator behavior for the
++// auditable baseline experiment. It is never used by the production build.
++func validateFormulaFactRuntimeType(_ interface{}, _, _ string) error {
++	return nil
++}
+diff --git a/tpr_ir.go b/tpr_ir.go
+index 891d34c2..e85b788e 100644
+--- a/tpr_ir.go
++++ b/tpr_ir.go
+@@ -123,6 +123,7 @@ var staticFieldTypes = map[string]string{
+ 	"employee.status": "string", "employee.contract_type": "string", "employee.has_npwp": "boolean",
+ 	"employee.ptkp_status": "string", "employee.grade": "string", "employee.join_date": "date",
+ 	"employee.years_of_service": "numeric", "employee.performance_score": "numeric", "employee.basic_salary": "numeric",
++	"employee.annual_bonus_eligible": "boolean", "employee.thr_eligible": "boolean",
+ 	"attendance.days_present": "numeric", "attendance.work_hours": "numeric", "attendance.work_minutes": "numeric",
+ 	"attendance.days_absent": "numeric", "attendance.late_minutes": "numeric", "attendance.unpaid_leave_days": "numeric",
+ 	"attendance.overtime_minutes": "numeric", "attendance.overtime_hours": "numeric",
+@@ -573,9 +574,17 @@ func ValidateTPRRuleSet(rs *TPRRuleSet, facts map[string]interface{}) error {
+ 				return withValidationPath(err, ap+".formula.expression")
+ 			}
+ 			for _, identifier := range formulaFieldIdentifiers(formulaAST) {
+-				if _, ok := factValue(facts, identifier); !ok {
++				fact, ok := factValue(facts, identifier)
++				if !ok {
+ 					return validationError("MISSING_REQUIRED_FACT", ap+".formula.expression", "formula references a missing fact")
+ 				}
++				declared := catalog[identifier]
++				// Formula identifiers are numeric by grammar/catalog validation. They
++				// still require runtime type validation even when the same field is
++				// absent from every condition node.
++				if err := validateFormulaFactRuntimeType(fact, declared.DataType, ap+".formula.expression"); err != nil {
++					return validationError("INVALID_FACT_TYPE", ap+".formula.expression", "formula fact value does not match its declared field type")
++				}
+ 			}
+ 			fingerprint := a.Type + "|" + a.Target.Code + "|" + a.Formula.Expression
+ 			if actionFingerprints[fingerprint] {
+diff --git a/tpr_ir_test.go b/tpr_ir_test.go
+index ae40abd0..2b63ad00 100644
+--- a/tpr_ir_test.go
++++ b/tpr_ir_test.go
+@@ -82,7 +82,7 @@ func TestTPRHTTPTrustBoundary(t *testing.T) {
+ 
+ func semanticFacts() map[string]interface{} {
+ 	return map[string]interface{}{
+-		"employee":   map[string]interface{}{"status": "aktif", "contract_type": "karyawan_tetap", "has_npwp": true, "ptkp_status": "TK/0", "grade": "A", "join_date": "2020-01-01", "years_of_service": 6.0, "performance_score": 90.0, "basic_salary": "5000000.00"},
++		"employee":   map[string]interface{}{"status": "aktif", "contract_type": "karyawan_tetap", "has_npwp": true, "ptkp_status": "TK/0", "grade": "A", "join_date": "2020-01-01", "years_of_service": 6.0, "performance_score": 90.0, "basic_salary": "5000000.00", "annual_bonus_eligible": true, "thr_eligible": true},
+ 		"attendance": map[string]interface{}{"days_present": 20.0, "work_hours": 160.0, "work_minutes": 9600.0, "days_absent": 0.0, "late_minutes": 5.0, "unpaid_leave_days": 0.0, "overtime_minutes": 60.0, "overtime_hours": 1.0},
+ 		"rates":      map[string]interface{}{"bonus_rate": "1000.00", "tax_flat_amount": "0", "overtime_per_hour": "60000", "overtime_per_minute": "1000", "late_deduction_per_minute": "1000", "unpaid_leave_per_day": "100000"},
+ 		"components": map[string]interface{}{"BASIC_SALARY": "5000000.00"},
+@@ -131,6 +131,11 @@ func TestTPRSchemaAndTrustBoundaryValidation(t *testing.T) {
+ 		leaf.Literal.Value = 1.0
+ 		assertValidationCode(t, ValidateTPRRuleSet(copy, semanticFacts()), "INVALID_LITERAL_TYPE")
+ 	})
++	t.Run("invalid formula fact type", func(t *testing.T) {
++		facts := semanticFacts()
++		facts["rates"].(map[string]interface{})["bonus_rate"] = "not-a-number"
++		assertValidationCode(t, ValidateTPRRuleSet(rs, facts), "INVALID_FACT_TYPE")
++	})
+ 	t.Run("unknown namespace", func(t *testing.T) {
+ 		copy := cloneRuleSet(t, rs)
+ 		copy.FieldCatalog[0].Reference.Namespace = "system"
+@@ -177,6 +182,14 @@ func TestTPRConditionSemanticsAndLimits(t *testing.T) {
+ 	if result, err := executeAllRules([]Rule{membership}, semanticFacts()); err != nil || len(result.Components) != 1 {
+ 		t.Fatalf("membership failed: %#v %v", result, err)
+ 	}
++	eligibility := semanticRule("ELIGIBLE", "1", "NORMAL")
++	eligibility.Conditions = []interface{}{
++		map[string]interface{}{"field": "employee.annual_bonus_eligible", "operator": "==", "value": true},
++		map[string]interface{}{"field": "employee.thr_eligible", "operator": "==", "value": true},
++	}
++	if result, err := executeAllRules([]Rule{eligibility}, semanticFacts()); err != nil || len(result.Components) != 1 {
++		t.Fatalf("eligibility flags failed: %#v %v", result, err)
++	}
+ 	many := make([]interface{}, TPRMaxConditionLeaves+1)
+ 	for i := range many {
+ 		many[i] = map[string]interface{}{"field": "employee.status", "operator": "==", "value": "aktif"}

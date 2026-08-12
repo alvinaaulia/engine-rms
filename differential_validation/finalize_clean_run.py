@@ -26,6 +26,65 @@ def sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def write_clean_reproduction_report(
+    manifest: dict,
+    baseline: dict,
+    fixed_manifest: dict,
+    fixed_mismatch: dict,
+    traces: list[dict],
+) -> None:
+    """Write a run-scoped report from the evidence that was just finalized."""
+    categories = Counter(item["evaluation_category"] for item in traces)
+    exact_matches = sum(item.get("status") == "EXACT_MATCH" for item in traces)
+    expected_rejections = sum(item.get("status") == "EXPECTED_REJECTION" for item in traces)
+    persistence_assertions = sum(bool(item.get("persistence_asserted")) for item in traces)
+    baseline_mismatches = [item["mismatch_count"] for item in baseline["repeat_runs"]]
+    report = f"""# Clean-environment research evidence
+
+## Verdict
+
+The isolated `{manifest['runner_type']}` reproduction completed with status `{manifest['status']}` and exit code `{manifest['final_exit_code']}`. Source snapshot, environment preparation, service readiness, frozen-hash verification, reconstructed baseline, fixed differential validation, translator validation, full-pipeline validation, configuration guards, schema validation, and report generation all completed successfully.
+
+## Frozen source pair
+
+- Rule engine and evidence package: `{fixed_manifest['commits']['go']}`
+- Laravel web application: `{fixed_manifest['commits']['laravel']}`
+- Runner: `{manifest['clean_runner_id']}`
+- Started: `{manifest['started_at']}`
+- Finished: `{manifest['finished_at']}`
+- Duration: `{manifest['total_duration_seconds']}` seconds
+
+## Reproduced results
+
+| Evaluation | Cases | Result |
+|---|---:|---|
+| Reconstructed baseline, repeat 1 | {fixed_manifest['results']['cases']} | {baseline_mismatches[0]} mismatches |
+| Reconstructed baseline, repeat 2 | {fixed_manifest['results']['cases']} | {baseline_mismatches[1]} mismatches |
+| Fixed differential | {fixed_manifest['results']['cases']} | {fixed_mismatch['mismatch_count']} mismatches across {fixed_mismatch['mismatched_case_count']} cases |
+| Full payroll pipeline | {categories['FULL_PAYROLL_PIPELINE']} | {exact_matches} exact matches; {persistence_assertions} persistence assertions |
+| Configuration guards | {categories['LARAVEL_CONFIGURATION_GUARD']} | {expected_rejections} expected rejections |
+
+The reconstructed mismatch case IDs were stable across both repetitions. The fixed run used the same frozen corpus, expected results, and policy hashes as the baseline reconstruction.
+
+## Claim boundary
+
+This run supports clean-environment reproducibility and technical equivalence against the frozen reference oracle. It does not establish that the frozen oracle is an authoritative payroll, legal, or regulatory oracle. Domain-expert validation remains a separate requirement. Temporal replay v2 was not executed as part of this run and remains `NOT_STARTED` in the manifest.
+
+## Machine-readable evidence
+
+- `manifest.json`: final run gate
+- `command-results.json`: recorded command outcomes and log references
+- `reconstructed-baseline/manifest.json`: repeated baseline provenance
+- `fixed/manifest.json`: fixed source, environment, and frozen hashes
+- `fixed/mismatch_details.json`: zero-mismatch result
+- `fixed/full_pipeline_e2e.json`: full-pipeline and persistence traces
+- `raw-logs/`: command, service, tool-version, test, and validation logs
+"""
+    path = CLEAN / "reports" / "CLEAN_REPRODUCTION_REPORT.md"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(report, encoding="utf-8")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--exit-code", type=int, required=True)
@@ -51,6 +110,7 @@ def main() -> None:
             raise RuntimeError(args.failure_reason or f"{args.failure_stage} returned non-zero")
         baseline = load(ROOT / "runs/reconstructed-baseline/manifest.json")
         fixed = load(ROOT / "runs/fixed/mismatch_details.json")
+        fixed_manifest = load(ROOT / "runs/fixed/manifest.json")
         traces = load(ROOT / "e2e-execution-traces.json")["traces"]
         categories = Counter(item["evaluation_category"] for item in traces)
         frozen = load(ROOT / "FROZEN_ARTIFACT_MANIFEST.json")
@@ -159,7 +219,6 @@ def main() -> None:
     for source, destination in (
         (ROOT / "translation_validation_fixtures.json", CLEAN / "translator/translation_validation_fixtures.json"),
         (ROOT / "e2e-execution-traces.json", CLEAN / "e2e/e2e-execution-traces.json"),
-        (ROOT / "DIFFERENTIAL_VALIDATION_FINAL_REPORT_V3.md", CLEAN / "reports/DIFFERENTIAL_VALIDATION_FINAL_REPORT_V3.md"),
     ):
         if source.exists() and not early_failure:
             destination.parent.mkdir(parents=True, exist_ok=True)
@@ -200,6 +259,8 @@ def main() -> None:
         "reason": reason, "temporal_replay": "NOT_STARTED",
     }
     write(CLEAN / "manifest.json", manifest)
+    if status == "PASS":
+        write_clean_reproduction_report(manifest, baseline, fixed_manifest, fixed, traces)
     if status != "PASS":
         raise SystemExit(args.exit_code or 1)
 
