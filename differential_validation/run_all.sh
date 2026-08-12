@@ -47,6 +47,8 @@ python -m pip install -r "$PACKAGE_DIR/requirements.txt"
 export APP_ENV=testing DB_CONNECTION=mysql DB_DATABASE="${DB_DATABASE:-website_papa_v2_testing}"
 FIXED_RULE_ENGINE_URL="${RULE_ENGINE_URL:-http://127.0.0.1:8081}"
 export RULE_ENGINE_URL="http://127.0.0.1:8081"
+export RULE_ENGINE_CONNECT_TIMEOUT_SECONDS="${RULE_ENGINE_CONNECT_TIMEOUT_SECONDS:-10}"
+export RULE_ENGINE_TIMEOUT_SECONDS="${RULE_ENGINE_TIMEOUT_SECONDS:-30}"
 export LARAVEL_ROOT="$LARAVEL_DIR" TZ="${TZ:-Asia/Bangkok}" LC_ALL="${LC_ALL:-C.UTF-8}"
 [[ "$DB_DATABASE" == *test* ]] || { echo "Refusing non-test database: $DB_DATABASE" >&2; exit 2; }
 
@@ -92,6 +94,12 @@ record --name differential-hardening --output-dir "$RUNS_DIR/fixed/raw-logs" --c
 record --name translator-hardening --output-dir "$HARD_LOGS" --cwd "$ENGINE_DIR" -- go test -json -run TestTranslationValidationFixtures -count=1 .
 record --name go-tests-hardening --output-dir "$HARD_LOGS" --cwd "$ENGINE_DIR" -- go test -json ./... -count=1
 record --name go-vet-hardening --output-dir "$HARD_LOGS" --cwd "$ENGINE_DIR" -- go vet ./...
+
+if [[ "${USE_EXTERNAL_FIXED_ENGINE:-0}" != "1" ]]; then
+  kill "$ENGINE_PID"; wait "$ENGINE_PID" 2>/dev/null || true; ENGINE_PID=""
+  "$TMP_DIR/fixed$suffix" >"$RUNS_DIR/fixed/raw-logs/e2e-engine.stdout.log" 2>"$RUNS_DIR/fixed/raw-logs/e2e-engine.stderr.log" & ENGINE_PID=$!
+  wait_for_engine
+fi
 
 export FULL_PIPELINE_E2E_OUTPUT="$RUNS_DIR/fixed/full_pipeline_e2e.json"
 record --name e2e-hardening --output-dir "$RUNS_DIR/fixed/raw-logs" --cwd "$LARAVEL_DIR" --evidence-file e2e-hardening-junit.xml -- php artisan test tests/Feature/DifferentialFullPipelineE2ETest.php --log-junit "$RUNS_DIR/fixed/raw-logs/e2e-hardening-junit.xml"
