@@ -62,7 +62,7 @@ jobs:
       - name: Install and build frontend assets
         working-directory: papa-website-public
         run: |
-          npm ci
+          npm ci || npm ci
           npm run build
       - name: Record paired source revisions
         shell: bash
@@ -114,6 +114,7 @@ jobs:
           DB_PASSWORD: ''
         run: npm run test:browser
       - name: Execute commit-bound evidence pipeline
+        id: evidence_pipeline
         working-directory: engine-rms/differential_validation
         env:
           DB_HOST: 127.0.0.1
@@ -129,7 +130,7 @@ jobs:
           ALLOW_DIRTY: '0'
         run: make differential-validation
       - name: Surface failed evidence command
-        if: failure()
+        if: ${{ failure() && steps.evidence_pipeline.outcome == 'failure' }}
         working-directory: engine-rms
         shell: bash
         run: |
