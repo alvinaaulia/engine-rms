@@ -6,7 +6,7 @@ use App\Services\TypedPayrollRuleIrService;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Validation\ValidationException;
 
-$laravelRoot = getenv('LARAVEL_ROOT') ?: dirname(__DIR__, 3).DIRECTORY_SEPARATOR.'papa-website-v2';
+$laravelRoot = getenv('LARAVEL_ROOT') ?: dirname(__DIR__, 3).DIRECTORY_SEPARATOR.'papa-website-public';
 require $laravelRoot.DIRECTORY_SEPARATOR.'vendor'.DIRECTORY_SEPARATOR.'autoload.php';
 $app = require $laravelRoot.DIRECTORY_SEPARATOR.'bootstrap'.DIRECTORY_SEPARATOR.'app.php';
 $app->make(Kernel::class)->bootstrap();

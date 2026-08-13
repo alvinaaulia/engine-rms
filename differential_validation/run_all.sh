@@ -3,7 +3,7 @@ set -euo pipefail
 
 PACKAGE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ENGINE_DIR="${ENGINE_DIR:-$(cd "$PACKAGE_DIR/.." && pwd)}"
-LARAVEL_DIR="${LARAVEL_DIR:-$(cd "$ENGINE_DIR/../papa-website-v2" && pwd)}"
+LARAVEL_DIR="${LARAVEL_DIR:-$(cd "$ENGINE_DIR/../papa-website-public" && pwd)}"
 RUNS_DIR="${RUNS_DIR:-$PACKAGE_DIR/runs}"
 HARD_LOGS="$RUNS_DIR/hardening/raw-logs"
 TMP_DIR="$(mktemp -d)"

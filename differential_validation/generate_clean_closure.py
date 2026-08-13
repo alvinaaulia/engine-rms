@@ -17,7 +17,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 ENGINE = ROOT.parent
-LARAVEL = ENGINE.parent / "papa-website-v2"
+LARAVEL = Path(os.environ.get("LARAVEL_DIR", ENGINE.parent / "papa-website-public")).resolve()
 CLEAN = ROOT / "runs/clean-environment"
 RAW = CLEAN / "raw-logs"
 TAG = "tpr-ir-clean-closure-v3"
@@ -189,7 +189,7 @@ def main() -> None:
         attempt("docker-compose-version", ["docker", "compose", "version"]),
         attempt("wsl-distributions", ["wsl.exe", "--list", "--quiet"]),
         attempt("github-cli-version", ["gh", "--version"]),
-        attempt("private-ci-source-access", ["git", "ls-remote", "https://softmitend@github.com/mascitradotcom/papa-website-v2", "HEAD"]),
+        attempt("public-ci-source-access", ["git", "ls-remote", "https://github.com/alvinaaulia/papa-web", "HEAD"]),
     ]
     # WSL may return zero with an empty distribution list; that is unavailable, not PASS.
     wsl = attempts[2]

@@ -104,7 +104,7 @@ The pre-hardening source state is frozen independently from later evidence-harde
 
 {table(['Repository', 'Commit', 'Branch', 'Tag', 'Initial status'], [
     ['engine-rms / differential package', frozen['engine']['commit'], frozen['engine']['branch'], frozen['engine']['fixed_source_tag'], 'clean'],
-    ['papa-website-v2', frozen['laravel']['commit'], frozen['laravel']['branch'], frozen['laravel']['tag'], 'clean'],
+    ['papa-website-public', frozen['laravel']['commit'], frozen['laravel']['branch'], frozen['laravel']['tag'], 'clean'],
 ])}
 
 {table(['Runtime', 'Observed value'], [[key, value if value is not None else 'NOT_AVAILABLE'] for key, value in versions.items()])}

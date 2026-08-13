@@ -16,11 +16,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.laravel
-    working_dir: /artifact/papa-website-v2
+    working_dir: /artifact/papa-website-public
     volumes:
       - ../..:/artifact
       - composer-cache:/tmp/composer-cache
-      - laravel-vendor:/artifact/papa-website-v2/vendor
+      - laravel-vendor:/artifact/papa-website-public/vendor
     environment: &testing-environment
       APP_ENV: testing
       DB_CONNECTION: mysql
@@ -69,13 +69,13 @@ services:
     volumes:
       - ../..:/artifact
       - composer-cache:/tmp/composer-cache
-      - laravel-vendor:/artifact/papa-website-v2/vendor
+      - laravel-vendor:/artifact/papa-website-public/vendor
       - go-module-cache:/go/pkg/mod
       - go-build-cache:/root/.cache/go-build
     environment:
       <<: *testing-environment
       ENGINE_DIR: /artifact/engine-rms
-      LARAVEL_DIR: /artifact/papa-website-v2
+      LARAVEL_DIR: /artifact/papa-website-public
       RUNS_DIR: /artifact/engine-rms/differential_validation/runs
       USE_EXTERNAL_FIXED_ENGINE: "1"
       ALLOW_DIRTY: "0"

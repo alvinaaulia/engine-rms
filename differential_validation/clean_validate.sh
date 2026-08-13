@@ -3,7 +3,7 @@ set -euo pipefail
 
 PACKAGE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ENGINE_DIR="${ENGINE_DIR:-$(cd "$PACKAGE_DIR/.." && pwd)}"
-LARAVEL_DIR="${LARAVEL_DIR:-$(cd "$ENGINE_DIR/../papa-website-v2" && pwd)}"
+LARAVEL_DIR="${LARAVEL_DIR:-$(cd "$ENGINE_DIR/../papa-website-public" && pwd)}"
 
 composer install --working-dir "$LARAVEL_DIR" --no-interaction --prefer-dist --no-progress
 python -m pip install --no-cache-dir -r "$PACKAGE_DIR/requirements.txt"

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import shutil
 import subprocess
 import tempfile
@@ -9,7 +10,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 ENGINE = ROOT.parent
-LARAVEL = ENGINE.parent / "papa-website-v2"
+LARAVEL = Path(os.environ.get("LARAVEL_DIR", ENGINE.parent / "papa-website-public")).resolve()
 
 
 def archive(repo: Path, target: Path) -> None:
@@ -43,7 +44,7 @@ def main() -> None:
     compose = compose.replace("dockerfile: Dockerfile.go.template", "dockerfile: docker/Dockerfile.go")
     compose = compose.replace("dockerfile: Dockerfile.validation", "dockerfile: docker/Dockerfile.validation")
     compose = compose.replace("- ../..:/artifact", "- .:/artifact")
-    compose = compose.replace("/artifact/papa-website-v2", "/artifact/laravel")
+    compose = compose.replace("/artifact/papa-website-public", "/artifact/laravel")
     (output / "docker-compose.yml").write_text(compose, encoding="utf-8")
     docker_dir = output / "docker"
     docker_dir.mkdir(parents=True, exist_ok=True)

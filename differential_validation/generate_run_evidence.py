@@ -4,6 +4,7 @@ from __future__ import annotations
 import hashlib
 import csv
 import json
+import os
 import platform
 import subprocess
 from collections import Counter
@@ -12,7 +13,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 ENGINE = ROOT.parent
-LARAVEL = Path(__file__).resolve().parents[2] / "papa-website-v2"
+LARAVEL = Path(os.environ.get("LARAVEL_DIR", ENGINE.parent / "papa-website-public")).resolve()
 
 
 def load(path: Path) -> dict:

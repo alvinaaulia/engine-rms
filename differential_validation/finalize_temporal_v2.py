@@ -7,6 +7,7 @@ import argparse
 import csv
 import hashlib
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -611,7 +612,8 @@ Review the stratified CSV against authorized payroll policy and regulations. Cov
         def diff_stat(repo: Path) -> str:
             return subprocess.check_output(["git", "-C", str(repo), "diff", "--stat", "temporal-replay-v1-baseline..HEAD"], text=True, errors="replace").strip()
         engine = diff_stat(self.package.parent)
-        laravel = diff_stat(self.package.parent.parent / "papa-website-v2")
+        laravel_dir = Path(os.environ.get("LARAVEL_DIR", self.package.parent.parent / "papa-website-public")).resolve()
+        laravel = diff_stat(laravel_dir)
         return f"""# Code Change Report — Temporal Replay v2
 
 ## Engine and validation package

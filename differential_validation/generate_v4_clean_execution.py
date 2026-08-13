@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -15,7 +16,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 ENGINE = ROOT.parent
-LARAVEL = ENGINE.parent / "papa-website-v2"
+LARAVEL = Path(os.environ.get("LARAVEL_DIR", ENGINE.parent / "papa-website-public")).resolve()
 RUNS = ROOT / "runs" / "clean-environment"
 SOURCE_TAG = "tpr-ir-clean-closure-v4"
 

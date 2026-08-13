@@ -16,7 +16,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 ENGINE = ROOT.parent
-LARAVEL = ENGINE.parent / "papa-website-v2"
+LARAVEL = Path(os.environ.get("LARAVEL_DIR", ENGINE.parent / "papa-website-public")).resolve()
 RUNS = ROOT / "runs/clean-environment"
 SOURCE_TAG = "tpr-ir-clean-closure-v4"
 
@@ -113,7 +113,7 @@ def main() -> None:
         attempt(run_dir, "github-cli-version", ["gh", "--version"]),
         attempt(run_dir, "wsl-distributions", ["wsl.exe", "--list", "--quiet"]),
         attempt(run_dir, "virtualization-capability", ["powershell", "-NoProfile", "-Command", "$p=Get-CimInstance Win32_Processor|Select-Object -First 1; [pscustomobject]@{VirtualizationFirmwareEnabled=$p.VirtualizationFirmwareEnabled;VMMonitorModeExtensions=$p.VMMonitorModeExtensions}|ConvertTo-Json -Compress"]),
-        attempt(run_dir, "private-laravel-remote-access", ["git", "ls-remote", "https://softmitend@github.com/mascitradotcom/papa-website-v2", "HEAD"]),
+        attempt(run_dir, "public-laravel-remote-access", ["git", "ls-remote", "https://github.com/alvinaaulia/papa-web", "HEAD"]),
     ]
     command_by_name = {Path(item["stdout_file"]).stem.replace(".stdout", ""): item for item in commands}
     runners = [

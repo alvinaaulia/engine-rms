@@ -16,7 +16,7 @@ from evidence import parse_go_test, parse_junit
 
 ROOT = Path(__file__).resolve().parent
 ENGINE = ROOT.parent
-LARAVEL = ENGINE.parent / "papa-website-v2"
+LARAVEL = Path(os.environ.get("LARAVEL_DIR", ENGINE.parent / "papa-website-public")).resolve()
 RUNS = ROOT / "runs"
 BASELINE = RUNS / "reconstructed-baseline"
 FIXED = RUNS / "fixed"
@@ -336,7 +336,7 @@ def build_working_tree_inventory() -> dict:
     engine_status = status_rows(ENGINE)
     laravel_status = status_rows(LARAVEL)
     changes = []
-    for repository, rows in (("engine-rms", engine_status), ("papa-website-v2", laravel_status)):
+    for repository, rows in (("engine-rms", engine_status), ("papa-website-public", laravel_status)):
         for row in rows:
             path = row[3:]
             changes.append({"repository": repository, "status": row[:2], "path": path, "category": classify_path(path)})
