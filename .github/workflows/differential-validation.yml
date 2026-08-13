@@ -69,6 +69,17 @@ jobs:
         run: |
           printf 'engine_commit=%s\n' "$(git -C engine-rms rev-parse HEAD)" | tee paired-source-revisions.txt
           printf 'laravel_commit=%s\n' "$(git -C papa-website-public rev-parse HEAD)" | tee -a paired-source-revisions.txt
+      - name: Verify published research provenance tags
+        shell: bash
+        run: |
+          for tag in \
+            tpr-ir-differential-baseline-v1 \
+            tpr-ir-differential-fixed-v1 \
+            tpr-ir-evidence-hardening-v2
+          do
+            printf 'engine_%s=%s\n' "$tag" "$(git -C engine-rms rev-parse "$tag^{commit}")" | tee -a paired-source-revisions.txt
+            printf 'laravel_%s=%s\n' "$tag" "$(git -C papa-website-public rev-parse "$tag^{commit}")" | tee -a paired-source-revisions.txt
+          done
       - name: Fast source quality gates
         shell: bash
         env:
