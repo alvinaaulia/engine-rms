@@ -4,7 +4,26 @@ This file is the canonical entry point for reviewers. Historical reports remain
 in the repository only for provenance and must not be combined with current
 claims unless their recorded source commits match the article.
 
-## Current clean reproduction
+## Current commit-bound CI verification
+
+- Status: `PASS`
+- GitHub Actions run: `31731376912`
+- Engine commit: `d98576e2260fc2864ff170785db12dad81bec828`
+- Laravel commit: `aa6b05f9d62cc277decc59cc44745ada5e56ccae`
+- Branch: `feature/sinta3-system-readiness-20260812`
+- Runtime: Go 1.26.5, PHP 8.4, Python 3.14, MySQL 8.4.5
+- Passed gates: Go tests, Go vet, Go vulnerability scan, Laravel tests,
+  Composer audit, npm audit/build, desktop/mobile browser accessibility smoke
+  tests, differential evidence pipeline, and commit-bound Go statement coverage
+- Published artifact: `differential-validation-evidence` (GitHub artifact ID
+  `9193444210`, retained until 2026-11-11)
+
+Run URL: <https://github.com/alvinaaulia/engine-rms/actions/runs/31731376912>
+
+The paired commits and published provenance tags are verified inside the run.
+The CI-generated artifact is authoritative for claims about these two commits.
+
+## Latest WSL clean reproduction
 
 - Status: `PASS`
 - Runner: WSL-native Ubuntu, without Docker
@@ -17,7 +36,20 @@ claims unless their recorded source commits match the article.
 - Artifact validator: 28 artifacts, `PASS`
 
 The run manifest and `reports/CLEAN_REPRODUCTION_REPORT.md` inside that directory
-are authoritative for these numbers.
+are authoritative for these numbers. This run predates the current CI pair and
+is retained as historical clean-environment evidence, not silently relabelled
+as evidence for the newer commits.
+
+## Coverage status
+
+- Commit-bound Go statement coverage is generated and published by the current
+  CI run.
+- The last completed condition-coverage result was 98.94%, but it belongs to an
+  earlier source state.
+- A Gobco v1.3.4 run against the current commit exceeded the 15-minute local
+  execution limit without producing a final report. Therefore 98.94% must not
+  be attributed to the current commit and condition coverage is not a blocking
+  CI gate.
 
 ## Temporal replay evidence
 
@@ -41,10 +73,11 @@ pending until supplied by an authorized person.
 3. Generated coverage and clean-run evidence identify the tested source commit.
 4. Article claims quote only an evidence run bound to those source identities.
 
-## Readiness changes awaiting a new evidence run
+## Readiness changes verified
 
 The post-run hardening branch upgrades Go to 1.26.5, removes reachable Go
 vulnerabilities, repairs the public CI route, and adds browser/accessibility
-gates. These changes have passed local source and integration tests, but they do
-not replace the clean reproduction above until CI creates a new manifest whose
-source identities include the readiness commits.
+gates. These changes passed the commit-bound CI run identified above. A new
+current-source Temporal Replay v2 and authorized domain-expert review remain
+separate requirements before making corresponding temporal or business-policy
+claims in an article.
