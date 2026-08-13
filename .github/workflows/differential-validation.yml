@@ -117,7 +117,43 @@ jobs:
           CLEAN_OUTPUTS: '1'
           ALLOW_DIRTY: '0'
         run: make differential-validation
+      - name: Surface failed evidence command
+        if: failure()
+        working-directory: engine-rms
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          found = False
+          for meta_path in sorted(Path('differential_validation/runs').rglob('*.meta.json')):
+              try:
+                  meta = json.loads(meta_path.read_text(encoding='utf-8'))
+              except (OSError, ValueError):
+                  continue
+              if meta.get('exit_code') in (None, 0):
+                  continue
+              found = True
+              details = []
+              for key in ('stdout_file', 'stderr_file'):
+                  log_name = meta.get(key)
+                  if not log_name:
+                      continue
+                  log_path = meta_path.parent / log_name
+                  if log_path.is_file():
+                      lines = log_path.read_text(encoding='utf-8', errors='replace').splitlines()
+                      details.extend(lines[-12:])
+              message = ' | '.join(details)[-1800:] or 'No captured output.'
+              message = message.replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
+              command = ' '.join(str(part) for part in meta.get('command', []))
+              title = f"Evidence command failed (exit {meta.get('exit_code')}): {command}"
+              print(f"::error file={meta_path}::{title}. {message}")
+          if not found:
+              print('::error::Evidence pipeline failed before a command metadata file recorded the cause.')
+          PY
       - name: Generate commit-bound Go coverage evidence
+        if: ${{ !cancelled() }}
         working-directory: engine-rms
         shell: bash
         run: |
