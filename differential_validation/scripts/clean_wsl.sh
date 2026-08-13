@@ -3,15 +3,17 @@ set -Eeuo pipefail
 
 PACKAGE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ENGINE_REPO="$(cd "$PACKAGE_DIR/.." && pwd)"
-LARAVEL_REPO="${LARAVEL_REPO:-$(cd "$ENGINE_REPO/../papa-website-v2" && pwd)}"
-ENGINE_REF="${ENGINE_REF:-tpr-ir-clean-closure-v4}"
-LARAVEL_REF="${LARAVEL_REF:-tpr-ir-clean-closure-v4}"
+if [[ -z "${LARAVEL_REPO:-}" ]]; then
+  LARAVEL_REPO="$(cd "$ENGINE_REPO/../papa-website-public" && pwd)"
+fi
+ENGINE_REF="${ENGINE_REF:-HEAD}"
+LARAVEL_REF="${LARAVEL_REF:-HEAD}"
 RUN_ID="wsl-clean-$(date -u +%Y%m%dT%H%M%SZ)"
 TEMP_ROOT="$(mktemp -d /tmp/engine-rms-clean.XXXXXX)"
 TEMP_LOGS="$TEMP_ROOT/raw-logs"
 SNAP_ROOT="$TEMP_ROOT/artifact"
 SNAP_ENGINE="$SNAP_ROOT/engine-rms"
-SNAP_LARAVEL="$SNAP_ROOT/papa-website-v2"
+SNAP_LARAVEL="$SNAP_ROOT/papa-website-public"
 SNAP_PACKAGE="$SNAP_ENGINE/differential_validation"
 SNAP_CLEAN="$SNAP_PACKAGE/runs/clean-environment"
 FINAL_RUN_DIR="$PACKAGE_DIR/runs/clean-environment/$RUN_ID"

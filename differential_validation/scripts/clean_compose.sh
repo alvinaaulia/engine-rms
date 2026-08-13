@@ -3,16 +3,16 @@ set -euo pipefail
 
 PACKAGE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ENGINE_REPO="$(cd "$PACKAGE_DIR/.." && pwd)"
-LARAVEL_REPO="$(cd "$ENGINE_REPO/../papa-website-v2" && pwd)"
-ENGINE_REF="${ENGINE_REF:-tpr-ir-clean-closure-v4}"
-LARAVEL_REF="${LARAVEL_REF:-tpr-ir-clean-closure-v4}"
+LARAVEL_REPO="${LARAVEL_REPO:-$(cd "$ENGINE_REPO/../papa-website-public" && pwd)}"
+ENGINE_REF="${ENGINE_REF:-HEAD}"
+LARAVEL_REF="${LARAVEL_REF:-HEAD}"
 RUN_ID="clean-$(date -u +%Y%m%dT%H%M%SZ)"
 PROJECT_NAME="differential-${RUN_ID,,}"
 TEMP_ROOT="$(mktemp -d)"
 TEMP_LOGS="$TEMP_ROOT/raw-logs"
 ARTIFACT_ROOT="$TEMP_ROOT/artifact"
 SNAP_ENGINE="$ARTIFACT_ROOT/engine-rms"
-SNAP_LARAVEL="$ARTIFACT_ROOT/papa-website-v2"
+SNAP_LARAVEL="$ARTIFACT_ROOT/papa-website-public"
 SNAP_PACKAGE="$SNAP_ENGINE/differential_validation"
 SNAP_CLEAN="$SNAP_PACKAGE/runs/clean-environment"
 FINAL_RUN_DIR="$PACKAGE_DIR/runs/clean-environment/$RUN_ID"
@@ -55,7 +55,11 @@ if [[ "$SNAP_RUNS" == "$SNAP_PACKAGE/runs" ]]; then
 fi
 COMPOSE_FILE="$SNAP_PACKAGE/docker-compose.yml"
 
-ARTIFACT_DOCKER_PATH="$(cygpath -m "$ARTIFACT_ROOT")"
+if command -v cygpath >/dev/null 2>&1; then
+  ARTIFACT_DOCKER_PATH="$(cygpath -m "$ARTIFACT_ROOT")"
+else
+  ARTIFACT_DOCKER_PATH="$ARTIFACT_ROOT"
+fi
 cat >"$OVERRIDE_FILE" <<EOF
 services:
   app-laravel:

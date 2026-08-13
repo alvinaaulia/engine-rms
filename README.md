@@ -5,7 +5,7 @@ payroll-rule IR and temporal replay study.
 
 ## Local service
 
-Requirements: Go 1.25.6 or newer. The service listens only on
+Requirements: Go 1.26.5 or newer. The service listens only on
 `127.0.0.1:8081` by default.
 
 ```bash
@@ -24,10 +24,11 @@ Fast unit/security gate:
 ```bash
 go test -short ./... -count=1 -timeout=3m
 go vet ./...
+go run golang.org/x/vuln/cmd/govulncheck@latest ./...
 ```
 
-Cross-language integration gate (requires the Laravel repository as sibling
-`../papa-website-v2` and PHP dependencies installed):
+Cross-language integration gate (requires the public Laravel repository as
+sibling `../papa-website-public` and PHP dependencies installed):
 
 ```bash
 go test ./... -count=1 -timeout=10m
@@ -55,7 +56,7 @@ correctness for every organization or jurisdiction.
 
 ## Data availability
 
-The Go source and synthetic evidence are stored in this repository. The paired
-Laravel source may be restricted by company confidentiality. A submission must
-either provide a sanitized reviewer package pinned to an exact commit or state
-the restriction and access procedure in its Data Availability Statement.
+The Go source, synthetic evidence, and paired Laravel source are publicly
+available at the commit identities recorded in each run manifest. Start with
+`differential_validation/CURRENT_EVIDENCE.md`; historical reports are retained
+for provenance but are not the basis of the current claim.

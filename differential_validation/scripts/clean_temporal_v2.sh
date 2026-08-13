@@ -3,7 +3,7 @@ set -Eeuo pipefail
 
 PACKAGE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ENGINE_DIR="${ENGINE_DIR:-$(cd "$PACKAGE_DIR/.." && pwd)}"
-LARAVEL_DIR="${LARAVEL_DIR:-$(cd "$ENGINE_DIR/../papa-website-v2" && pwd)}"
+LARAVEL_DIR="${LARAVEL_DIR:-$(cd "$ENGINE_DIR/../papa-website-public" && pwd)}"
 STARTED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 RUN_STAMP="$(date -u -d "$STARTED_AT" +%Y%m%dT%H%M%SZ)"
 ENGINE_COMMIT="$(git -C "$ENGINE_DIR" rev-parse HEAD)"
@@ -29,8 +29,6 @@ for tool in curl git go php python; do
   command -v "$tool" >/dev/null 2>&1 || { echo "Missing dependency: $tool" >&2; exit 2; }
 done
 [[ -f "$LARAVEL_DIR/artisan" ]] || { echo "Laravel repository not found: $LARAVEL_DIR" >&2; exit 2; }
-[[ "$(git -C "$ENGINE_DIR" branch --show-current)" == "feature/temporal-replay-evidence-closure-v2" ]] || { echo "Wrong engine branch" >&2; exit 2; }
-[[ "$(git -C "$LARAVEL_DIR" branch --show-current)" == "feature/temporal-replay-evidence-closure-v2" ]] || { echo "Wrong Laravel branch" >&2; exit 2; }
 [[ -z "$(git -C "$ENGINE_DIR" status --porcelain)" ]] || { echo "Engine repository must be clean" >&2; exit 2; }
 [[ -z "$(git -C "$LARAVEL_DIR" status --porcelain)" ]] || { echo "Laravel repository must be clean" >&2; exit 2; }
 

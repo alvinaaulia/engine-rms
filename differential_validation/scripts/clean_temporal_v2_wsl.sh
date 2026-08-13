@@ -3,13 +3,15 @@ set -Eeuo pipefail
 
 PACKAGE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ENGINE_REPO="$(cd "$PACKAGE_DIR/.." && pwd)"
-LARAVEL_REPO="${LARAVEL_REPO:-$(cd "$ENGINE_REPO/../papa-website-v2" && pwd)}"
-ENGINE_REF="${ENGINE_REF:-0dc6c0032484285fce37001b80323cd4c1afd86c}"
-LARAVEL_REF="${LARAVEL_REF:-45b82783056a4277f32517667ab519a104550e7c}"
-BRANCH="feature/temporal-replay-evidence-closure-v2"
+LARAVEL_REPO="${LARAVEL_REPO:-$(cd "$ENGINE_REPO/../papa-website-public" && pwd)}"
+ENGINE_REF="${ENGINE_REF:-HEAD}"
+LARAVEL_REF="${LARAVEL_REF:-HEAD}"
+ENGINE_COMMIT="$(git -C "$ENGINE_REPO" rev-parse "$ENGINE_REF")"
+LARAVEL_COMMIT="$(git -C "$LARAVEL_REPO" rev-parse "$LARAVEL_REF")"
+BRANCH="temporal-replay-evidence-current"
 TEMP_ROOT="$(mktemp -d /tmp/temporal-v2-wsl.XXXXXX)"
 SNAP_ENGINE="$TEMP_ROOT/engine-rms"
-SNAP_LARAVEL="$TEMP_ROOT/papa-website-v2"
+SNAP_LARAVEL="$TEMP_ROOT/papa-website-public"
 FINAL_PARENT="$PACKAGE_DIR/runs/temporal-replay-v2"
 
 cleanup() {
@@ -41,13 +43,13 @@ done
 echo "Preparing clean WSL source snapshots..."
 git -c safe.directory="$ENGINE_REPO" -c safe.directory="$ENGINE_REPO/.git" \
   clone --no-hardlinks --no-checkout "$ENGINE_REPO" "$SNAP_ENGINE"
-git -C "$SNAP_ENGINE" checkout -B "$BRANCH" "$ENGINE_REF"
+git -C "$SNAP_ENGINE" checkout -B "$BRANCH" "$ENGINE_COMMIT"
 git -c safe.directory="$LARAVEL_REPO" -c safe.directory="$LARAVEL_REPO/.git" \
   clone --no-hardlinks --no-checkout "$LARAVEL_REPO" "$SNAP_LARAVEL"
-git -C "$SNAP_LARAVEL" checkout -B "$BRANCH" "$LARAVEL_REF"
+git -C "$SNAP_LARAVEL" checkout -B "$BRANCH" "$LARAVEL_COMMIT"
 
-[[ "$(git -C "$SNAP_ENGINE" rev-parse HEAD)" == "$ENGINE_REF" ]] || { echo "Engine source identity mismatch" >&2; exit 2; }
-[[ "$(git -C "$SNAP_LARAVEL" rev-parse HEAD)" == "$LARAVEL_REF" ]] || { echo "Laravel source identity mismatch" >&2; exit 2; }
+[[ "$(git -C "$SNAP_ENGINE" rev-parse HEAD)" == "$ENGINE_COMMIT" ]] || { echo "Engine source identity mismatch" >&2; exit 2; }
+[[ "$(git -C "$SNAP_LARAVEL" rev-parse HEAD)" == "$LARAVEL_COMMIT" ]] || { echo "Laravel source identity mismatch" >&2; exit 2; }
 [[ -z "$(git -C "$SNAP_ENGINE" status --porcelain)" ]] || { echo "Engine snapshot is dirty" >&2; exit 2; }
 [[ -z "$(git -C "$SNAP_LARAVEL" status --porcelain)" ]] || { echo "Laravel snapshot is dirty" >&2; exit 2; }
 
@@ -94,4 +96,4 @@ final_run="$FINAL_PARENT/$run_id"
 mkdir -p "$FINAL_PARENT"
 cp -a "$generated_run" "$final_run"
 printf '{"status":"PASS","runner":"WSL_NATIVE_NO_DOCKER","run_id":"%s","run_dir":"%s","engine_commit":"%s","laravel_commit":"%s"}\n' \
-  "$run_id" "$final_run" "$ENGINE_REF" "$LARAVEL_REF"
+  "$run_id" "$final_run" "$ENGINE_COMMIT" "$LARAVEL_COMMIT"

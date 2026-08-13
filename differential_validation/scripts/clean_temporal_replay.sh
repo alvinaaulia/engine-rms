@@ -3,7 +3,7 @@ set -Eeuo pipefail
 
 PACKAGE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ENGINE_DIR="${ENGINE_DIR:-$(cd "$PACKAGE_DIR/.." && pwd)}"
-LARAVEL_DIR="${LARAVEL_DIR:-$(cd "$ENGINE_DIR/../papa-website-v2" && pwd)}"
+LARAVEL_DIR="${LARAVEL_DIR:-$(cd "$ENGINE_DIR/../papa-website-public" && pwd)}"
 RUN_ID="${RUN_ID:-temporal-clean-$(date -u +%Y%m%dT%H%M%SZ)}"
 RUN_DIR="$PACKAGE_DIR/runs/temporal-replay/$RUN_ID"
 RAW="$RUN_DIR/raw-logs"

@@ -2,6 +2,12 @@ name: differential-validation
 
 on:
   workflow_dispatch:
+    inputs:
+      run_temporal_replay:
+        description: Run the long current-source Temporal Replay v2 experiment
+        required: false
+        default: false
+        type: boolean
   pull_request:
   push:
     branches:
@@ -11,6 +17,8 @@ on:
 jobs:
   validate:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     services:
       mysql:
         image: mysql:8.4.5
@@ -24,33 +32,43 @@ jobs:
           --health-interval=2s --health-timeout=3s --health-retries=30
     steps:
       - name: Check out engine and validation package
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           path: engine-rms
+          fetch-depth: 0
       - name: Check out Laravel application
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: alvinaaulia/papa-web
-          path: papa-website-v2
+          path: papa-website-public
           ref: ${{ vars.LARAVEL_RESEARCH_REF || github.head_ref || github.ref_name }}
-      - uses: actions/setup-go@v5
+          fetch-depth: 0
+      - uses: actions/setup-go@v7
         with:
-          go-version: '1.26.2'
+          go-version: '1.26.5'
+          cache-dependency-path: engine-rms/go.sum
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'
           extensions: pdo_mysql, mbstring, xml, curl
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.14'
       - name: Install Laravel dependencies
-        working-directory: papa-website-v2
-        run: composer install --no-interaction --prefer-dist
+        working-directory: papa-website-public
+        run: |
+          composer install --no-interaction --prefer-dist
+          git restore -- bootstrap/cache
+      - name: Install and build frontend assets
+        working-directory: papa-website-public
+        run: |
+          npm ci
+          npm run build
       - name: Record paired source revisions
         shell: bash
         run: |
           printf 'engine_commit=%s\n' "$(git -C engine-rms rev-parse HEAD)" | tee paired-source-revisions.txt
-          printf 'laravel_commit=%s\n' "$(git -C papa-website-v2 rev-parse HEAD)" | tee -a paired-source-revisions.txt
+          printf 'laravel_commit=%s\n' "$(git -C papa-website-public rev-parse HEAD)" | tee -a paired-source-revisions.txt
       - name: Fast source quality gates
         shell: bash
         env:
@@ -64,12 +82,27 @@ jobs:
           cd engine-rms
           go test -short ./... -count=1 -timeout=3m
           go vet ./...
-          cd ../papa-website-v2
+          go run golang.org/x/vuln/cmd/govulncheck@latest ./...
+          cd ../papa-website-public
           cp .env.example .env
           php artisan key:generate
           php artisan migrate --env=testing --force
           php artisan test tests/Unit tests/Feature/RuleVersionActionWorkflowTest.php --stop-on-failure
-      - name: Execute clean evidence pipeline
+          composer audit --locked
+          npm audit --package-lock-only --audit-level=high
+      - name: Browser accessibility and responsive smoke tests
+        working-directory: papa-website-public
+        env:
+          APP_ENV: testing
+          APP_URL: http://127.0.0.1:8000
+          DB_CONNECTION: mysql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: website_papa_v2_testing
+          DB_USERNAME: root
+          DB_PASSWORD: ''
+        run: npm run test:browser
+      - name: Execute commit-bound evidence pipeline
         working-directory: engine-rms/differential_validation
         env:
           DB_HOST: 127.0.0.1
@@ -77,11 +110,26 @@ jobs:
           DB_DATABASE: website_papa_v2_testing
           DB_USERNAME: root
           DB_PASSWORD: ''
+          ENGINE_DIR: ${{ github.workspace }}/engine-rms
+          LARAVEL_DIR: ${{ github.workspace }}/papa-website-public
+          RUNS_DIR: ${{ github.workspace }}/engine-rms/differential_validation/runs
+          SOURCE_SNAPSHOT_VERIFIED: '1'
+          CLEAN_OUTPUTS: '1'
           ALLOW_DIRTY: '0'
-        run: make clean-validate
+        run: make differential-validation
+      - name: Generate commit-bound Go coverage evidence
+        working-directory: engine-rms
+        shell: bash
+        run: |
+          go test ./... -coverprofile=coverage-current.out -count=1
+          {
+            printf 'engine_commit=%s\n' "$(git rev-parse HEAD)"
+            go version
+            go tool cover -func=coverage-current.out
+          } | tee coverage-evidence-go.txt
       - name: Upload raw evidence and reports
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: differential-validation-evidence
           path: |
@@ -90,4 +138,69 @@ jobs:
             engine-rms/differential_validation/final-report-data.json
             engine-rms/differential_validation/DIFFERENTIAL_VALIDATION_FINAL_REPORT_V3.md
             engine-rms/differential_validation/runs/clean-environment
+            engine-rms/coverage-evidence-go.txt
+            engine-rms/coverage-current.out
             paired-source-revisions.txt
+
+  temporal-replay-v2:
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_temporal_replay }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    services:
+      mysql:
+        image: mysql:8.4.5
+        env:
+          MYSQL_DATABASE: website_papa_v2_testing
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost"
+          --health-interval=2s --health-timeout=3s --health-retries=30
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          path: engine-rms
+          fetch-depth: 0
+      - uses: actions/checkout@v6
+        with:
+          repository: alvinaaulia/papa-web
+          path: papa-website-public
+          ref: ${{ vars.LARAVEL_RESEARCH_REF || github.head_ref || github.ref_name }}
+          fetch-depth: 0
+      - uses: actions/setup-go@v7
+        with:
+          go-version: '1.26.5'
+          cache-dependency-path: engine-rms/go.sum
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo_mysql, mbstring, xml, curl, bcmath, dom, gd, zip
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.14'
+      - name: Install locked Laravel dependencies
+        working-directory: papa-website-public
+        run: |
+          composer install --no-interaction --prefer-dist
+          git restore -- bootstrap/cache
+          cp .env.example .env
+          php artisan key:generate --force --no-ansi
+      - name: Execute current-source Temporal Replay v2
+        working-directory: engine-rms/differential_validation
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: website_papa_v2_testing
+          DB_USERNAME: root
+          DB_PASSWORD: ''
+          ENGINE_DIR: ${{ github.workspace }}/engine-rms
+          LARAVEL_DIR: ${{ github.workspace }}/papa-website-public
+        run: make clean-temporal-v2
+      - name: Upload Temporal Replay v2 evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: temporal-replay-v2-current-source
+          path: engine-rms/differential_validation/runs/temporal-replay-v2
