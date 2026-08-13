@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "original-output.schema.json",
+  "allOf": [
+    {"$ref": "artifact-envelope.schema.json"},
+    {"properties": {"schema_ref": {"const": "temporal-artifact-schemas/original-output.schema.json"}, "payload": {
+      "type": "object", "additionalProperties": false,
+      "required": ["components", "summary", "provenance", "output_sha256", "engine_response"],
+      "properties": {"components": {"type": "array"}, "summary": {"type": "object"}, "provenance": {"type": "object"},
+        "output_sha256": {"$ref": "artifact-envelope.schema.json#/$defs/sha256"}, "engine_response": {"type": "object"}}
+    }}}
+  ]
+}

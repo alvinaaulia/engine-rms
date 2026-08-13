@@ -499,7 +499,7 @@ No hosted runner, fresh VM, second computer, or Docker runner was available/auth
 {readiness}
 
 ## 2. Source identity
-Engine `{source['engine_commit']}` and Laravel `{source['laravel_commit']}` on `feature/temporal-replay-evidence-closure-v2`; dirty before run: false/false.
+Engine `{source['engine_commit']}` on `{source['engine_branch']}` and Laravel `{source['laravel_commit']}` on `{source['laravel_branch']}`; dirty before run: {str(source['engine_dirty_before_run']).lower()}/{str(source['laravel_dirty_before_run']).lower()}.
 
 ## 3. Run and time provenance
 `{self.run_id}`; `{summary['started_at']}` through `{summary['finished_at']}` UTC; validation PASS.

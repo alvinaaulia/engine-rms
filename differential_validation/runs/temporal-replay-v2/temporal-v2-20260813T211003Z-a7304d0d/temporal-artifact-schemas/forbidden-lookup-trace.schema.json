@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "forbidden-lookup-trace.schema.json",
+  "allOf": [
+    {"$ref": "artifact-envelope.schema.json"},
+    {"properties": {"schema_ref": {"const": "temporal-artifact-schemas/forbidden-lookup-trace.schema.json"}, "payload": {
+      "type": "object", "additionalProperties": false,
+      "required": ["case_id", "repeat", "forbidden_lookup_count", "observed_queries", "blocked_calls", "result"],
+      "properties": {
+        "case_id": {"type": "string"}, "repeat": {"type": "integer", "minimum": 1},
+        "forbidden_lookup_count": {"type": "integer", "minimum": 0},
+        "observed_queries": {"type": "array", "items": {"type": "object"}},
+        "blocked_calls": {"type": "array", "items": {"type": "object"}},
+        "result": {"enum": ["PASS", "FAIL"]}
+      }
+    }}}
+  ]
+}

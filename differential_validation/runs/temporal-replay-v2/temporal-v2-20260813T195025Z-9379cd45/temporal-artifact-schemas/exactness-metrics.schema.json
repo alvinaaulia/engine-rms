@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "exactness-metrics.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["artifact_version", "run_id", "exactness"],
+  "properties": {
+    "artifact_version": {"const": "2.0"},
+    "run_id": {"type": "string", "pattern": "^temporal-v2-[0-9]{8}T[0-9]{6}Z-[a-f0-9]{8}$"},
+    "exactness": {
+      "type": "object", "additionalProperties": false,
+      "required": ["case", "component_presence", "component_type", "component_amount", "component_provenance", "summary", "provenance", "rule_version", "rate_version", "tax_version", "facts_hash", "ruleset_hash", "output_hash"],
+      "properties": {
+        "case": {"$ref": "#/$defs/simple"}, "component_presence": {"$ref": "#/$defs/simple"}, "component_type": {"$ref": "#/$defs/simple"},
+        "component_amount": {"$ref": "#/$defs/simple"}, "component_provenance": {"$ref": "#/$defs/simple"}, "summary": {"$ref": "#/$defs/simple"},
+        "provenance": {"$ref": "#/$defs/simple"}, "facts_hash": {"$ref": "#/$defs/simple"}, "ruleset_hash": {"$ref": "#/$defs/simple"},
+        "output_hash": {"$ref": "#/$defs/simple"}, "rule_version": {"$ref": "#/$defs/version"}, "rate_version": {"$ref": "#/$defs/version"}, "tax_version": {"$ref": "#/$defs/version"}
+      }
+    }
+  },
+  "$defs": {
+    "percent": {"type": ["number", "null"], "minimum": 0, "maximum": 100},
+    "simple": {"type": "object", "additionalProperties": false, "required": ["matched", "total", "percent"], "properties": {
+      "matched": {"type": "integer", "minimum": 0}, "total": {"type": "integer", "minimum": 0}, "percent": {"$ref": "#/$defs/percent"}
+    }},
+    "version": {"type": "object", "additionalProperties": false, "required": ["matched", "applicable", "not_applicable", "missing", "mismatched", "measurement_failed", "percent"], "properties": {
+      "matched": {"type": "integer", "minimum": 0}, "applicable": {"type": "integer", "minimum": 0}, "not_applicable": {"type": "integer", "minimum": 0},
+      "missing": {"type": "integer", "minimum": 0}, "mismatched": {"type": "integer", "minimum": 0}, "measurement_failed": {"type": "integer", "minimum": 0},
+      "percent": {"$ref": "#/$defs/percent"}
+    }}
+  }
+}

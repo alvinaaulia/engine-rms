@@ -1,0 +1,233 @@
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Unit\AuditTrailPresenterUnitTest[39m
+  [32;1m✓[39;22m[90m [39m[90mit formats action and entity labels[39m[90m                                                                         [39m [90m3.11s[39m  
+  [32;1m✓[39;22m[90m [39m[90mit resolves entity id from audit payload[39m[90m                                                                    [39m [90m0.38s[39m  
+  [32;1m✓[39;22m[90m [39m[90mit builds compact user initials[39m[90m                                                                             [39m [90m0.25s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Unit\CompanyTaxOperationalStatusUnitTest[39m
+  [32;1m✓[39;22m[90m [39m[90mapproved active future effective tax is scheduled[39m[90m                                                           [39m [90m0.40s[39m  
+  [32;1m✓[39;22m[90m [39m[90mapproved active current effective tax is active[39m[90m                                                             [39m [90m0.36s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Unit\ExampleTest[39m
+  [32;1m✓[39;22m[90m [39m[90mthat true is true[39m[90m                                                                                           [39m [90m0.01s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Unit\PayrollBuildFactsAttendanceSourceUnitTest[39m
+  [32;1m✓[39;22m[90m [39m[90mbuild facts uses database attendance when records exist[39m[90m                                                     [39m [90m1.21s[39m  
+  [32;1m✓[39;22m[90m [39m[90mbuild facts uses manual override when prefer manual attendance true[39m[90m                                         [39m [90m0.55s[39m  
+  [32;1m✓[39;22m[90m [39m[90mbuild facts uses overtime per hour override for system component[39m[90m                                            [39m [90m0.79s[39m  
+  [32;1m✓[39;22m[90m [39m[90mbuild facts uses manual fallback when database has no attendance records[39m[90m                                    [39m [90m0.54s[39m  
+  [32;1m✓[39;22m[90m [39m[90mbuild facts ignores overtime pending director approval[39m[90m                                                      [39m [90m0.73s[39m  
+  [32;1m✓[39;22m[90m [39m[90mbuild facts sets performance score from master salary and override[39m[90m                                          [39m [90m0.86s[39m  
+  [32;1m✓[39;22m[90m [39m[90mbuild facts uses requested salary date as payroll effective date[39m[90m                                            [39m [90m1.11s[39m  
+  [32;1m✓[39;22m[90m [39m[90mbuild facts counts approved leave overlap using weekdays only[39m[90m                                               [39m [90m0.80s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Unit\PayrollRuleEngineHttpSecurityTest[39m
+  [32;1m✓[39;22m[90m [39m[90minternal token is forwarded without exposing it in payload[39m[90m                                                  [39m [90m0.52s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Unit\PayrollRuleEngineTaxableComputationUnitTest[39m
+  [32;1m✓[39;22m[90m [39m[90mauto tax uses taxable earning components only[39m[90m                                                               [39m [90m0.23s[39m  
+  [32;1m✓[39;22m[90m [39m[90mmanual tax override skips auto recomputation[39m[90m                                                                [39m [90m0.29s[39m  
+  [32;1m✓[39;22m[90m [39m[90mtax component is not injected when no tax rule is active[39m[90m                                                    [39m [90m0.26s[39m  
+  [32;1m✓[39;22m[90m [39m[90mcompany tax configuration fails when active tax rule is missing[39m[90m                                             [39m [90m0.35s[39m  
+  [32;1m✓[39;22m[90m [39m[90mcompany tax source is treated as auto tax not manual override[39m[90m                                               [39m [90m0.19s[39m  
+  [32;1m✓[39;22m[90m [39m[90mexecute uses payroll effective date before period end for tax resolution[39m[90m                                    [39m [90m0.15s[39m  
+  [32;1m✓[39;22m[90m [39m[90mtax component is not injected when tax rule does not match[39m[90m                                                  [39m [90m0.20s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Unit\PayrollRuleEngineWhiteBoxUnitTest[39m
+  [32;1m✓[39;22m[90m [39m[90mexecute uses component map types and recomputes summary from components[39m[90m                                     [39m [90m0.22s[39m  
+  [32;1m✓[39;22m[90m [39m[90mexecute uses engine summary when component list is empty[39m[90m                                                    [39m [90m0.15s[39m  
+  [32;1m✓[39;22m[90m [39m[90mexecute preserves unrounded overtime hours in payload[39m[90m                                                       [39m [90m0.17s[39m  
+  [32;1m✓[39;22m[90m [39m[90mexecute uses database component type without code guessing[39m[90m                                                  [39m [90m0.16s[39m  
+  [32;1m✓[39;22m[90m [39m[90mexecute rejects rule when action code missing from active components[39m[90m                                        [39m [90m0.16s[39m  
+  [32;1m✓[39;22m[90m [39m[90mexecute derives payroll status from contract type when status is active[39m[90m                                     [39m [90m0.24s[39m  
+  [32;1m✓[39;22m[90m [39m[90mexecute preserves rule version source when action codes are duplicated[39m[90m                                      [39m [90m0.25s[39m  
+  [32;1m✓[39;22m[90m [39m[90mexecute rounds money amounts like spreadsheet[39m[90m                                                               [39m [90m0.19s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Unit\RoleNormalizerUnitTest[39m
+  [32;1m✓[39;22m[90m [39m[90mnormalize aliases to canonical role[39m[90m                                                                         [39m [90m0.19s[39m  
+  [32;1m✓[39;22m[90m [39m[90mto storage value maps canonical role to database enum[39m[90m                                                       [39m [90m0.19s[39m  
+  [32;1m✓[39;22m[90m [39m[90mmatches supports mixed aliases[39m[90m                                                                              [39m [90m0.17s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Unit\RuleDefinitionSemanticContractTest[39m
+  [32;1m✓[39;22m[90m [39m[90mdate parser accepts only canonical calendar date[39m[90m                                                            [39m [90m0.17s[39m  
+  [32;1m✓[39;22m[90m [39m[90mstring operator contract keeps contains without expanding boolean[39m[90m                                           [39m [90m0.17s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Unit\TemporalPayrollReplayUnitTest[39m
+  [32;1m✓[39;22m[90m [39m[90mcanonical json is key order independent and money is fixed six[39m[90m                                              [39m [90m0.18s[39m  
+  [32;1m✓[39;22m[90m [39m[90martifact payload hash survives json persistence[39m[90m                                                             [39m [90m0.14s[39m  
+  [32;1m✓[39;22m[90m [39m[90mmanifest integrity accepts complete locked artifact and rejects corruption[39m[90m                                  [39m [90m0.36s[39m  
+  [32;1m✓[39;22m[90m [39m[90mcomparator reports amount provenance and output hash differences[39m[90m                                            [39m [90m0.15s[39m  
+  [32;1m✓[39;22m[90m [39m[90mversion applicability excludes manual tax override from match denominator[39m[90m                                   [39m [90m0.18s[39m  
+  [32;1m✓[39;22m[90m [39m[90mcompatibility registry fails closed for unknown versions[39m[90m                                                    [39m [90m0.14s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Unit\TypedPayrollRuleIrServiceTest[39m
+  [32;1m✓[39;22m[90m [39m[90mbuilds canonical tpr ir payload with shared priority and rounding contract[39m[90m                                  [39m [90m0.19s[39m  
+  [32;1m✓[39;22m[90m [39m[90mrejects unknown field and unknown formula reference[39m[90m                                                         [39m [90m0.15s[39m  
+  [32;1m✓[39;22m[90m [39m[90mrejects set add mix and priority tie before execution[39m[90m                                                       [39m [90m0.14s[39m  
+  [32;1m✓[39;22m[90m [39m[90mrule array permutation has identical canonical order[39m[90m                                                        [39m [90m0.15s[39m  
+  [32;1m✓[39;22m[90m [39m[90msupports canonical payroll eligibility flags used by active rules[39m[90m                                           [39m [90m0.20s[39m  
+﻿﻿﻿﻿
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\ApiRuntimeRegressionTest[39m
+  [32;1m✓[39;22m[90m [39m[90mhrd contracts endpoint returns success[39m[90m                                                                     [39m [90m21.34s[39m  
+  [32;1m✓[39;22m[90m [39m[90mdirector daily activities endpoint is callable[39m[90m                                                              [39m [90m0.26s[39m  
+  [32;1m✓[39;22m[90m [39m[90mdirector contract approval list includes mapped fields[39m[90m                                                      [39m [90m0.23s[39m  
+  [32;1m✓[39;22m[90m [39m[90memployee contract list includes mapped fields[39m[90m                                                               [39m [90m0.22s[39m  
+  [32;1m✓[39;22m[90m [39m[90mpm contract list includes mapped fields[39m[90m                                                                     [39m [90m0.22s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\AuthGroupRoleScopingTest[39m
+  [32;1m✓[39;22m[90m [39m[90mtasks endpoint requires pm role[39m[90m                                                                             [39m [90m0.30s[39m  
+  [32;1m✓[39;22m[90m [39m[90mhrd project detail route requires hrd role[39m[90m                                                                  [39m [90m0.24s[39m  
+  [32;1m✓[39;22m[90m [39m[90mgenerate pdf requires director role[39m[90m                                                                         [39m [90m0.21s[39m  
+  [32;1m✓[39;22m[90m [39m[90mpresence recap employees allows director and hrd[39m[90m                                                            [39m [90m0.23s[39m  
+  [32;1m✓[39;22m[90m [39m[90mpresence recap employee allows pm and karyawan[39m[90m                                                              [39m [90m0.27s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\AuthenticationFunctionalTest[39m
+  [32;1m✓[39;22m[90m [39m[90mbb login 01 login berhasil[39m[90m                                                                                  [39m [90m0.87s[39m  
+  [32;1m✓[39;22m[90m [39m[90mbb login 02 password salah[39m[90m                                                                                  [39m [90m0.26s[39m  
+  [32;1m✓[39;22m[90m [39m[90mbb login 03 email tidak terdaftar[39m[90m                                                                           [39m [90m0.19s[39m  
+  [32;1m✓[39;22m[90m [39m[90mbb login 04 field kosong[39m[90m                                                                                    [39m [90m0.19s[39m  
+  [32;1m✓[39;22m[90m [39m[90mbb login 05 akses role hrd dan direktur[39m[90m                                                                     [39m [90m3.93s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\DifferentialFullPipelineE2ETest[39m
+  [32;1m✓[39;22m[90m [39m[90mdatabase service go and persistence subset[39m[90m                                                                 [39m [90m18.22s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\ExampleTest[39m
+  [32;1m✓[39;22m[90m [39m[90mthe application returns a successful response[39m[90m                                                               [39m [90m0.28s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\LeaveApprovalWorkflowTest[39m
+  [32;1m✓[39;22m[90m [39m[90mkaryawan leave requires director decision after hrd approval[39m[90m                                               [39m [90m24.41s[39m  
+  [32;1m✓[39;22m[90m [39m[90mhrd and director default queue only show ready items[39m[90m                                                        [39m [90m0.23s[39m  
+  [32;1m✓[39;22m[90m [39m[90mpm leave approval endpoints are disabled[39m[90m                                                                    [39m [90m0.19s[39m  
+  [32;1m✓[39;22m[90m [39m[90mleave approval requires reason[39m[90m                                                                              [39m [90m0.19s[39m  
+  [32;1m✓[39;22m[90m [39m[90mapproval history endpoints only return processed items[39m[90m                                                      [39m [90m0.28s[39m  
+  [32;1m✓[39;22m[90m [39m[90mhrd rejection finalizes leave for hrd and director history[39m[90m                                                  [39m [90m0.35s[39m  
+  [32;1m✓[39;22m[90m [39m[90msubmission routes initialize the correct approval stage for each role[39m[90m                                       [39m [90m0.44s[39m  
+  [32;1m✓[39;22m[90m [39m[90mleave submission validates required fields and date order[39m[90m                                                   [39m [90m0.20s[39m  
+  [32;1m✓[39;22m[90m [39m[90mleave detail is limited to owner and authorized approvers[39m[90m                                                   [39m [90m0.24s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\OvertimeApprovalWorkflowTest[39m
+  [32;1m✓[39;22m[90m [39m[90memployee overtime goes from hrd queue to director queue and can be fully approved[39m[90m                           [39m [90m0.34s[39m  
+  [32;1m✓[39;22m[90m [39m[90mpm overtime submission requires hrd and director approval and pm approval is disabled[39m[90m                       [39m [90m0.22s[39m  
+  [32;1m✓[39;22m[90m [39m[90mhrd rejection is final and visible in rejected histories[39m[90m                                                    [39m [90m0.32s[39m  
+  [32;1m✓[39;22m[90m [39m[90mlegacy employee overtime with pending pm status still appears in hrd queue[39m[90m                                  [39m [90m0.19s[39m  
+  [32;1m✓[39;22m[90m [39m[90mlegacy employee overtime with rejected pm status can still be processed by hrd[39m[90m                              [39m [90m0.20s[39m  
+  [32;1m✓[39;22m[90m [39m[90memployee and pm can upload image proof with overtime submission[39m[90m                                             [39m [90m0.69s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\OwnershipAccessControlTest[39m
+  [32;1m✓[39;22m[90m [39m[90memployee cannot access other employee salary scope[39m[90m                                                          [39m [90m0.29s[39m  
+  [32;1m✓[39;22m[90m [39m[90mhrd can access any employee salary scope[39m[90m                                                                    [39m [90m0.30s[39m  
+  [32;1m✓[39;22m[90m [39m[90memployee owner cannot mutate own salary scope[39m[90m                                                               [39m [90m0.21s[39m  
+  [32;1m✓[39;22m[90m [39m[90mgenerated salary transfer proof cannot be updated[39m[90m                                                           [39m [90m0.23s[39m  
+  [32;1m✓[39;22m[90m [39m[90memployee cannot open other employee contract detail[39m[90m                                                         [39m [90m0.22s[39m  
+  [32;1m✓[39;22m[90m [39m[90mhrd can open employee contract detail[39m[90m                                                                       [39m [90m0.26s[39m  
+  [32;1m✓[39;22m[90m [39m[90mpm cannot approve other pm contract[39m[90m                                                                         [39m [90m0.22s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\PasswordResetNotificationTest[39m
+  [32;1m✓[39;22m[90m [39m[90muser sends the mascitra password reset notification[39m[90m                                                         [39m [90m0.20s[39m  
+  [32;1m✓[39;22m[90m [39m[90mpassword reset email contains the mascitra context and secure reset link[39m[90m                                    [39m [90m0.38s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\PasswordResetRequestTest[39m
+  [32;1m✓[39;22m[90m [39m[90mauthenticated user can request password reset link[39m[90m                                                          [39m [90m0.42s[39m  
+  [32;1m✓[39;22m[90m [39m[90mguest user can request password reset link[39m[90m                                                                  [39m [90m0.41s[39m  
+  [32;1m✓[39;22m[90m [39m[90munknown email receives generic reset response without notification[39m[90m                                          [39m [90m0.40s[39m  
+  [32;1m✓[39;22m[90m [39m[90msuccessful password reset revokes existing api tokens[39m[90m                                                       [39m [90m0.23s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\PayrollRuleEngineFormulaMatrixIntegrationTest[39m
+  [32;1m✓[39;22m[90m [39m[90mreal engine arithmetic formula matrix with data set "constant earning"[39m[90m                                      [39m [90m3.38s[39m  
+  [32;1m✓[39;22m[90m [39m[90mreal engine arithmetic formula matrix with data set "constant deduction"[39m[90m                                    [39m [90m0.61s[39m  
+  [32;1m✓[39;22m[90m [39m[90mreal engine arithmetic formula matrix with data set "variable reference"[39m[90m                                    [39m [90m0.61s[39m  
+  [32;1m✓[39;22m[90m [39m[90mreal engine arithmetic formula matrix with data set "addition"[39m[90m                                              [39m [90m0.55s[39m  
+  [32;1m✓[39;22m[90m [39m[90mreal engine arithmetic formula matrix with data set "subtraction"[39m[90m                                           [39m [90m0.63s[39m  
+  [32;1m✓[39;22m[90m [39m[90mreal engine arithmetic formula matrix with data set "multiplication"[39m[90m                                        [39m [90m0.65s[39m  
+  [32;1m✓[39;22m[90m [39m[90mreal engine arithmetic formula matrix with data set "precedence without parentheses"[39m[90m                        [39m [90m0.54s[39m  
+  [32;1m✓[39;22m[90m [39m[90mreal engine arithmetic formula matrix with data set "parentheses override precedence"[39m[90m                       [39m [90m0.61s[39m  
+  [32;1m✓[39;22m[90m [39m[90mreal engine arithmetic formula matrix with data set "mixed expression"[39m[90m                                      [39m [90m0.61s[39m  
+  [32;1m✓[39;22m[90m [39m[90mreal engine arithmetic formula matrix with data set "division expression"[39m[90m                                   [39m [90m0.55s[39m  
+  [32;1m✓[39;22m[90m [39m[90mreal engine arithmetic formula matrix with data set "decimal expression"[39m[90m                                    [39m [90m0.55s[39m  
+  [32;1m✓[39;22m[90m [39m[90mreal engine condition operator matrix with data set "equals true"[39m[90m                                           [39m [90m0.66s[39m  
+  [32;1m✓[39;22m[90m [39m[90mreal engine condition operator matrix with data set "equals false"[39m[90m                                          [39m [90m0.59s[39m  
+  [32;1m✓[39;22m[90m [39m[90mreal engine condition operator matrix with data set "not equals true"[39m[90m                                       [39m [90m0.49s[39m  
+  [32;1m✓[39;22m[90m [39m[90mreal engine condition operator matrix with data set "greater than true"[39m[90m                                     [39m [90m0.51s[39m  
+  [32;1m✓[39;22m[90m [39m[90mreal engine condition operator matrix with data set "greater than or equal true"[39m[90m                            [39m [90m0.48s[39m  
+  [32;1m✓[39;22m[90m [39m[90mreal engine condition operator matrix with data set "less than true"[39m[90m                                        [39m [90m0.47s[39m  
+  [32;1m✓[39;22m[90m [39m[90mreal engine condition operator matrix with data set "less than or equal true"[39m[90m                               [39m [90m0.50s[39m  
+  [32;1m✓[39;22m[90m [39m[90mreal engine condition operator matrix with data set "multiple conditions and false"[39m[90m                         [39m [90m0.78s[39m  
+  [32;1m✓[39;22m[90m [39m[90mreal engine condition operator matrix with data set "multiple conditions and true"[39m[90m                          [39m [90m0.66s[39m  
+  [32;1m✓[39;22m[90m [39m[90mreal engine multi rule summary consistency for mixed components[39m[90m                                             [39m [90m0.71s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\PayrollRuleEngineRealIntegrationTest[39m
+  [32;1m✓[39;22m[90m [39m[90mexecute with real go rule engine matches expected summary and components[39m[90m                                    [39m [90m0.59s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\PayrollRuleEngineTaxableComputationTest[39m
+  [32;1m✓[39;22m[90m [39m[90mauto tax uses taxable earning components only[39m[90m                                                               [39m [90m0.52s[39m  
+  [32;1m✓[39;22m[90m [39m[90mmanual tax override skips auto tax recomputation[39m[90m                                                            [39m [90m0.52s[39m  
+  [32;1m✓[39;22m[90m [39m[90mpercentage tax uses full income within min max range[39m[90m                                                        [39m [90m0.59s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\PublicApiHardeningRbacTest[39m
+  [32;1m✓[39;22m[90m [39m[90mmaster document requires authentication[39m[90m                                                                    [39m [90m26.35s[39m  
+  [32;1m✓[39;22m[90m [39m[90mmaster document rejects non admin role[39m[90m                                                                      [39m [90m0.71s[39m  
+  [32;1m✓[39;22m[90m [39m[90mmaster document allows hrd role[39m[90m                                                                             [39m [90m0.56s[39m  
+  [32;1m✓[39;22m[90m [39m[90mactivity types is director only[39m[90m                                                                             [39m [90m0.19s[39m  
+  [32;1m✓[39;22m[90m [39m[90mleave type is auth only and can be accessed by employee[39m[90m                                                     [39m [90m0.25s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\RateSettingUsageActionsTest[39m
+  [32;1m✓[39;22m[90m [39m[90mused rate setting is archived instead of deleted[39m[90m                                                            [39m [90m0.39s[39m  
+  [32;1m✓[39;22m[90m [39m[90munused rate setting is archived instead of deleted[39m[90m                                                          [39m [90m0.38s[39m  
+  [32;1m✓[39;22m[90m [39m[90mused rate setting can be deactivated[39m[90m                                                                        [39m [90m0.31s[39m  
+  [32;1m✓[39;22m[90m [39m[90mapproved rate setting can be deactivated even when unused[39m[90m                                                   [39m [90m0.40s[39m  
+  [32;1m✓[39;22m[90m [39m[90minactive approved rate detail shows new version and inactive status[39m[90m                                         [39m [90m1.21s[39m  
+  [32;1m✓[39;22m[90m [39m[90mactive approved rate detail shows new version and deactivate actions[39m[90m                                        [39m [90m0.35s[39m  
+  [32;1m✓[39;22m[90m [39m[90mhrd session creates rate setting as draft through web route[39m[90m                                                 [39m [90m0.38s[39m  
+  [32;1m✓[39;22m[90m [39m[90mnew version from approved rate is prefilled and saved as draft[39m[90m                                              [39m [90m0.98s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfuture effective rate approval keeps current rate until effective date[39m[90m                                      [39m [90m0.53s[39m  
+  [32;1m✓[39;22m[90m [39m[90mhrd and director approved stats count every approved version[39m[90m                                                [39m [90m1.80s[39m  
+  [32;1m✓[39;22m[90m [39m[90mdraft rate detail shows submit action and submission sets pending[39m[90m                                           [39m [90m0.51s[39m  
+  [32;1m✓[39;22m[90m [39m[90mdraft version for used rate key also shows submit action[39m[90m                                                    [39m [90m0.92s[39m  
+  [32;1m✓[39;22m[90m [39m[90mpending rate setting cannot be edited[39m[90m                                                                       [39m [90m0.40s[39m  
+  [32;1m✓[39;22m[90m [39m[90medit rate setting hides redundant decimal zeroes[39m[90m                                                            [39m [90m0.34s[39m  
+  [32;1m✓[39;22m[90m [39m[90mrule builder receives active system and custom rate variables[39m[90m                                               [39m [90m1.47s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\RuleVersionActionWorkflowTest[39m
+  [32;1m✓[39;22m[90m [39m[90mapproved rule waiting for activation only shows activate and locked edit actions[39m[90m                            [39m [90m1.06s[39m  
+  [32;1m✓[39;22m[90m [39m[90mapproved rule version cannot be opened in edit form[39m[90m                                                         [39m [90m0.24s[39m  
+  [32;1m✓[39;22m[90m [39m[90mactive rule only shows new version and deactivate actions[39m[90m                                                   [39m [90m0.33s[39m  
+  [32;1m✓[39;22m[90m [39m[90mrejected draft rule shows repair action instead of waiting approval[39m[90m                                         [39m [90m0.39s[39m  
+  [32;1m✓[39;22m[90m [39m[90mpending draft rule still shows waiting approval action[39m[90m                                                      [39m [90m0.38s[39m  
+  [32;1m✓[39;22m[90m [39m[90mhrd can deactivate an active rule[39m[90m                                                                           [39m [90m0.21s[39m  
+  [32;1m✓[39;22m[90m [39m[90mactivation replaces the previous active version atomically[39m[90m                                                  [39m [90m0.18s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfailed activation keeps the previous version active[39m[90m                                                         [39m [90m0.22s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\SalaryRuleEnginePersistenceTest[39m
+  [32;1m✓[39;22m[90m [39m[90mmaster salary does not calculate tax outside rule engine[39m[90m                                                    [39m [90m5.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mpending salary does not apply tax when rule engine is unavailable[39m[90m                                           [39m [90m6.79s[39m  
+  [32;1m✓[39;22m[90m [39m[90mstore salary persists rule engine result and matches salary detail[39m[90m                                          [39m [90m3.51s[39m  
+  [32;1m✓[39;22m[90m [39m[90mstore salary golden case matches take home pay and breakdown[39m[90m                                                [39m [90m4.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mstore salary does not inject pph21 when tax rule is not active[39m[90m                                              [39m [90m4.00s[39m  
+  [32;1m✓[39;22m[90m [39m[90mstore salary golden case rounds and clamps negative summary values[39m[90m                                          [39m [90m7.75s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\TaxApprovalWorkflowTest[39m
+  [32;1m✓[39;22m[90m [39m[90mhrd can create tax through web session[39m[90m                                                                     [39m [90m20.62s[39m  
+  [32;1m✓[39;22m[90m [39m[90minvalid tax scope is rejected instead of defaulting to all[39m[90m                                                  [39m [90m0.21s[39m  
+  [32;1m✓[39;22m[90m [39m[90mtax income max must not be less than income min[39m[90m                                                             [39m [90m0.24s[39m  
+  [32;1m✓[39;22m[90m [39m[90mhrd can edit tax while it is still draft[39m[90m                                                                    [39m [90m2.17s[39m  
+  [32;1m✓[39;22m[90m [39m[90mpending and approved taxes cannot be edited[39m[90m                                                                 [39m [90m0.56s[39m  
+  [32;1m✓[39;22m[90m [39m[90mapproved tax cannot be submitted again[39m[90m                                                                      [39m [90m0.20s[39m  
+  [32;1m✓[39;22m[90m [39m[90mdirector approval automatically activates tax[39m[90m                                                               [39m [90m0.34s[39m  
+  [32;1m✓[39;22m[90m [39m[90mdirector cannot approve tax that overlaps active tax[39m[90m                                                        [39m [90m5.30s[39m  
+  [32;1m✓[39;22m[90m [39m[90mdirector can approve tax with non overlapping income range[39m[90m                                                  [39m [90m0.32s[39m  
+  [32;1m✓[39;22m[90m [39m[90mhrd can create new draft version from approved tax[39m[90m                                                          [39m [90m0.34s[39m  
+  [32;1m✓[39;22m[90m [39m[90mhrd can create new version from inactive approved tax[39m[90m                                                       [39m [90m0.46s[39m  
+  [32;1m✓[39;22m[90m [39m[90mhrd cannot create new version from superseded approved tax[39m[90m                                                  [39m [90m0.24s[39m  
+  [32;1m✓[39;22m[90m [39m[90mhrd can update new draft version with same tax code[39m[90m                                                         [39m [90m0.37s[39m  
+  [32;1m✓[39;22m[90m [39m[90mapproving new tax version supersedes previous active version[39m[90m                                                [39m [90m0.38s[39m  
+  [32;1m✓[39;22m[90m [39m[90mhrd can disable an active approved tax[39m[90m                                                                      [39m [90m0.28s[39m  
+  [32;1m✓[39;22m[90m [39m[90mhrd cannot disable a tax that is not approved[39m[90m                                                               [39m [90m0.20s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\TemporalPayrollReplayPersistenceTest[39m
+  [32;1m✓[39;22m[90m [39m[90mlocked manifest replays without salary side effect or current state query[39m[90m                                   [39m [90m0.40s[39m  
+  [32;1m✓[39;22m[90m [39m[90mlocked manifest cannot be mutated and corruption fails before run creation[39m[90m                                  [39m [90m0.25s[39m  
+  [32;1m✓[39;22m[90m [39m[90mreal go engine original and replay match after current salary mutation[39m[90m                                      [39m [90m0.30s[39m  
+
+  [90mTests:[39m    [32;1m169 passed[39;22m[90m (1638 assertions)[39m
+  [90mDuration:[39m [39m222.26s[39m
+

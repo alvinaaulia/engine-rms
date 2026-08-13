@@ -1,0 +1,193 @@
+{
+    "artifact_version": "2.0",
+    "run_id": "temporal-v2-20260813T195025Z-9379cd45",
+    "case_id": "TEMP-049",
+    "generated_at": "2026-08-13T20:11:28.297594Z",
+    "schema_ref": "temporal-artifact-schemas/replay-response.schema.json",
+    "payload_sha256": "edc1cd26a36f6d101c5e8a8f51e255baffec01ff1544d8ee03e254db14507896",
+    "payload": {
+        "components": [
+            {
+                "amount": "10100.000000",
+                "code": "BONUS",
+                "contributor_rule_ids": [
+                    "rule-version-3002"
+                ],
+                "contributor_rule_version_ids": [
+                    3002
+                ],
+                "source_rule_id": "rule-version-3002",
+                "source_rule_version_id": 3002,
+                "type": "EARNING"
+            },
+            {
+                "amount": "3006.000000",
+                "code": "LATE_DEDUCTION",
+                "contributor_rule_ids": [
+                    "rule-version-3003"
+                ],
+                "contributor_rule_version_ids": [
+                    3003
+                ],
+                "source_rule_id": "rule-version-3003",
+                "source_rule_version_id": 3003,
+                "type": "DEDUCTION"
+            }
+        ],
+        "correlation_events": [
+            {
+                "event": "REQUEST_RECEIVED",
+                "event_id": "e95c28fa-301f-45b6-a2c3-35a10b0ab4e1",
+                "execution_uuid": "8017ad53-dc4b-4371-8bc3-3fdbc4d5e1b9",
+                "grule_execution_id": "714daddc-0ffa-4889-bc23-4478478da40c",
+                "laravel_correlation_id": "de30d61b-0163-4bf2-abfc-54468a1cbb03",
+                "occurred_at": "2026-08-13T20:11:27.668432Z",
+                "replay_uuid": "e035b002-3091-4bf2-beb2-9f0635fe288b",
+                "request_id": "ffcfa32a-8d51-42e4-97b5-7d9622587286",
+                "stage": "GO_HTTP",
+                "translator_trace_id": "51ee3a74-f413-45a2-bdd2-5e7c90a71302"
+            },
+            {
+                "event": "SCHEMA_VALIDATED",
+                "event_id": "05803721-5e50-4b28-9ade-6b9f1750b913",
+                "execution_uuid": "8017ad53-dc4b-4371-8bc3-3fdbc4d5e1b9",
+                "grule_execution_id": "714daddc-0ffa-4889-bc23-4478478da40c",
+                "laravel_correlation_id": "de30d61b-0163-4bf2-abfc-54468a1cbb03",
+                "occurred_at": "2026-08-13T20:11:27.668432Z",
+                "replay_uuid": "e035b002-3091-4bf2-beb2-9f0635fe288b",
+                "request_id": "ffcfa32a-8d51-42e4-97b5-7d9622587286",
+                "stage": "TPR_IR_VALIDATOR",
+                "translator_trace_id": "51ee3a74-f413-45a2-bdd2-5e7c90a71302"
+            },
+            {
+                "event": "HASHES_VALIDATED",
+                "event_id": "53cbb7f4-f99b-41a9-91d4-b6ca68d53f13",
+                "execution_uuid": "8017ad53-dc4b-4371-8bc3-3fdbc4d5e1b9",
+                "grule_execution_id": "714daddc-0ffa-4889-bc23-4478478da40c",
+                "laravel_correlation_id": "de30d61b-0163-4bf2-abfc-54468a1cbb03",
+                "occurred_at": "2026-08-13T20:11:27.6689688Z",
+                "replay_uuid": "e035b002-3091-4bf2-beb2-9f0635fe288b",
+                "request_id": "ffcfa32a-8d51-42e4-97b5-7d9622587286",
+                "stage": "TPR_IR_VALIDATOR",
+                "translator_trace_id": "51ee3a74-f413-45a2-bdd2-5e7c90a71302"
+            },
+            {
+                "event": "TRANSLATION_STARTED",
+                "event_id": "0624fbc8-bcdb-4b75-be4f-ddecc9a809ff",
+                "execution_uuid": "8017ad53-dc4b-4371-8bc3-3fdbc4d5e1b9",
+                "grule_execution_id": "714daddc-0ffa-4889-bc23-4478478da40c",
+                "laravel_correlation_id": "de30d61b-0163-4bf2-abfc-54468a1cbb03",
+                "occurred_at": "2026-08-13T20:11:27.6694948Z",
+                "replay_uuid": "e035b002-3091-4bf2-beb2-9f0635fe288b",
+                "request_id": "ffcfa32a-8d51-42e4-97b5-7d9622587286",
+                "stage": "GRL_TRANSLATOR",
+                "translator_trace_id": "51ee3a74-f413-45a2-bdd2-5e7c90a71302"
+            },
+            {
+                "event": "TRANSLATION_FINISHED",
+                "event_id": "4d23d1cc-3c5d-48dc-b0fb-d401a7d5d83a",
+                "execution_uuid": "8017ad53-dc4b-4371-8bc3-3fdbc4d5e1b9",
+                "grule_execution_id": "714daddc-0ffa-4889-bc23-4478478da40c",
+                "laravel_correlation_id": "de30d61b-0163-4bf2-abfc-54468a1cbb03",
+                "occurred_at": "2026-08-13T20:11:27.6694948Z",
+                "replay_uuid": "e035b002-3091-4bf2-beb2-9f0635fe288b",
+                "request_id": "ffcfa32a-8d51-42e4-97b5-7d9622587286",
+                "stage": "GRL_TRANSLATOR",
+                "translator_trace_id": "51ee3a74-f413-45a2-bdd2-5e7c90a71302"
+            },
+            {
+                "event": "EXECUTION_STARTED",
+                "event_id": "730e5e29-f760-4b3a-ad28-c34c0bfe287f",
+                "execution_uuid": "8017ad53-dc4b-4371-8bc3-3fdbc4d5e1b9",
+                "grule_execution_id": "714daddc-0ffa-4889-bc23-4478478da40c",
+                "laravel_correlation_id": "de30d61b-0163-4bf2-abfc-54468a1cbb03",
+                "occurred_at": "2026-08-13T20:11:27.6694948Z",
+                "replay_uuid": "e035b002-3091-4bf2-beb2-9f0635fe288b",
+                "request_id": "ffcfa32a-8d51-42e4-97b5-7d9622587286",
+                "stage": "GRULE",
+                "translator_trace_id": "51ee3a74-f413-45a2-bdd2-5e7c90a71302"
+            },
+            {
+                "event": "EXECUTION_FINISHED",
+                "event_id": "a32e549f-2ebc-4ccb-b3e1-1a79f85d356e",
+                "execution_uuid": "8017ad53-dc4b-4371-8bc3-3fdbc4d5e1b9",
+                "grule_execution_id": "714daddc-0ffa-4889-bc23-4478478da40c",
+                "laravel_correlation_id": "de30d61b-0163-4bf2-abfc-54468a1cbb03",
+                "occurred_at": "2026-08-13T20:11:27.6716448Z",
+                "replay_uuid": "e035b002-3091-4bf2-beb2-9f0635fe288b",
+                "request_id": "ffcfa32a-8d51-42e4-97b5-7d9622587286",
+                "stage": "GRULE",
+                "translator_trace_id": "51ee3a74-f413-45a2-bdd2-5e7c90a71302"
+            },
+            {
+                "event": "RESPONSE_GENERATED",
+                "event_id": "300bd170-3d7a-4814-a693-5653f619fd92",
+                "execution_uuid": "8017ad53-dc4b-4371-8bc3-3fdbc4d5e1b9",
+                "grule_execution_id": "714daddc-0ffa-4889-bc23-4478478da40c",
+                "laravel_correlation_id": "de30d61b-0163-4bf2-abfc-54468a1cbb03",
+                "occurred_at": "2026-08-13T20:11:27.6731886Z",
+                "replay_uuid": "e035b002-3091-4bf2-beb2-9f0635fe288b",
+                "request_id": "ffcfa32a-8d51-42e4-97b5-7d9622587286",
+                "stage": "GO_HTTP",
+                "translator_trace_id": "51ee3a74-f413-45a2-bdd2-5e7c90a71302"
+            }
+        ],
+        "execution_uuid": "8017ad53-dc4b-4371-8bc3-3fdbc4d5e1b9",
+        "generated_grl": "\nrule TPR_de2a431d70d3fc66_0 \"TPR-IR 1.0\" salience 100 {\nwhen\n\t(employee.Status == \"aktif\")\nthen\n\tout.Emit(\"ADD_COMPONENT\", \"BONUS\", rates.Value(\"bonus_rate\"), 100, \"rule-version-3002\", 3002, 0);\n\tRetract(\"TPR_de2a431d70d3fc66_0\");\n}\n\nrule TPR_de2a441d70d3fe19_0 \"TPR-IR 1.0\" salience 50 {\nwhen\n\t(attendance.LateMinutes > 0.0)\nthen\n\tout.Emit(\"ADD_COMPONENT\", \"LATE_DEDUCTION\", (attendance.LateMinutes * rates.Value(\"late_rate\")), 50, \"rule-version-3003\", 3003, 1);\n\tRetract(\"TPR_de2a441d70d3fe19_0\");\n}\n",
+        "generated_grl_sha256": "8ff37fe1277eb4c155e065678a228fa28b6f8e0d064ffe716112e7ee6d0651fe",
+        "grule_execution_id": "714daddc-0ffa-4889-bc23-4478478da40c",
+        "laravel_correlation_id": "de30d61b-0163-4bf2-abfc-54468a1cbb03",
+        "matches_original_hash": true,
+        "mode": "TEMPORAL_REPLAY",
+        "output_sha256": "ed070bab6fa0c490f8ef229848e0484c08e0b69bba6220ebcc73ee25c2d58227",
+        "provenance": {
+            "engine_version": "go-grule-tpr-engine-1.0",
+            "execution_uuid": "8017ad53-dc4b-4371-8bc3-3fdbc4d5e1b9",
+            "facts_sha256": "5b330430211edecf3befc12cb9aa1ff48f7e91380573baca791cccb8c7a4b05b",
+            "rate_version_ids": [
+                1001
+            ],
+            "request_id": "28386c51-de44-4e60-ac27-95e24673fda0",
+            "rule_version_ids": [
+                3002,
+                3003
+            ],
+            "ruleset_sha256": "3fb3ae529c348d39e67876980bcf0af6c96f3d8b38969c0050370b2814ee2db0",
+            "tax_version_ids": [
+                2001
+            ],
+            "translator_version": "laravel-go-tpr-translator-1.0"
+        },
+        "replay_uuid": "e035b002-3091-4bf2-beb2-9f0635fe288b",
+        "request_id": "ffcfa32a-8d51-42e4-97b5-7d9622587286",
+        "rounding_trace": [
+            {
+                "component_code": "BONUS",
+                "operation_timestamp": "2026-08-13T20:11:27.6731886Z",
+                "raw_candidate_decimal": "10100",
+                "rounded_result": "10100.000000",
+                "rounding_mode": "HALF_UP",
+                "rounding_quantum": "0.000001",
+                "scale_before_rounding": 0,
+                "source_rule": "rule-version-3002"
+            },
+            {
+                "component_code": "LATE_DEDUCTION",
+                "operation_timestamp": "2026-08-13T20:11:27.6731886Z",
+                "raw_candidate_decimal": "3006",
+                "rounded_result": "3006.000000",
+                "rounding_mode": "HALF_UP",
+                "rounding_quantum": "0.000001",
+                "scale_before_rounding": 0,
+                "source_rule": "rule-version-3003"
+            }
+        ],
+        "summary": {
+            "basic_salary": "3501000.000000",
+            "gross_salary": "3511100.000000",
+            "net_salary": "3508094.000000",
+            "total_deductions": "3006.000000"
+        },
+        "translator_trace_id": "51ee3a74-f413-45a2-bdd2-5e7c90a71302"
+    }
+}

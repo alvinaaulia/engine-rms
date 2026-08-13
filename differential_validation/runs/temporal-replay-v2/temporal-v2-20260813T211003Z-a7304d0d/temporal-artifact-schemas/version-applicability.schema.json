@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "version-applicability.schema.json",
+  "allOf": [
+    {"$ref": "artifact-envelope.schema.json"},
+    {"properties": {"schema_ref": {"const": "temporal-artifact-schemas/version-applicability.schema.json"}, "payload": {
+      "type": "object", "additionalProperties": false,
+      "required": ["rule_version", "rate_version", "tax_version"],
+      "properties": {
+        "rule_version": {"$ref": "artifact-envelope.schema.json#/$defs/versionIdentity"},
+        "rate_version": {"$ref": "artifact-envelope.schema.json#/$defs/versionIdentity"},
+        "tax_version": {"$ref": "artifact-envelope.schema.json#/$defs/versionIdentity"}
+      }
+    }}}
+  ]
+}

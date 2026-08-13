@@ -1,0 +1,233 @@
+
+   DEPR  Tests\Unit\AuditTrailPresenterUnitTest
+  ! it formats action and entity labels → Constant PDO::MYSQL_ATTR_SSL_… 7.97s  
+  ! it resolves entity id from audit payload → Constant PDO::MYSQL_ATTR… 0.20s  
+  ! it builds compact user initials → Constant PDO::MYSQL_ATTR_SSL_CA i… 0.13s  
+
+   DEPR  Tests\Unit\CompanyTaxOperationalStatusUnitTest
+  ! approved active future effective tax is scheduled → Constant PDO::M… 4.98s  
+  ! approved active current effective tax is active → Constant PDO::MYS… 0.23s  
+
+   PASS  Tests\Unit\ExampleTest
+  ✓ that true is true                                                    0.05s  
+
+   DEPR  Tests\Unit\PayrollBuildFactsAttendanceSourceUnitTest
+  ! build facts uses database attendance when records exist → Constant…  0.99s  
+  ! build facts uses manual override when prefer manual attendance true… 5.69s  
+  ! build facts uses overtime per hour override for system component →…  5.31s  
+  ! build facts uses manual fallback when database has no attendance re… 5.21s  
+  ! build facts ignores overtime pending director approval → Constant P… 0.96s  
+  ! build facts sets performance score from master salary and override…  5.58s  
+  ! build facts uses requested salary date as payroll effective date →…  1.30s  
+  ! build facts counts approved leave overlap using weekdays only → Con… 5.45s  
+
+   DEPR  Tests\Unit\PayrollRuleEngineHttpSecurityTest
+  ! internal token is forwarded without exposing it in payload → Consta… 5.09s  
+
+   DEPR  Tests\Unit\PayrollRuleEngineTaxableComputationUnitTest
+  ! auto tax uses taxable earning components only → Constant PDO::MYSQL… 4.79s  
+  ! manual tax override skips auto recomputation → Constant PDO::MYSQL_… 0.16s  
+  ! tax component is not injected when no tax rule is active → Constant… 0.11s  
+  ! company tax configuration fails when active tax rule is missing → C… 4.71s  
+  ! company tax source is treated as auto tax not manual override → Con… 4.71s  
+  ! execute uses payroll effective date before period end for tax resol… 0.13s  
+  ! tax component is not injected when tax rule does not match → Consta… 0.15s  
+
+   DEPR  Tests\Unit\PayrollRuleEngineWhiteBoxUnitTest
+  ! execute uses component map types and recomputes summary from compon… 4.87s  
+  ! execute uses engine summary when component list is empty → Constant… 0.18s  
+  ! execute preserves unrounded overtime hours in payload → Constant PD… 0.14s  
+  ! execute uses database component type without code guessing → Consta… 4.68s  
+  ! execute rejects rule when action code missing from active component… 4.69s  
+  ! execute derives payroll status from contract type when status is ac… 0.17s  
+  ! execute preserves rule version source when action codes are duplica… 4.73s  
+  ! execute rounds money amounts like spreadsheet → Constant PDO::MYSQL… 4.82s  
+
+   DEPR  Tests\Unit\RoleNormalizerUnitTest
+  ! normalize aliases to canonical role → Constant PDO::MYSQL_ATTR_SSL_… 0.27s  
+  ! to storage value maps canonical role to database enum → Constant PD… 6.32s  
+  ! matches supports mixed aliases → Constant PDO::MYSQL_ATTR_SSL_CA is… 4.71s  
+
+   DEPR  Tests\Unit\RuleDefinitionSemanticContractTest
+  ! date parser accepts only canonical calendar date → Constant PDO::MY… 4.78s  
+  ! string operator contract keeps contains without expanding boolean →… 0.13s  
+
+   DEPR  Tests\Unit\TemporalPayrollReplayUnitTest
+  ! canonical json is key order independent and money is fixed six → Co… 0.22s  
+  ! artifact payload hash survives json persistence → Constant PDO::MYS… 5.15s  
+  ! manifest integrity accepts complete locked artifact and rejects cor… 0.44s  
+  ! comparator reports amount provenance and output hash differences →…  4.72s  
+  ! version applicability excludes manual tax override from match denom… 0.16s  
+  ! compatibility registry fails closed for unknown versions → Constant… 4.77s  
+
+   DEPR  Tests\Unit\TypedPayrollRuleIrServiceTest
+  ! builds canonical tpr ir payload with shared priority and rounding c… 5.14s  
+  ! rejects unknown field and unknown formula reference → Constant PDO:… 0.20s  
+  ! rejects set add mix and priority tie before execution → Constant PD… 4.66s  
+  ! rule array permutation has identical canonical order → Constant PDO… 4.70s  
+  ! supports canonical payroll eligibility flags used by active rules →… 0.09s  
+﻿﻿﻿﻿
+   DEPR  Tests\Feature\ApiRuntimeRegressionTest
+  ! hrd contracts endpoint returns success → Constant PDO::MYSQL_ATTR_… 34.46s  
+  ! director daily activities endpoint is callable → Constant PDO::MYSQ… 0.28s  
+  ! director contract approval list includes mapped fields → Constant P… 6.09s  
+  ! employee contract list includes mapped fields → Constant PDO::MYSQL… 0.18s  
+  ! pm contract list includes mapped fields → Constant PDO::MYSQL_ATTR_… 4.90s  
+
+   DEPR  Tests\Feature\AuthGroupRoleScopingTest
+  ! tasks endpoint requires pm role → Constant PDO::MYSQL_ATTR_SSL_CA i… 0.61s  
+  ! hrd project detail route requires hrd role → Constant PDO::MYSQL_AT… 0.37s  
+  ! generate pdf requires director role → Constant PDO::MYSQL_ATTR_SSL_… 0.31s  
+  ! presence recap employees allows director and hrd → Constant PDO::MY… 4.84s  
+  ! presence recap employee allows pm and karyawan → Constant PDO::MYSQ… 0.34s  
+
+   DEPR  Tests\Feature\AuthenticationFunctionalTest
+  ! bb login 01 login berhasil → Constant PDO::MYSQL_ATTR_SSL_CA is dep… 0.41s  
+  ! bb login 02 password salah → Constant PDO::MYSQL_ATTR_SSL_CA is dep… 4.72s  
+  ! bb login 03 email tidak terdaftar → Constant PDO::MYSQL_ATTR_SSL_CA… 0.19s  
+  ! bb login 04 field kosong → Constant PDO::MYSQL_ATTR_SSL_CA is depre… 4.89s  
+  ! bb login 05 akses role hrd dan direktur → Constant PDO::MYSQL_ATTR_… 0.38s  
+
+   DEPR  Tests\Feature\DifferentialFullPipelineE2ETest
+  ! database service go and persistence subset → Constant PDO::MYSQL_A… 36.83s  
+
+   DEPR  Tests\Feature\ExampleTest
+  ! the application returns a successful response → Constant PDO::MYSQL… 4.79s  
+
+   DEPR  Tests\Feature\LeaveApprovalWorkflowTest
+  ! karyawan leave requires director decision after hrd approval → Con… 36.99s  
+  ! hrd and director default queue only show ready items → Constant PDO… 0.33s  
+  ! pm leave approval endpoints are disabled → Constant PDO::MYSQL_ATTR… 0.30s  
+  ! leave approval requires reason → Constant PDO::MYSQL_ATTR_SSL_CA is… 5.11s  
+  ! approval history endpoints only return processed items → Constant P… 1.31s  
+  ! hrd rejection finalizes leave for hrd and director history → Consta… 6.17s  
+  ! submission routes initialize the correct approval stage for each ro… 5.53s  
+  ! leave submission validates required fields and date order → Constan… 4.80s  
+  ! leave detail is limited to owner and authorized approvers → Constan… 0.34s  
+
+   DEPR  Tests\Feature\OvertimeApprovalWorkflowTest
+  ! employee overtime goes from hrd queue to director queue and can be…  0.51s  
+  ! pm overtime submission requires hrd and director approval and pm ap… 4.90s  
+  ! hrd rejection is final and visible in rejected histories → Constant… 0.50s  
+  ! legacy employee overtime with pending pm status still appears in hr… 4.82s  
+  ! legacy employee overtime with rejected pm status can still be proce… 0.21s  
+  ! employee and pm can upload image proof with overtime submission → C… 4.95s  
+
+   DEPR  Tests\Feature\OwnershipAccessControlTest
+  ! employee cannot access other employee salary scope → Constant PDO::… 4.96s  
+  ! hrd can access any employee salary scope → Constant PDO::MYSQL_ATTR… 4.89s  
+  ! employee owner cannot mutate own salary scope → Constant PDO::MYSQL… 0.20s  
+  ! generated salary transfer proof cannot be updated → Constant PDO::M… 4.76s  
+  ! employee cannot open other employee contract detail → Constant PDO:… 0.22s  
+  ! hrd can open employee contract detail → Constant PDO::MYSQL_ATTR_SS… 4.86s  
+  ! pm cannot approve other pm contract → Constant PDO::MYSQL_ATTR_SSL_… 0.25s  
+
+   DEPR  Tests\Feature\PasswordResetNotificationTest
+  ! user sends the mascitra password reset notification → Constant PDO:… 0.14s  
+  ! password reset email contains the mascitra context and secure reset… 0.12s  
+
+   DEPR  Tests\Feature\PasswordResetRequestTest
+  ! authenticated user can request password reset link → Constant PDO::… 0.46s  
+  ! guest user can request password reset link → Constant PDO::MYSQL_AT… 0.45s  
+  ! unknown email receives generic reset response without notification…  5.03s  
+  ! successful password reset revokes existing api tokens → Constant PD… 4.93s  
+
+   DEPR  Tests\Feature\PayrollRuleEngineFormulaMatrixIntegrationTest
+  ! real engine arithmetic formula matrix with data set "constant earni… 3.65s  
+  ! real engine arithmetic formula matrix with data set "constant deduc… 5.33s  
+  ! real engine arithmetic formula matrix with data set "variable refer… 5.67s  
+  ! real engine arithmetic formula matrix with data set "addition" → Co… 3.12s  
+  ! real engine arithmetic formula matrix with data set "subtraction" →… 1.25s  
+  ! real engine arithmetic formula matrix with data set "multiplication… 1.10s  
+  ! real engine arithmetic formula matrix with data set "precedence wi… 13.45s  
+  ! real engine arithmetic formula matrix with data set "parentheses ov… 5.48s  
+  ! real engine arithmetic formula matrix with data set "mixed expressi… 5.61s  
+  ! real engine arithmetic formula matrix with data set "division expre… 5.43s  
+  ! real engine arithmetic formula matrix with data set "decimal expres… 0.97s  
+  ! real engine condition operator matrix with data set "equals true" →… 0.96s  
+  ! real engine condition operator matrix with data set "equals false"…  5.30s  
+  ! real engine condition operator matrix with data set "not equals tru… 7.71s  
+  ! real engine condition operator matrix with data set "greater than t… 1.19s  
+  ! real engine condition operator matrix with data set "greater than o… 5.95s  
+  ! real engine condition operator matrix with data set "less than true… 5.47s  
+  ! real engine condition operator matrix with data set "less than or e… 1.00s  
+  ! real engine condition operator matrix with data set "multiple condi… 0.98s  
+  ! real engine condition operator matrix with data set "multiple condi… 0.90s  
+  ! real engine multi rule summary consistency for mixed components → C… 6.11s  
+
+   DEPR  Tests\Feature\PayrollRuleEngineRealIntegrationTest
+  ! execute with real go rule engine matches expected summary and compo… 1.45s  
+
+   DEPR  Tests\Feature\PayrollRuleEngineTaxableComputationTest
+  ! auto tax uses taxable earning components only → Constant PDO::MYSQL… 1.30s  
+  ! manual tax override skips auto tax recomputation → Constant PDO::MY… 1.99s  
+  ! percentage tax uses full income within min max range → Constant PDO… 1.25s  
+
+   DEPR  Tests\Feature\PublicApiHardeningRbacTest
+  ! master document requires authentication → Constant PDO::MYSQL_ATTR… 40.20s  
+  ! master document rejects non admin role → Constant PDO::MYSQL_ATTR_S… 4.95s  
+  ! master document allows hrd role → Constant PDO::MYSQL_ATTR_SSL_CA i… 4.87s  
+  ! activity types is director only → Constant PDO::MYSQL_ATTR_SSL_CA i… 0.20s  
+  ! leave type is auth only and can be accessed by employee → Constant…  4.82s  
+
+   DEPR  Tests\Feature\RateSettingUsageActionsTest
+  ! used rate setting is archived instead of deleted → Constant PDO::MY… 0.56s  
+  ! unused rate setting is archived instead of deleted → Constant PDO::… 4.98s  
+  ! used rate setting can be deactivated → Constant PDO::MYSQL_ATTR_SSL… 5.15s  
+  ! approved rate setting can be deactivated even when unused → Constan… 0.33s  
+  ! inactive approved rate detail shows new version and inactive status… 0.54s  
+  ! active approved rate detail shows new version and deactivate action… 0.56s  
+  ! hrd session creates rate setting as draft through web route → Const… 0.59s  
+  ! new version from approved rate is prefilled and saved as draft → Co… 0.73s  
+  ! future effective rate approval keeps current rate until effective d… 5.59s  
+  ! hrd and director approved stats count every approved version → Cons… 1.33s  
+  ! draft rate detail shows submit action and submission sets pending →… 1.02s  
+  ! draft version for used rate key also shows submit action → Constant… 0.62s  
+  ! pending rate setting cannot be edited → Constant PDO::MYSQL_ATTR_SS… 6.28s  
+  ! edit rate setting hides redundant decimal zeroes → Constant PDO::MY… 5.08s  
+  ! rule builder receives active system and custom rate variables → Con… 5.39s  
+
+   DEPR  Tests\Feature\RuleVersionActionWorkflowTest
+  ! approved rule waiting for activation only shows activate and locked… 5.18s  
+  ! approved rule version cannot be opened in edit form → Constant PDO:… 0.24s  
+  ! active rule only shows new version and deactivate actions → Constan… 0.43s  
+  ! rejected draft rule shows repair action instead of waiting approval… 5.06s  
+  ! pending draft rule still shows waiting approval action → Constant P… 5.25s  
+  ! hrd can deactivate an active rule → Constant PDO::MYSQL_ATTR_SSL_CA… 0.45s  
+  ! activation replaces the previous active version atomically → Consta… 4.99s  
+  ! failed activation keeps the previous version active → Constant PDO:… 4.86s  
+
+   DEPR  Tests\Feature\SalaryRuleEnginePersistenceTest
+  ! master salary does not calculate tax outside rule engine → Constan… 12.58s  
+  ! pending salary does not apply tax when rule engine is unavailable →… 6.96s  
+  ! store salary persists rule engine result and matches salary detail… 12.15s  
+  ! store salary golden case matches take home pay and breakdown → Con… 17.17s  
+  ! store salary does not inject pph21 when tax rule is not active → C… 11.30s  
+  ! store salary golden case rounds and clamps negative summary values… 10.20s  
+
+   DEPR  Tests\Feature\TaxApprovalWorkflowTest
+  ! hrd can create tax through web session → Constant PDO::MYSQL_ATTR_… 52.62s  
+  ! invalid tax scope is rejected instead of defaulting to all → Consta… 5.05s  
+  ! tax income max must not be less than income min → Constant PDO::MYS… 0.32s  
+  ! hrd can edit tax while it is still draft → Constant PDO::MYSQL_ATTR… 5.55s  
+  ! pending and approved taxes cannot be edited → Constant PDO::MYSQL_A… 0.90s  
+  ! approved tax cannot be submitted again → Constant PDO::MYSQL_ATTR_S… 0.35s  
+  ! director approval automatically activates tax → Constant PDO::MYSQL… 0.50s  
+  ! director cannot approve tax that overlaps active tax → Constant PDO… 5.76s  
+  ! director can approve tax with non overlapping income range → Consta… 5.03s  
+  ! hrd can create new draft version from approved tax → Constant PDO::… 5.12s  
+  ! hrd can create new version from inactive approved tax → Constant PD… 0.99s  
+  ! hrd cannot create new version from superseded approved tax → Consta… 0.53s  
+  ! hrd can update new draft version with same tax code → Constant PDO:… 5.27s  
+  ! approving new tax version supersedes previous active version → Cons… 5.19s  
+  ! hrd can disable an active approved tax → Constant PDO::MYSQL_ATTR_S… 0.35s  
+  ! hrd cannot disable a tax that is not approved → Constant PDO::MYSQL… 0.57s  
+
+   DEPR  Tests\Feature\TemporalPayrollReplayPersistenceTest
+  ! locked manifest replays without salary side effect or current state… 0.46s  
+  ! locked manifest cannot be mutated and corruption fails before run c… 4.84s  
+  ! real go engine original and replay match after current salary mutat… 1.02s  
+
+  Tests:    168 deprecated, 1 passed (1638 assertions)
+  Duration: 731.54s
+

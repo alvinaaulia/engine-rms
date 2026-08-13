@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "correlation-event.schema.json",
+  "allOf": [
+    {"$ref": "artifact-envelope.schema.json"},
+    {"properties": {"schema_ref": {"const": "temporal-artifact-schemas/correlation-event.schema.json"}, "payload": {
+      "type": "object", "additionalProperties": false,
+      "required": ["event_id", "event", "stage", "occurred_at", "execution_uuid", "replay_uuid", "request_id", "laravel_correlation_id", "translator_trace_id", "grule_execution_id"],
+      "properties": {
+        "case_id": {"type": "string"}, "repeat": {"type": "integer", "minimum": 1},
+        "event_id": {"$ref": "artifact-envelope.schema.json#/$defs/uuid"}, "event": {"type": "string", "minLength": 1},
+        "stage": {"type": "string", "minLength": 1}, "occurred_at": {"type": "string", "format": "date-time"},
+        "execution_uuid": {"$ref": "artifact-envelope.schema.json#/$defs/uuid"}, "replay_uuid": {"$ref": "artifact-envelope.schema.json#/$defs/uuid"},
+        "request_id": {"$ref": "artifact-envelope.schema.json#/$defs/uuid"}, "laravel_correlation_id": {"$ref": "artifact-envelope.schema.json#/$defs/uuid"},
+        "translator_trace_id": {"$ref": "artifact-envelope.schema.json#/$defs/uuid"}, "grule_execution_id": {"$ref": "artifact-envelope.schema.json#/$defs/uuid"}
+      }
+    }}}
+  ]
+}

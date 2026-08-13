@@ -8,11 +8,16 @@ ENGINE_REF="${ENGINE_REF:-HEAD}"
 LARAVEL_REF="${LARAVEL_REF:-HEAD}"
 ENGINE_COMMIT="$(git -C "$ENGINE_REPO" rev-parse "$ENGINE_REF")"
 LARAVEL_COMMIT="$(git -C "$LARAVEL_REPO" rev-parse "$LARAVEL_REF")"
-BRANCH="temporal-replay-evidence-current"
+ENGINE_BRANCH="$(git -C "$ENGINE_REPO" branch --show-current)"
+LARAVEL_BRANCH="$(git -C "$LARAVEL_REPO" branch --show-current)"
+ENGINE_BRANCH="${ENGINE_BRANCH:-temporal-replay-evidence-current}"
+LARAVEL_BRANCH="${LARAVEL_BRANCH:-temporal-replay-evidence-current}"
 TEMP_ROOT="$(mktemp -d /tmp/temporal-v2-wsl.XXXXXX)"
 SNAP_ENGINE="$TEMP_ROOT/engine-rms"
 SNAP_LARAVEL="$TEMP_ROOT/papa-website-public"
 FINAL_PARENT="$PACKAGE_DIR/runs/temporal-replay-v2"
+BEFORE_RUNS="$TEMP_ROOT/temporal-runs-before.txt"
+AFTER_RUNS="$TEMP_ROOT/temporal-runs-after.txt"
 
 cleanup() {
   if [[ "${KEEP_WSL_SNAPSHOT:-0}" != "1" && -n "$TEMP_ROOT" && "$TEMP_ROOT" == /tmp/temporal-v2-wsl.* ]]; then
@@ -43,10 +48,10 @@ done
 echo "Preparing clean WSL source snapshots..."
 git -c safe.directory="$ENGINE_REPO" -c safe.directory="$ENGINE_REPO/.git" \
   clone --no-hardlinks --no-checkout "$ENGINE_REPO" "$SNAP_ENGINE"
-git -C "$SNAP_ENGINE" checkout -B "$BRANCH" "$ENGINE_COMMIT"
+git -C "$SNAP_ENGINE" checkout -B "$ENGINE_BRANCH" "$ENGINE_COMMIT"
 git -c safe.directory="$LARAVEL_REPO" -c safe.directory="$LARAVEL_REPO/.git" \
   clone --no-hardlinks --no-checkout "$LARAVEL_REPO" "$SNAP_LARAVEL"
-git -C "$SNAP_LARAVEL" checkout -B "$BRANCH" "$LARAVEL_COMMIT"
+git -C "$SNAP_LARAVEL" checkout -B "$LARAVEL_BRANCH" "$LARAVEL_COMMIT"
 
 [[ "$(git -C "$SNAP_ENGINE" rev-parse HEAD)" == "$ENGINE_COMMIT" ]] || { echo "Engine source identity mismatch" >&2; exit 2; }
 [[ "$(git -C "$SNAP_LARAVEL" rev-parse HEAD)" == "$LARAVEL_COMMIT" ]] || { echo "Laravel source identity mismatch" >&2; exit 2; }
@@ -84,12 +89,22 @@ mysql --protocol=tcp --host="$DB_HOST" --port="$DB_PORT" --user="$DB_USERNAME" \
   --execute='SELECT DATABASE(), @@collation_server, @@time_zone'
 
 echo "Running Temporal Replay Evidence Closure v2 in WSL..."
+find "$SNAP_ENGINE/differential_validation/runs/temporal-replay-v2" \
+  -mindepth 1 -maxdepth 1 -type d -name 'temporal-v2-*' -printf '%f\n' 2>/dev/null \
+  | sort >"$BEFORE_RUNS"
 bash "$SNAP_ENGINE/differential_validation/scripts/clean_temporal_v2.sh"
 
-mapfile -t generated_runs < <(find "$SNAP_ENGINE/differential_validation/runs/temporal-replay-v2" -mindepth 1 -maxdepth 1 -type d -name 'temporal-v2-*' -print)
-[[ "${#generated_runs[@]}" -eq 1 ]] || { echo "Expected exactly one generated Temporal v2 run" >&2; exit 2; }
-generated_run="${generated_runs[0]}"
-run_id="$(basename "$generated_run")"
+find "$SNAP_ENGINE/differential_validation/runs/temporal-replay-v2" \
+  -mindepth 1 -maxdepth 1 -type d -name 'temporal-v2-*' -printf '%f\n' \
+  | sort >"$AFTER_RUNS"
+mapfile -t generated_run_ids < <(comm -13 "$BEFORE_RUNS" "$AFTER_RUNS")
+[[ "${#generated_run_ids[@]}" -eq 1 ]] || {
+  echo "Expected exactly one new Temporal v2 run, found ${#generated_run_ids[@]}" >&2
+  printf '%s\n' "${generated_run_ids[@]}" >&2
+  exit 2
+}
+run_id="${generated_run_ids[0]}"
+generated_run="$SNAP_ENGINE/differential_validation/runs/temporal-replay-v2/$run_id"
 final_run="$FINAL_PARENT/$run_id"
 [[ ! -e "$final_run" ]] || { echo "Refusing to overwrite existing run: $final_run" >&2; exit 2; }
 

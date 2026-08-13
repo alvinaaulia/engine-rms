@@ -7,8 +7,8 @@ claims unless their recorded source commits match the article.
 ## Current commit-bound CI verification
 
 - Status: `PASS`
-- GitHub Actions run: `31731376912`
-- Engine commit: `d98576e2260fc2864ff170785db12dad81bec828`
+- GitHub Actions run: `31733636295`
+- Engine commit: `0f756cecb16a6271f24c3de239319a684807eaf5`
 - Laravel commit: `aa6b05f9d62cc277decc59cc44745ada5e56ccae`
 - Branch: `feature/sinta3-system-readiness-20260812`
 - Runtime: Go 1.26.5, PHP 8.4, Python 3.14, MySQL 8.4.5
@@ -16,9 +16,9 @@ claims unless their recorded source commits match the article.
   Composer audit, npm audit/build, desktop/mobile browser accessibility smoke
   tests, differential evidence pipeline, and commit-bound Go statement coverage
 - Published artifact: `differential-validation-evidence` (GitHub artifact ID
-  `9193444210`, retained until 2026-11-11)
+  `9194289013`, retained until 2026-11-11)
 
-Run URL: <https://github.com/alvinaaulia/engine-rms/actions/runs/31731376912>
+Run URL: <https://github.com/alvinaaulia/engine-rms/actions/runs/31733636295>
 
 The paired commits and published provenance tags are verified inside the run.
 The CI-generated artifact is authoritative for claims about these two commits.
@@ -53,11 +53,21 @@ as evidence for the newer commits.
 
 ## Temporal replay evidence
 
-The completed two-environment Temporal Replay v2 comparison is stored at
-`runs/temporal-replay-v2/SECOND_ENVIRONMENT_TEMPORAL_V2_COMPARISON.md`. It is
-valid only for the engine and Laravel commits recorded in that report. A new
-current-source replay must replace this note before an article attributes the
-temporal result to later source revisions.
+- Status: `SECOND_ENVIRONMENT_PASS`
+- Primary Windows run:
+  `runs/temporal-replay-v2/temporal-v2-20260813T195025Z-9379cd45`
+- Secondary Linux WSL 2 native run, without Docker:
+  `runs/temporal-replay-v2/temporal-v2-20260813T211003Z-a7304d0d`
+- Cross-environment comparison:
+  `runs/temporal-replay-v2/CURRENT_SOURCE_SECOND_ENVIRONMENT_COMPARISON.md`
+- Source pair: engine `0f756cecb16a6271f24c3de239319a684807eaf5`;
+  Laravel `aa6b05f9d62cc277decc59cc44745ada5e56ccae`
+- Result in each environment: 418 cases, 824/824 supported attempts matched,
+  12/12 expected rejections accepted, 30,536/30,536 payload envelopes passed,
+  and zero cross-environment comparator hash mismatches.
+
+This closes the current-source second-environment technical reproduction gate.
+It does not close the separate domain-expert validation gate.
 
 ## Domain claim boundary
 
@@ -77,7 +87,7 @@ pending until supplied by an authorized person.
 
 The post-run hardening branch upgrades Go to 1.26.5, removes reachable Go
 vulnerabilities, repairs the public CI route, and adds browser/accessibility
-gates. These changes passed the commit-bound CI run identified above. A new
-current-source Temporal Replay v2 and authorized domain-expert review remain
-separate requirements before making corresponding temporal or business-policy
-claims in an article.
+gates. These changes passed the commit-bound CI run identified above.
+Current-source Temporal Replay v2 now also passes in two distinct
+operating-system environments. Authorized domain-expert review remains required
+before making business-policy correctness claims in an article.

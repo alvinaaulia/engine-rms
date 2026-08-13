@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "artifact-envelope.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["artifact_version", "run_id", "case_id", "generated_at", "schema_ref", "payload_sha256", "payload"],
+  "properties": {
+    "artifact_version": {"const": "2.0"},
+    "run_id": {"type": "string", "pattern": "^temporal-v2-[0-9]{8}T[0-9]{6}Z-[a-f0-9]{8}$"},
+    "case_id": {"type": "string", "minLength": 1},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "schema_ref": {"type": "string", "pattern": "^temporal-artifact-schemas/[a-z0-9-]+\\.schema\\.json$"},
+    "payload_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "payload": {"type": "object"}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "uuid": {"type": "string", "format": "uuid"},
+    "decimal": {"type": "string", "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"},
+    "countMetric": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["matched", "total"],
+      "properties": {
+        "matched": {"type": "integer", "minimum": 0},
+        "total": {"type": "integer", "minimum": 0}
+      }
+    },
+    "versionIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["identity_type", "applicability_status", "reason", "expected_ids", "resolved_ids", "source", "comparison_result"],
+      "properties": {
+        "identity_type": {"enum": ["rule_version", "rate_version", "tax_version"]},
+        "applicability_status": {"enum": ["APPLICABLE_MATCHED", "APPLICABLE_MISMATCHED", "APPLICABLE_MISSING", "NOT_APPLICABLE", "UNRESOLVED", "MEASUREMENT_FAILED"]},
+        "reason": {"type": "string", "minLength": 1},
+        "expected_ids": {"type": "array", "items": {"type": "integer"}, "uniqueItems": true},
+        "resolved_ids": {"type": "array", "items": {"type": "integer"}, "uniqueItems": true},
+        "source": {"type": "string", "minLength": 1},
+        "comparison_result": {"type": ["boolean", "null"]}
+      },
+      "allOf": [
+        {"if": {"properties": {"applicability_status": {"const": "NOT_APPLICABLE"}}}, "then": {"properties": {"expected_ids": {"maxItems": 0}, "resolved_ids": {"maxItems": 0}, "comparison_result": {"type": "null"}}}},
+        {"if": {"properties": {"applicability_status": {"const": "APPLICABLE_MATCHED"}}}, "then": {"properties": {"expected_ids": {"minItems": 1}, "resolved_ids": {"minItems": 1}, "comparison_result": {"const": true}}}}
+      ]
+    }
+  }
+}

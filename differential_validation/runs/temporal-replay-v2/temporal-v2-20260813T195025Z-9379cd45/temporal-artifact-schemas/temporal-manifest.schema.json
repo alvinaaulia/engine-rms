@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "temporal-manifest.schema.json",
+  "allOf": [
+    {"$ref": "artifact-envelope.schema.json"},
+    {"properties": {"schema_ref": {"const": "temporal-artifact-schemas/temporal-manifest.schema.json"}, "payload": {
+      "oneOf": [
+        {"type": "object", "additionalProperties": false,
+          "required": ["manifest_version", "execution_uuid", "employee_id", "payroll_period", "executed_at", "facts_snapshot", "facts_sha256", "ruleset_snapshot", "ruleset_sha256", "component_types_snapshot", "rule_version_ids", "rate_version_ids", "tax_version_ids", "version_binding_status", "tpr_ir_schema_version", "translator_version", "engine_version", "rounding_policy", "hit_policy", "generated_grl", "generated_grl_sha256", "original_components", "original_summary", "original_provenance", "original_output_sha256", "locked_at", "manifest_sha256"],
+          "properties": {
+            "manifest_version": {"type": "string"}, "execution_uuid": {"$ref": "artifact-envelope.schema.json#/$defs/uuid"}, "employee_id": {"type": "string"},
+            "payroll_period": {"type": "object"}, "executed_at": {"type": "string", "format": "date-time"}, "facts_snapshot": {"type": "object"},
+            "facts_sha256": {"$ref": "artifact-envelope.schema.json#/$defs/sha256"}, "ruleset_snapshot": {"type": "object"}, "ruleset_sha256": {"$ref": "artifact-envelope.schema.json#/$defs/sha256"},
+            "component_types_snapshot": {"type": "object"}, "rule_version_ids": {"type": "array", "items": {"type": "integer"}},
+            "rate_version_ids": {"type": "array", "items": {"type": "integer"}}, "tax_version_ids": {"type": "array", "items": {"type": "integer"}},
+            "version_binding_status": {"type": "object"}, "tpr_ir_schema_version": {"type": "string"}, "translator_version": {"type": "string"},
+            "engine_version": {"type": "string"}, "rounding_policy": {"type": "object"}, "hit_policy": {"type": "string"}, "generated_grl": {"type": "string"},
+            "generated_grl_sha256": {"$ref": "artifact-envelope.schema.json#/$defs/sha256"}, "original_components": {"type": "array"}, "original_summary": {"type": "object"},
+            "original_provenance": {"type": "object", "required": ["request_id", "execution_uuid"]}, "original_output_sha256": {"$ref": "artifact-envelope.schema.json#/$defs/sha256"},
+            "locked_at": {"type": "string", "format": "date-time"}, "manifest_sha256": {"$ref": "artifact-envelope.schema.json#/$defs/sha256"}
+          }
+        },
+        {"type": "object", "additionalProperties": false, "required": ["original_manifest_sha256", "mutation"], "properties": {
+          "original_manifest_sha256": {"$ref": "artifact-envelope.schema.json#/$defs/sha256"}, "mutation": {"type": "object", "minProperties": 1}
+        }}
+      ]
+    }}}
+  ]
+}
