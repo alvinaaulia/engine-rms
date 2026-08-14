@@ -250,6 +250,35 @@ jobs:
           ENGINE_DIR: ${{ github.workspace }}/engine-rms
           LARAVEL_DIR: ${{ github.workspace }}/papa-website-public
         run: make clean-temporal-v2
+      - name: Surface failed Temporal Replay v2 command
+        if: failure()
+        working-directory: engine-rms
+        shell: bash
+        run: |
+          run_dir="$(find differential_validation/runs/temporal-replay-v2 -mindepth 1 -maxdepth 1 -type d -name 'temporal-v2-*' -printf '%T@ %p\n' 2>/dev/null | sort -nr | head -1 | cut -d' ' -f2-)"
+          if [[ -z "$run_dir" ]]; then
+            echo '::error::Temporal Replay v2 failed before a run directory was created.'
+            exit 0
+          fi
+          found=0
+          for exit_file in "$run_dir"/raw-logs/*.exit-code.txt; do
+            [[ -f "$exit_file" ]] || continue
+            code="$(tr -d '\r\n' < "$exit_file")"
+            [[ "$code" != "0" ]] || continue
+            found=1
+            base="${exit_file%.exit-code.txt}"
+            details="$(tail -40 "$base.stderr.log" "$base.stdout.log" 2>/dev/null | tail -80 | tr '\n' ' ' | tail -c 1800)"
+            details="${details//'%'/'%25'}"
+            details="${details//$'\r'/'%0D'}"
+            details="${details//$'\n'/'%0A'}"
+            echo "::error file=$exit_file::Temporal Replay step failed with exit $code. $details"
+          done
+          if [[ "$found" -eq 0 ]]; then
+            latest="$(find "$run_dir/raw-logs" -maxdepth 1 -type f \( -name '*.stderr.log' -o -name '*.stdout.log' \) -printf '%T@ %p\n' 2>/dev/null | sort -nr | head -1 | cut -d' ' -f2-)"
+            details="$(tail -80 "$latest" 2>/dev/null | tr '\n' ' ' | tail -c 1800)"
+            details="${details//'%'/'%25'}"
+            echo "::error::Temporal Replay v2 stopped without a recorded failing exit code. $details"
+          fi
       - name: Upload Temporal Replay v2 evidence
         if: always()
         uses: actions/upload-artifact@v7
