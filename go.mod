@@ -1,6 +1,6 @@
 module rule-engine
 
-go 1.26.5
+go 1.26.6
 
 require github.com/hyperjumptech/grule-rule-engine v1.20.4
 

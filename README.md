@@ -5,7 +5,7 @@ payroll-rule IR and temporal replay study.
 
 ## Local service
 
-Requirements: Go 1.26.5 or newer. The service listens only on
+Requirements: Go 1.26.6 or newer. The service listens only on
 `127.0.0.1:8081` by default.
 
 ```bash
