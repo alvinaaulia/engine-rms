@@ -99,7 +99,11 @@ jobs:
           php artisan key:generate
           php artisan migrate --env=testing --force
           php artisan test tests/Unit tests/Feature/RuleVersionActionWorkflowTest.php --stop-on-failure
-          composer audit --locked
+          for attempt in 1 2 3; do
+            composer audit --locked && break
+            [[ "$attempt" -eq 3 ]] && exit 1
+            sleep $((attempt * 5))
+          done
           npm audit --package-lock-only --audit-level=high
       - name: Browser accessibility and desktop smoke tests
         working-directory: papa-website-public
