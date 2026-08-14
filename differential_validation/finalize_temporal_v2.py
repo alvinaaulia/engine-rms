@@ -609,19 +609,39 @@ Review the stratified CSV against authorized payroll policy and regulations. Cov
 """, encoding="utf-8")
 
     def code_change_report(self, source: dict[str, Any]) -> str:
-        def diff_stat(repo: Path) -> str:
-            return subprocess.check_output(["git", "-C", str(repo), "diff", "--stat", "temporal-replay-v1-baseline..HEAD"], text=True, errors="replace").strip()
-        engine = diff_stat(self.package.parent)
+        def diff_stat(repo: Path) -> tuple[str, str]:
+            configured = os.environ.get("TEMPORAL_BASELINE_REF", "").strip()
+            candidates = [configured, "temporal-replay-v1-baseline", "tpr-ir-evidence-hardening-v2"]
+            for ref in dict.fromkeys(candidate for candidate in candidates if candidate):
+                probe = subprocess.run(
+                    ["git", "-C", str(repo), "rev-parse", "--verify", f"{ref}^{{commit}}"],
+                    capture_output=True,
+                    text=True,
+                    errors="replace",
+                )
+                if probe.returncode != 0:
+                    continue
+                stat = subprocess.check_output(
+                    ["git", "-C", str(repo), "diff", "--stat", f"{ref}..HEAD"],
+                    text=True,
+                    errors="replace",
+                ).strip()
+                return ref, stat or "No tracked source changes."
+            return "UNAVAILABLE", "No published baseline ref is available in this clean checkout."
+
+        engine_ref, engine = diff_stat(self.package.parent)
         laravel_dir = Path(os.environ.get("LARAVEL_DIR", self.package.parent.parent / "papa-website-public")).resolve()
-        laravel = diff_stat(laravel_dir)
+        laravel_ref, laravel = diff_stat(laravel_dir)
         return f"""# Code Change Report — Temporal Replay v2
 
 ## Engine and validation package
+Baseline ref: `{engine_ref}`
 ```
 {engine}
 ```
 
 ## Laravel
+Baseline ref: `{laravel_ref}`
 ```
 {laravel}
 ```
