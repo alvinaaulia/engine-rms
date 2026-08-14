@@ -255,30 +255,39 @@ jobs:
         working-directory: engine-rms
         shell: bash
         run: |
-          run_dir="$(find differential_validation/runs/temporal-replay-v2 -mindepth 1 -maxdepth 1 -type d -name 'temporal-v2-*' -printf '%T@ %p\n' 2>/dev/null | sort -nr | head -1 | cut -d' ' -f2-)"
-          if [[ -z "$run_dir" ]]; then
-            echo '::error::Temporal Replay v2 failed before a run directory was created.'
-            exit 0
-          fi
-          found=0
-          for exit_file in "$run_dir"/raw-logs/*.exit-code.txt; do
-            [[ -f "$exit_file" ]] || continue
-            code="$(tr -d '\r\n' < "$exit_file")"
-            [[ "$code" != "0" ]] || continue
-            found=1
-            base="${exit_file%.exit-code.txt}"
-            details="$(tail -40 "$base.stderr.log" "$base.stdout.log" 2>/dev/null | tail -80 | tr '\n' ' ' | tail -c 1800)"
-            details="${details//'%'/'%25'}"
-            details="${details//$'\r'/'%0D'}"
-            details="${details//$'\n'/'%0A'}"
-            echo "::error file=$exit_file::Temporal Replay step failed with exit $code. $details"
-          done
-          if [[ "$found" -eq 0 ]]; then
-            latest="$(find "$run_dir/raw-logs" -maxdepth 1 -type f \( -name '*.stderr.log' -o -name '*.stdout.log' \) -printf '%T@ %p\n' 2>/dev/null | sort -nr | head -1 | cut -d' ' -f2-)"
-            details="$(tail -80 "$latest" 2>/dev/null | tr '\n' ' ' | tail -c 1800)"
-            details="${details//'%'/'%25'}"
-            echo "::error::Temporal Replay v2 stopped without a recorded failing exit code. $details"
-          fi
+          python - <<'PY'
+          from pathlib import Path
+
+          root = Path('differential_validation/runs/temporal-replay-v2')
+          runs = [path for path in root.glob('temporal-v2-*') if path.is_dir()]
+          if not runs:
+              print('::error::Temporal Replay v2 failed before a run directory was created.')
+              raise SystemExit(0)
+          run = max(runs, key=lambda path: path.stat().st_mtime)
+          failures = []
+          for exit_file in sorted((run / 'raw-logs').glob('*.exit-code.txt')):
+              code = exit_file.read_text(encoding='utf-8', errors='replace').strip()
+              if code in ('', '0'):
+                  continue
+              base = str(exit_file)[:-len('.exit-code.txt')]
+              details = []
+              for suffix in ('.stderr.log', '.stdout.log'):
+                  log = Path(base + suffix)
+                  if log.is_file():
+                      details.extend(log.read_text(encoding='utf-8', errors='replace').splitlines()[-40:])
+              message = ' | '.join(details)[-1800:] or 'No captured output.'
+              message = message.replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
+              print(f'::error file={exit_file}::Temporal Replay step failed with exit {code}. {message}')
+              failures.append(exit_file)
+          if not failures:
+              logs = list((run / 'raw-logs').glob('*.stderr.log')) + list((run / 'raw-logs').glob('*.stdout.log'))
+              latest = max(logs, key=lambda path: path.stat().st_mtime) if logs else None
+              message = 'No captured output.' if latest is None else ' | '.join(
+                  latest.read_text(encoding='utf-8', errors='replace').splitlines()[-80:]
+              )[-1800:]
+              message = message.replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
+              print(f'::error::Temporal Replay v2 stopped without a recorded failing exit code. {message}')
+          PY
       - name: Upload Temporal Replay v2 evidence
         if: always()
         uses: actions/upload-artifact@v7
