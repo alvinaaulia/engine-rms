@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"sort"
 	"strings"
-	"time"
 
 	"github.com/hyperjumptech/grule-rule-engine/ast"
 	"github.com/hyperjumptech/grule-rule-engine/builder"
@@ -193,7 +192,7 @@ func ExecuteTPRRuleSet(ctx context.Context, rs *TPRRuleSet, facts map[string]int
 	}
 	if _, ok := ctx.Deadline(); !ok {
 		var cancel context.CancelFunc
-		ctx, cancel = context.WithTimeout(ctx, 5*time.Second)
+		ctx, cancel = context.WithTimeout(ctx, ruleExecutionTimeout())
 		defer cancel()
 	}
 	if err := gruleEngine.ExecuteWithContext(ctx, dataContext, kb); err != nil {

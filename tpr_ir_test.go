@@ -62,6 +62,31 @@ func TestLaravelNormalizedPayloadIsAcceptedByGo(t *testing.T) {
 	}
 }
 
+func TestRuleExecutionTimeoutConfiguration(t *testing.T) {
+	t.Run("uses a safer default for slower research machines", func(t *testing.T) {
+		t.Setenv("RULE_ENGINE_EXECUTION_TIMEOUT", "")
+		if got := ruleExecutionTimeout(); got != 30*time.Second {
+			t.Fatalf("unexpected default timeout: %s", got)
+		}
+	})
+
+	t.Run("accepts a bounded duration override", func(t *testing.T) {
+		t.Setenv("RULE_ENGINE_EXECUTION_TIMEOUT", "45s")
+		if got := ruleExecutionTimeout(); got != 45*time.Second {
+			t.Fatalf("unexpected configured timeout: %s", got)
+		}
+	})
+
+	for _, invalid := range []string{"invalid", "0s", "-1s", "3m"} {
+		t.Run("rejects_"+strings.ReplaceAll(invalid, "-", "negative_"), func(t *testing.T) {
+			t.Setenv("RULE_ENGINE_EXECUTION_TIMEOUT", invalid)
+			if got := ruleExecutionTimeout(); got != 30*time.Second {
+				t.Fatalf("invalid timeout %q produced %s", invalid, got)
+			}
+		})
+	}
+}
+
 func TestTPRHTTPTrustBoundary(t *testing.T) {
 	t.Run("method", func(t *testing.T) {
 		rec := httptest.NewRecorder()

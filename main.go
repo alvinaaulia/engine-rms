@@ -17,6 +17,23 @@ const maxExecuteRequestBytes int64 = 1 << 20
 
 const internalTokenHeader = "X-Rule-Engine-Token"
 
+const (
+	defaultRuleExecutionTimeout = 30 * time.Second
+	maximumRuleExecutionTimeout = 2 * time.Minute
+)
+
+func ruleExecutionTimeout() time.Duration {
+	raw := strings.TrimSpace(os.Getenv("RULE_ENGINE_EXECUTION_TIMEOUT"))
+	if raw == "" {
+		return defaultRuleExecutionTimeout
+	}
+	timeout, err := time.ParseDuration(raw)
+	if err != nil || timeout <= 0 || timeout > maximumRuleExecutionTimeout {
+		return defaultRuleExecutionTimeout
+	}
+	return timeout
+}
+
 func requireInternalToken(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		expected := strings.TrimSpace(os.Getenv("RULE_ENGINE_INTERNAL_TOKEN"))
@@ -77,7 +94,7 @@ func executeRules(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(r.Context(), ruleExecutionTimeout())
 	defer cancel()
 	var resp ExecuteResponse
 	var err error

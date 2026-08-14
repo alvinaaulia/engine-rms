@@ -156,7 +156,7 @@ func replayRules(w http.ResponseWriter, r *http.Request) {
 		writeAPIError(w, http.StatusBadRequest, validationError("REPLAY_MANIFEST_INVALID", "headers.X-Request-ID", "HTTP and body request correlation IDs must match"))
 		return
 	}
-	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(r.Context(), ruleExecutionTimeout())
 	defer cancel()
 	response, err := executeTemporalReplay(ctx, req)
 	if err != nil {
