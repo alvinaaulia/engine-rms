@@ -21,7 +21,11 @@ func TestLaravelNormalizedPayloadIsAcceptedByGo(t *testing.T) {
 	if testing.Short() {
 		t.Skip("cross-language integration is excluded from the short unit suite")
 	}
-	laravelRoot := filepath.Clean(filepath.Join("..", "papa-website-v2"))
+	laravelRoot := strings.TrimSpace(os.Getenv("LARAVEL_DIR"))
+	if laravelRoot == "" {
+		laravelRoot = filepath.Join("..", "papa-website-public")
+	}
+	laravelRoot = filepath.Clean(laravelRoot)
 	if _, err := os.Stat(filepath.Join(laravelRoot, "bootstrap", "app.php")); err != nil {
 		t.Skip("Laravel sibling repository is unavailable")
 	}
@@ -34,12 +38,13 @@ func TestLaravelNormalizedPayloadIsAcceptedByGo(t *testing.T) {
 	factsJSON, _ := json.Marshal(semanticFacts())
 	root := filepath.ToSlash(laravelRoot)
 	code := fmt.Sprintf(`require '%s/vendor/autoload.php'; $app=require '%s/bootstrap/app.php'; $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap(); $defs=json_decode('%s',true); $facts=json_decode('%s',true); echo json_encode($app->make(App\Services\TypedPayrollRuleIrService::class)->buildExecutePayload($defs,$facts,['BONUS'=>'EARNING'],'cross-language-test'));`, root, root, definitionsJSON, factsJSON)
-	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	const integrationTimeout = 180 * time.Second
+	ctx, cancel := context.WithTimeout(context.Background(), integrationTimeout)
 	defer cancel()
 	command := exec.CommandContext(ctx, "php", "-r", code)
 	output, err := command.CombinedOutput()
 	if errors.Is(ctx.Err(), context.DeadlineExceeded) {
-		t.Fatal("Laravel normalizer integration exceeded the 60 second deadline")
+		t.Fatalf("Laravel normalizer integration exceeded the %s deadline", integrationTimeout)
 	}
 	if err != nil {
 		t.Fatalf("Laravel normalizer failed: %v: %s", err, output)

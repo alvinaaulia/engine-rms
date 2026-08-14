@@ -101,7 +101,7 @@ jobs:
           php artisan test tests/Unit tests/Feature/RuleVersionActionWorkflowTest.php --stop-on-failure
           composer audit --locked
           npm audit --package-lock-only --audit-level=high
-      - name: Browser accessibility and responsive smoke tests
+      - name: Browser accessibility and desktop smoke tests
         working-directory: papa-website-public
         env:
           APP_ENV: testing
