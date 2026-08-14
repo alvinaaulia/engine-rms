@@ -191,7 +191,11 @@ jobs:
             paired-source-revisions.txt
 
   temporal-replay-v2:
-    if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_temporal_replay }}
+    if: >-
+      ${{
+        (github.event_name == 'workflow_dispatch' && inputs.run_temporal_replay) ||
+        (github.event_name == 'push' && contains(github.event.head_commit.message, '[temporal-replay]'))
+      }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
