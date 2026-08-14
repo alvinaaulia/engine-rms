@@ -7,18 +7,18 @@ claims unless their recorded source commits match the article.
 ## Current commit-bound CI verification
 
 - Status: `PASS`
-- GitHub Actions run: `31733636295`
-- Engine commit: `0f756cecb16a6271f24c3de239319a684807eaf5`
-- Laravel commit: `aa6b05f9d62cc277decc59cc44745ada5e56ccae`
+- GitHub Actions run: `31848223965`
+- Engine commit: `76112316d1e56044e53cd65baf6409a0fd00bb18`
+- Laravel commit: `8b7f060aff27b79984a730e4c04535845843bc1e`
 - Branch: `feature/sinta3-system-readiness-20260812`
-- Runtime: Go 1.26.5, PHP 8.4, Python 3.14, MySQL 8.4.5
+- Runtime: Go 1.26.6, PHP 8.4, Python 3.14, MySQL 8.4.5
 - Passed gates: Go tests, Go vet, Go vulnerability scan, Laravel tests,
-  Composer audit, npm audit/build, desktop/mobile browser accessibility smoke
+  Composer audit, npm audit/build, desktop browser accessibility smoke
   tests, differential evidence pipeline, and commit-bound Go statement coverage
 - Published artifact: `differential-validation-evidence` (GitHub artifact ID
-  `9194289013`, retained until 2026-11-11)
+  `9236681519`, retained until 2026-11-12)
 
-Run URL: <https://github.com/alvinaaulia/engine-rms/actions/runs/31733636295>
+Run URL: <https://github.com/alvinaaulia/engine-rms/actions/runs/31848223965>
 
 The paired commits and published provenance tags are verified inside the run.
 The CI-generated artifact is authoritative for claims about these two commits.
@@ -44,30 +44,34 @@ as evidence for the newer commits.
 
 - Commit-bound Go statement coverage is generated and published by the current
   CI run.
+- The local engine-code verification measured 85.9% Go statement coverage;
+  subsequent engine commits in the current pair change only CI/finalizer code.
 - The last completed condition-coverage result was 98.94%, but it belongs to an
   earlier source state.
-- A Gobco v1.3.4 run against the current commit exceeded the 15-minute local
-  execution limit without producing a final report. Therefore 98.94% must not
-  be attributed to the current commit and condition coverage is not a blocking
-  CI gate.
+- A Gobco v1.3.4 rerun was stopped without a final report to avoid competing
+  with the resource-intensive replay on the research laptop. Therefore 98.94%
+  must not be attributed to the current commit and condition coverage remains
+  a non-blocking supplementary metric.
 
 ## Temporal replay evidence
 
-- Status: `SECOND_ENVIRONMENT_PASS`
-- Primary Windows run:
-  `runs/temporal-replay-v2/temporal-v2-20260813T195025Z-9379cd45`
-- Secondary Linux WSL 2 native run, without Docker:
-  `runs/temporal-replay-v2/temporal-v2-20260813T211003Z-a7304d0d`
-- Cross-environment comparison:
-  `runs/temporal-replay-v2/CURRENT_SOURCE_SECOND_ENVIRONMENT_COMPARISON.md`
-- Source pair: engine `0f756cecb16a6271f24c3de239319a684807eaf5`;
-  Laravel `aa6b05f9d62cc277decc59cc44745ada5e56ccae`
-- Result in each environment: 418 cases, 824/824 supported attempts matched,
-  12/12 expected rejections accepted, 30,536/30,536 payload envelopes passed,
-  and zero cross-environment comparator hash mismatches.
+- Status: `CURRENT_SOURCE_CI_PASS`
+- GitHub Actions run: `31848223965`
+- Source pair: engine `76112316d1e56044e53cd65baf6409a0fd00bb18`;
+  Laravel `8b7f060aff27b79984a730e4c04535845843bc1e`
+- Published artifact: `temporal-replay-v2-current-source` (GitHub artifact ID
+  `9236717112`, retained until 2026-11-12, digest
+  `sha256:3538500a44335f70254a8909163dd8a51c06d8d041388cf46ff3c9210f2b47ae`)
+- Result: the current-source Temporal Replay v2 collector, artifact finalizer,
+  provenance report, and all replay gates completed successfully on a clean
+  Ubuntu GitHub runner with MySQL 8.4.5.
 
-This closes the current-source second-environment technical reproduction gate.
-It does not close the separate domain-expert validation gate.
+The artifact above is authoritative for the detailed current-source counts and
+hashes. The earlier Windows/WSL two-environment comparison remains historical
+evidence for engine `0f756ce...` and Laravel `aa6b05f...`; it must not be
+silently relabelled as a comparison for the newer commits. The current clean CI
+pass closes the source-bound technical replay gate, but not the separate
+domain-expert validation gate.
 
 ## Domain claim boundary
 
@@ -85,9 +89,9 @@ pending until supplied by an authorized person.
 
 ## Readiness changes verified
 
-The post-run hardening branch upgrades Go to 1.26.5, removes reachable Go
-vulnerabilities, repairs the public CI route, and adds browser/accessibility
-gates. These changes passed the commit-bound CI run identified above.
-Current-source Temporal Replay v2 now also passes in two distinct
-operating-system environments. Authorized domain-expert review remains required
-before making business-policy correctness claims in an article.
+The post-run hardening branch upgrades Go to 1.26.6, removes reachable Go
+vulnerabilities, repairs the public CI route, aligns browser/accessibility tests
+with the supported desktop UI, makes execution/replay timeouts configurable,
+and hardens Temporal Replay diagnostics and provenance fallback. These changes
+passed the commit-bound CI run identified above. Authorized domain-expert review
+remains required before making business-policy correctness claims in an article.
